@@ -1,0 +1,24 @@
+{
+	"name": "vibestream",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "cd server && npm start",
+		"dev": "concurrently \" cd server && npm run dev \" \" cd client && npm start \""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/code-guy21/VibeStream.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/code-guy21/VibeStream/issues"
+	},
+	"homepage": "https://github.com/code-guy21/VibeStream#readme",
+	"devDependencies": {
+		"concurrently": "^8.2.1"
+	}
+}

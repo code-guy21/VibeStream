@@ -1,0 +1,27 @@
+{
+	"name": "vibestream",
+	"version": "1.0.0",
+	"description": "music visualizer",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server",
+		"dev": "nodemon server"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/code-guy21/VibeStream.git"
+	},
+	"author": "Alexis San Javier",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/code-guy21/VibeStream/issues"
+	},
+	"homepage": "https://github.com/code-guy21/VibeStream#readme",
+	"dependencies": {
+		"express": "^4.18.2",
+		"mongoose": "^7.5.3"
+	},
+	"devDependencies": {
+		"nodemon": "^3.0.1"
+	}
+}
