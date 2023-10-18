@@ -2,9 +2,9 @@
 	"name": "vibestream",
 	"version": "1.0.0",
 	"description": "music visualizer",
-	"main": "server.js",
+	"main": "app.js",
 	"scripts": {
-		"start": "node server",
+		"start": "node app.js",
 		"dev": "nodemon server"
 	},
 	"repository": {
