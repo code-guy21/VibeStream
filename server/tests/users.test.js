@@ -1,9 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('../models/User');
+const { User } = require('../models/');
 
-const testDbUrl =
-	process.env.TEST_DATABASE_URL || 'mongodb://127.0.0.1/vibestreamDB_test';
+const testDbUrl = process.env.TEST_DATABASE_URL;
 
 // Set up a test database connection
 beforeAll(async () => {
@@ -11,19 +10,53 @@ beforeAll(async () => {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 	});
+	// Ensure indexes are built
+	await User.init();
 });
 
 // Clear the database after each test
 afterEach(async () => {
-	await mongoose.connection.db.dropDatabase();
+	await User.deleteMany({});
 });
 
 // Disconnect Mongoose after all tests are done
 afterAll(async () => {
+	await mongoose.connection.dropDatabase();
 	await mongoose.connection.close();
 });
 
 describe('User Model Test', () => {
+	// Test User creation with all required fields
+	it('create & save user successfully', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+		const validUser = new User(userData);
+		const savedUser = await validUser.save();
+
+		// Object Id should be defined when successfully saved to MongoDB.
+		expect(savedUser._id).toBeDefined();
+		expect(savedUser.username).toEqual(userData.username);
+		expect(savedUser.email).toEqual(userData.email);
+		expect(savedUser.displayName).toEqual(userData.displayName);
+	});
+	// Test User creation fails when a username is missing
+	it('create user without required username field should fail', async () => {
+		const userWithoutRequiredUsername = new User({
+			displayName: 'Test User3', // displayName is now provided
+			email: 'testuser3@gmail.com',
+		});
+		let err;
+		try {
+			await userWithoutRequiredUsername.save();
+		} catch (error) {
+			err = error;
+		}
+		expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
+		expect(err.errors.username).toBeDefined(); // Now this should be the only error
+	});
 	//Test user creation fails when using duplicate usernames
 	it('does not allow duplicate usernames', async () => {
 		const userData = {
@@ -50,53 +83,6 @@ describe('User Model Test', () => {
 		}
 		expect(err).toBeDefined();
 		expect(err.code).toEqual(11000); // Error code for duplicate key error
-	});
-
-	//Test user creation fails when using duplicate emails
-	it('does not allow duplicate emails', async () => {
-		const userData = {
-			username: 'duplicateUser2',
-			displayName: 'Test User2',
-			email: 'testuser2@example.com', // Use a valid email address
-		};
-
-		// Ensure indexes are built
-		await User.init();
-
-		// Save the first user
-		const user1 = new User(userData);
-		await user1.save();
-
-		// Attempt to save another user with the same email
-		const userWithDuplicateEmail = new User({
-			...userData,
-			username: 'duplicateuser3', // Change the username to another valid one
-		});
-
-		let err;
-		try {
-			await userWithDuplicateEmail.save();
-		} catch (error) {
-			err = error;
-		}
-		expect(err).toBeDefined();
-		expect(err.code).toEqual(11000); // Error code for duplicate key error
-	});
-
-	// Test User creation fails when a username is missing
-	it('create user without required username field should fail', async () => {
-		const userWithoutRequiredUsername = new User({
-			displayName: 'Test User3', // displayName is now provided
-			email: 'testuser3@gmail.com',
-		});
-		let err;
-		try {
-			await userWithoutRequiredUsername.save();
-		} catch (error) {
-			err = error;
-		}
-		expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
-		expect(err.errors.username).toBeDefined(); // Now this should be the only error
 	});
 
 	// Test that the username is converted to lowercase before saving
@@ -180,6 +166,34 @@ describe('User Model Test', () => {
 		expect(err.errors.email).toBeDefined(); // Now this should be the only error
 	});
 
+	//Test user creation fails when using duplicate emails
+	it('does not allow duplicate emails', async () => {
+		const userData = {
+			username: 'duplicateUser2',
+			displayName: 'Test User2',
+			email: 'testuser2@example.com', // Use a valid email address
+		};
+
+		// Save the first user
+		const user1 = new User(userData);
+		await user1.save();
+
+		// Attempt to save another user with the same email
+		const userWithDuplicateEmail = new User({
+			...userData,
+			username: 'duplicateuser3', // Change the username to another valid one
+		});
+
+		let err;
+		try {
+			await userWithDuplicateEmail.save();
+		} catch (error) {
+			err = error;
+		}
+		expect(err).toBeDefined();
+		expect(err.code).toEqual(11000); // Error code for duplicate key error
+	});
+
 	// Test that the email is converted to lowercase before saving
 	it('should save the email field in lowercase', async () => {
 		const userData = {
@@ -247,23 +261,6 @@ describe('User Model Test', () => {
 		}
 		expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
 		expect(err.errors.bio).toBeDefined(); // Now this should be the only error
-	});
-
-	// Test User creation with all required fields
-	it('create & save user successfully', async () => {
-		const userData = {
-			username: 'testuser',
-			displayName: 'Test User',
-			email: 'testuser@example.com',
-		};
-		const validUser = new User(userData);
-		const savedUser = await validUser.save();
-
-		// Object Id should be defined when successfully saved to MongoDB.
-		expect(savedUser._id).toBeDefined();
-		expect(savedUser.username).toBe(userData.username);
-		expect(savedUser.email).toBe(userData.email);
-		expect(savedUser.displayName).toBe(userData.displayName);
 	});
 
 	// Test that fields not defined in the schema are ignored when saving a user

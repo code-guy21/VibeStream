@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 const validator = require('validator');
 
 // Constants for enums
-const VISIBILITY_OPTIONS = ['public', 'private', 'followersOnly'];
+const { VISIBILITY } = require('../utils/constants');
 
 // User Schema definition
 /**
@@ -54,13 +54,13 @@ const userSchema = new Schema(
 		},
 		globalPlaylistVisibility: {
 			type: String,
-			enum: VISIBILITY_OPTIONS,
-			default: 'public',
+			enum: Object.values(VISIBILITY),
+			default: VISIBILITY.PUBLIC,
 		},
 		globalVisualizationVisibility: {
 			type: String,
-			enum: VISIBILITY_OPTIONS,
-			default: 'public',
+			enum: Object.values(VISIBILITY),
+			default: VISIBILITY.PUBLIC,
 		},
 		authMethods: [
 			{
