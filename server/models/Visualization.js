@@ -23,12 +23,12 @@ const visualizationSchema = new Schema(
 		// Platform from which the song is taken
 		platform: {
 			type: String,
-			required: [true, 'Platform is required'],
+			required: [true, 'The music platform is required.'],
 			validate: {
 				validator: v => {
 					return Object.values(PLATFORMS).includes(v.toLowerCase());
 				},
-				message: props => `${props.value} is not a valid platform`,
+				message: props => `${props.value} is not a supported music platform.`,
 			},
 			// Ensuring platform is stored in lowercase
 			set: v => v.toLowerCase(),
@@ -40,11 +40,11 @@ const visualizationSchema = new Schema(
 			required: [true, 'Visualization data is required'],
 		},
 
-		// Reference to the user who created the visualization
+		// User who created the visualization
 		createdBy: {
 			type: Schema.Types.ObjectId,
 			ref: 'user',
-			required: [true, 'User is required'],
+			required: [true, 'The creator of the visualization must be specified.'],
 		},
 
 		// Visibility setting for the visualization
@@ -54,13 +54,13 @@ const visualizationSchema = new Schema(
 			default: VISIBILITY.DEFAULT,
 		},
 
-		// Count of likes for the visualization
+		// The number of likes the visualization has received
 		likes: {
 			type: Number,
 			default: 0,
 		},
 
-		// Array of feedback objects related to the visualization
+		// Feedback from users about the visualization
 		feedback: [
 			{
 				type: Schema.Types.ObjectId,
@@ -83,6 +83,9 @@ const visualizationSchema = new Schema(
 		},
 	}
 );
+
+// Indexes for efficient querying
+visualizationSchema.index({ createdBy: 1, songId: 1 });
 
 // Compile model from schema
 const Visualization = model('visualization', visualizationSchema);

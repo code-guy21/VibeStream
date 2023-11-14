@@ -1,28 +1,31 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const { User } = require('../models/');
 
-const testDbUrl = process.env.TEST_DATABASE_URL;
+let mongoServer;
 
-// Set up a test database connection
 beforeAll(async () => {
-	await mongoose.connect(testDbUrl, {
+	mongoServer = await MongoMemoryServer.create();
+	const mongoUri = mongoServer.getUri();
+	await mongoose.connect(mongoUri, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 	});
-	// Ensure indexes are built
+});
+
+beforeEach(async () => {
 	await User.init();
 });
 
-// Clear the database after each test
 afterEach(async () => {
 	await User.deleteMany({});
 });
 
-// Disconnect Mongoose after all tests are done
 afterAll(async () => {
-	await mongoose.connection.dropDatabase();
 	await mongoose.connection.close();
+	await mongoServer.stop();
+	console.log('Database connection closed');
 });
 
 describe('User Model Test', () => {
