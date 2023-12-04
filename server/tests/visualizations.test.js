@@ -30,7 +30,7 @@ afterAll(async () => {
 describe('Visualization Model Test', () => {
 	const baseVisualizationData = {
 		songId: 'mock-song-id-123',
-		platform: 'spotify',
+		platform: 'Spotify',
 		visualizationData: {},
 		createdBy: new mongoose.Types.ObjectId(),
 	};
@@ -41,7 +41,9 @@ describe('Visualization Model Test', () => {
 		).save();
 		expect(savedVisualization._id).toBeDefined();
 		expect(savedVisualization.songId).toEqual(baseVisualizationData.songId);
-		expect(savedVisualization.platform).toEqual(baseVisualizationData.platform);
+		expect(savedVisualization.platform).toEqual(
+			baseVisualizationData.platform.toLowerCase()
+		);
 		expect(savedVisualization.visualizationData).toEqual(
 			baseVisualizationData.visualizationData
 		);

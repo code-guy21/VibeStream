@@ -24,6 +24,7 @@ const visualizationSchema = new Schema(
 		platform: {
 			type: String,
 			required: [true, 'The music platform is required.'],
+			enum: Object.values(PLATFORMS),
 			validate: {
 				validator: v => {
 					return Object.values(PLATFORMS).includes(v.toLowerCase());

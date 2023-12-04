@@ -100,7 +100,6 @@ playlistSchema.methods.addTrack = async function (track) {
 		try {
 			await this.save();
 		} catch (error) {
-			console.error('Error adding track:', error);
 			throw error;
 		}
 	}
@@ -112,7 +111,6 @@ playlistSchema.methods.removeTrack = async function (track) {
 	try {
 		await this.save();
 	} catch (error) {
-		console.error('Error removing track:', error);
 		throw error;
 	}
 };

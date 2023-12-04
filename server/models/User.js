@@ -1,6 +1,7 @@
 // Import statements
 const { Schema, model } = require('mongoose');
 const validator = require('validator');
+const playbackHistorySchema = require('./PlaybackHistory');
 
 // Constants for enums
 const { VISIBILITY } = require('../utils/constants');
@@ -109,12 +110,13 @@ const userSchema = new Schema(
 			},
 		],
 		// Playback history of the user
-		playbackHistory: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'playbackhistory',
+		playbackHistory: {
+			type: [playbackHistorySchema],
+			validate: {
+				validator: v => v.length <= 500,
+				message: 'playback history cannot exceed 500 songs',
 			},
-		],
+		},
 	},
 	{
 		timestamps: true,
@@ -122,6 +124,16 @@ const userSchema = new Schema(
 		toObject: { virtuals: true },
 	}
 );
+
+// Instance method to clear playback history
+userSchema.methods.clearPlaybackHistory = async function () {
+	try {
+		this.playbackHistory = [];
+		await this.save();
+	} catch (error) {
+		throw error;
+	}
+};
 
 // Virtual field for follower count
 userSchema.virtual('followerCount').get(function () {
