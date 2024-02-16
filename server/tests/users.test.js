@@ -321,4 +321,31 @@ describe('User Model Test', () => {
 			mongoose.Error.ValidationError
 		);
 	});
+
+	// Test if clearPlaybackHistory method clears playback history when called
+	it('should clear the playback history array when clearPlaybackHistory method is called', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+
+		const savedUser = await new User(userData).save();
+
+		savedUser.playbackHistory.push({
+			songId: `song1`,
+			platform: 'spotify',
+			playedAt: new Date(),
+		});
+
+		await savedUser.save();
+
+		expect(savedUser.playbackHistory.length).toBeGreaterThan(0);
+
+		await savedUser.clearPlaybackHistory();
+
+		const updatedUser = await User.findById(savedUser._id);
+
+		expect(updatedUser.playbackHistory.length).toEqual(0);
+	});
 });

@@ -49,12 +49,16 @@ describe('Playlist model test', () => {
 		expect(savedPlaylist.owner).toEqual(playlistData.owner);
 	});
 	// Test playlist creation fails if required playlist ID is missing
-	it('does not allow the creation of a playlist if required playlist ID is missing', async () => {
-		const { platformPlaylistId, ...dataWithoutPlaylistId } = playlistData;
+	it('does not allow the creation of a playlist if playlist is platform type and the required playlist ID is missing', async () => {
+		const dataWithPlatformAndMissingId = {
+			...playlistData,
+			platform: 'platform',
+			platformPlaylistId: null,
+		};
 
-		await expect(new Playlist(dataWithoutPlaylistId).save()).rejects.toThrow(
-			mongoose.Error.ValidationError
-		);
+		await expect(
+			new Playlist(dataWithPlatformAndMissingId).save()
+		).rejects.toThrow(mongoose.Error.ValidationError);
 	});
 	// Test playlist creation fails if required platform is missing
 	it('does not allow the creation of a playlist if required platform is missing', async () => {
