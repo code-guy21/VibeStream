@@ -55,25 +55,19 @@ const visualizationSchema = new Schema(
 			default: VISIBILITY.DEFAULT,
 		},
 
-		// The number of likes the visualization has received
-		likes: {
-			type: Number,
-			default: 0,
-		},
+		// Users who have liked the visualization
+		likes: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'user',
+			},
+		],
 
 		// Feedback from users about the visualization
 		feedback: [
 			{
 				type: Schema.Types.ObjectId,
 				ref: 'feedback',
-			},
-		],
-
-		// Array of recent songs played by the user
-		recentSongs: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'playbackhistory',
 			},
 		],
 	},
