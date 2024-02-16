@@ -290,4 +290,35 @@ describe('User Model Test', () => {
 		expect(user.globalPlaylistVisibility).toEqual('public');
 		expect(user.globalVisualizationVisibility).toEqual('public');
 	});
+
+	//Test if playBackHistory is limited to 500 entries
+	it('should not allow more than 500 items to be added to playBackHistory', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+
+		const savedUser = await new User(userData).save();
+
+		savedUser.playbackHistory = new Array(500).fill({}).map((pb, i) => {
+			return {
+				songId: `song${i}`,
+				platform: 'spotify',
+				playedAt: new Date(),
+			};
+		});
+
+		await expect(savedUser.save()).resolves.toBeDefined();
+
+		savedUser.playbackHistory.push({
+			songId: `song500`,
+			platform: 'spotify',
+			playedAt: new Date(),
+		});
+
+		await expect(savedUser.save()).rejects.toThrow(
+			mongoose.Error.ValidationError
+		);
+	});
 });

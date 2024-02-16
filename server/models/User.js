@@ -3,22 +3,21 @@ const { Schema, model } = require('mongoose');
 const validator = require('validator');
 const playbackHistorySchema = require('./PlaybackHistory');
 
-// Constants for enums
 const { VISIBILITY } = require('../utils/constants');
 
-// User Schema definition
 /**
- * Schema to represent a User in VibeStream application
+ * Schema to represent a user in the VibeStream application.
+ * This schema handles user details including authentication, personal information,
+ * and user-related activities like playlist curation and visualization preferences.
+ *
  * @module UserModel
- * @description Handles the schema definition for a user.
- * This module defines the user schema and associated functionality.
  */
 const userSchema = new Schema(
 	{
 		// Username for login and internal identification
 		username: {
 			type: String,
-			required: [true, 'A username is required'],
+			required: [true, 'Username is required'],
 			trim: true,
 			unique: true,
 			lowercase: true,
@@ -30,24 +29,24 @@ const userSchema = new Schema(
 		// User's display name for public profile
 		displayName: {
 			type: String,
-			required: [true, 'A display name is required.'],
+			required: [true, 'Display name is required.'],
 			trim: true,
 			maxLength: [50, 'Display name cannot exceed 50 characters'],
 		},
 		// User email for identification and communication
 		email: {
 			type: String,
-			required: [true, 'An email address is required.'],
+			required: [true, 'Email address is required.'],
 			unique: true,
 			trim: true,
 			lowercase: true,
-			validate: [validator.isEmail, 'Please provide a valid email address'],
+			validate: [validator.isEmail, 'Invalid email address'],
 		},
 		// URL to the user's profile image
 		profileImage: {
 			type: String,
 			trim: true,
-			validate: [validator.isURL, 'Invalid URL format for profile image'],
+			validate: [validator.isURL, 'Invalid URL for profile image'],
 		},
 		// User's bio
 		bio: {
@@ -113,8 +112,8 @@ const userSchema = new Schema(
 		playbackHistory: {
 			type: [playbackHistorySchema],
 			validate: {
-				validator: v => v.length <= 500,
-				message: 'playback history cannot exceed 500 songs',
+				validator: history => history.length <= 500,
+				message: 'playback history cannot exceed 500 entries',
 			},
 		},
 	},
@@ -152,4 +151,5 @@ userSchema.index({ email: 1 }, { unique: true });
 // Compile model from schema
 const User = model('user', userSchema);
 
+// Export the model
 module.exports = User;
