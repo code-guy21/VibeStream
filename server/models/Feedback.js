@@ -1,9 +1,13 @@
 const { Schema, model } = require('mongoose');
+const sanitizeHtml = require('sanitize-html');
+const BadWordsFilter = require('bad-words');
+
+const filter = new BadWordsFilter();
 
 // Feedback Schema definition
 /**
  * @module FeedbackModel
- * @description Handles the schema definition for a feedback
+ * @description Handles the schema definition for a feedback s
  * This module defines the feedback schema and associated functionality
  */
 
@@ -35,7 +39,7 @@ const feedbackSchema = new Schema(
 		relatedVisualization: {
 			type: Schema.Types.ObjectId,
 			required: [true, 'Feedback must be associated with a visualization.'],
-			ref: 'visualization ',
+			ref: 'visualization',
 		},
 	},
 	{
@@ -46,8 +50,31 @@ const feedbackSchema = new Schema(
 	}
 );
 
+// Pre-save hook to clean up and secure user-generated content.
+// This includes removing any HTML to prevent XSS attacks and filtering profanity to maintain a respectful community environment.
+feedbackSchema.pre('save', async function (next) {
+	try {
+		if (this.comment) {
+			// Sanitizing the comment to remove all HTML tags and attributes
+			this.comment = sanitizeHtml(this.comment, {
+				allowedTags: [], // No HTML tags are allowed
+				allowedAttributes: {}, // No attributes are allowed
+			});
+
+			// Filtering out profanity from the comment
+			this.comment = filter.clean(this.comment);
+		}
+	} catch (error) {
+		next(error);
+	}
+	next();
+});
+
 // Indexes for efficient querying
-feedbackSchema.index({ submittedBy: 1, relatedVisualization: 1 });
+feedbackSchema.index(
+	{ submittedBy: 1, relatedVisualization: 1 },
+	{ unique: true }
+);
 
 // Compile model from schema
 const Feedback = model('feedback', feedbackSchema);

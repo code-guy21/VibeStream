@@ -35,7 +35,7 @@ describe('Feedback Model Test', () => {
 		relatedVisualization: new mongoose.Types.ObjectId(),
 	};
 
-	it('should create a feedback when required fields are included', async () => {
+	it('should create a feedback document when required fields are included', async () => {
 		let savedFeedback = await new Feedback(baseFeedbackData).save();
 		expect(savedFeedback._id).toBeDefined();
 		expect(savedFeedback.rating).toEqual(baseFeedbackData.rating);
@@ -85,5 +85,51 @@ describe('Feedback Model Test', () => {
 		await expect(new Feedback(dataWithoutVisualization).save()).rejects.toThrow(
 			mongoose.Error.ValidationError
 		);
+	});
+
+	it('does not allow creating feedback if user already provided feedback for the same visualization', async () => {
+		const submittedById = new mongoose.Types.ObjectId();
+		const visualizationId = new mongoose.Types.ObjectId();
+
+		const newFeedbackData = {
+			...baseFeedbackData,
+			relatedVisualization: visualizationId,
+			submittedBy: submittedById,
+		};
+
+		await new Feedback(newFeedbackData).save();
+
+		const additionalFeedbackData = {
+			rating: 2,
+			comment: 'This is more feedback!',
+			submittedBy: submittedById,
+			relatedVisualization: visualizationId,
+		};
+
+		await expect(new Feedback(additionalFeedbackData).save()).rejects.toThrow(
+			/E11000 duplicate key error/
+		);
+	});
+
+	it('sanitizes comment by removing HTML before saving feedback', async () => {
+		const feedbackData = {
+			...baseFeedbackData,
+			comment: "<script>console.log('XSS attempt')</script>Plain text.",
+		};
+
+		const createdFeedback = await new Feedback(feedbackData).save();
+
+		expect(createdFeedback.comment).toEqual('Plain text.');
+	});
+
+	it('filters comment by removing bad words before saving feedback', async () => {
+		const feedbackData = {
+			...baseFeedbackData,
+			comment: 'this is a shitty comment!',
+		};
+
+		const createdFeedback = await new Feedback(feedbackData).save();
+
+		expect(createdFeedback.comment).toEqual('this is a ****** comment!');
 	});
 });
