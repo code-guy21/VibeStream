@@ -69,7 +69,7 @@ const playlistSchema = new Schema(
 		visibility: {
 			type: String,
 			enum: Object.values(VISIBILITY),
-			default: VISIBILITY.DEFAULT,
+			default: 'default',
 		},
 
 		// Type of the playlist

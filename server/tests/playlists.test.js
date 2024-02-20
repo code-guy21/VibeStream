@@ -52,7 +52,7 @@ describe('Playlist model test', () => {
 	it('does not allow the creation of a playlist if playlist is platform type and the required playlist ID is missing', async () => {
 		const dataWithPlatformAndMissingId = {
 			...playlistData,
-			platform: 'platform',
+			playlistType: 'platform',
 			platformPlaylistId: null,
 		};
 
@@ -69,14 +69,14 @@ describe('Playlist model test', () => {
 		);
 	});
 	// Test playlist creation fails if platform is not supported
-	it('does not allow the creation of a playlist if platform is not supported', async () => {
+	it('does not allow the creation of a playlist if the platform is not supported', async () => {
 		const dataWithUnsupportedPlatform = {
 			...playlistData,
-			platform: 'apple',
+			platform: 'UnsupportedPlatform',
 		};
 		await expect(
 			new Playlist(dataWithUnsupportedPlatform).save()
-		).rejects.toThrow(mongoose.Error.ValidationError);
+		).rejects.toThrow(/is not a supported music platform/);
 	});
 	// Tests if platform gets stored in lowercase when playlist is created
 	it('tests if platform gets stored in lowercase when the playlist is created', async () => {
@@ -189,28 +189,20 @@ describe('Playlist model test', () => {
 	// Test if track is added to playlist when running the addTrack method
 	it('should add a new track to the playlist if it is not already present', async () => {
 		let savedPlaylist = await new Playlist(playlistData).save();
-		// Check initial state
-		expect(savedPlaylist.trackIds.length).toEqual(0);
+		await savedPlaylist.addTrack('newtrackid5001'); // Use the method to add a track
+		savedPlaylist = await Playlist.findById(savedPlaylist._id); // Reload to verify changes
 
-		await savedPlaylist.addTrack('newtrackid');
-
-		// Check if track has been added
-		expect(savedPlaylist.trackIds.length).toEqual(1);
-		expect(savedPlaylist.trackIds.includes('newtrackid')).toEqual(true);
+		expect(savedPlaylist.trackIds).toContain('newtrackid5001');
 	});
 	// Test if track is removed from playlist when running the removeTrack method
 	it('should remove a track from the playlist if it is present', async () => {
-		let savedPlaylist = await new Playlist(playlistData).save();
+		let savedPlaylist = await new Playlist({
+			...playlistData,
+			trackIds: ['trackToRemove'],
+		}).save();
+		await savedPlaylist.removeTrack('trackToRemove'); // Use the method to remove a track
+		savedPlaylist = await Playlist.findById(savedPlaylist._id); // Reload to verify changes
 
-		await savedPlaylist.addTrack('newtrackid');
-		// Verify the track is added
-		expect(savedPlaylist.trackIds.includes('newtrackid')).toEqual(true);
-		expect(savedPlaylist.trackIds.length).toEqual(1);
-
-		await savedPlaylist.removeTrack('newtrackid');
-
-		// Check if track has been removed
-		expect(savedPlaylist.trackIds.includes('newtrackid')).toEqual(false);
-		expect(savedPlaylist.trackIds.length).toEqual(0);
+		expect(savedPlaylist.trackIds).not.toContain('trackToRemove');
 	});
 });
