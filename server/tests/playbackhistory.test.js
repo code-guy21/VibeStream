@@ -54,6 +54,19 @@ describe('PlayBackHistory Schema Test', () => {
 		);
 	});
 
+	// Test PlaybackHistory creation fails if platform is unsupported
+	it('rejects unsupported platforms', async () => {
+		const invalidPlatformData = {
+			...basePlaybackHistoryData,
+			platform: 'UnsupportedPlatform',
+		};
+		await expect(
+			new PlayBackHistory(invalidPlatformData).save()
+		).rejects.toThrow(
+			/`unsupportedplatform` is not a valid enum value for path `platform`/
+		);
+	});
+
 	// Test PlayBackHistory creation fails if required songId is missing
 	it('should not allow for the creation playBackHistory if songId is missing', async () => {
 		const dataWithoutSongId = { ...basePlaybackHistoryData, songId: undefined };
@@ -85,5 +98,18 @@ describe('PlayBackHistory Schema Test', () => {
 		await expect(
 			new PlayBackHistory(dataWithoutPlayedAt).save()
 		).rejects.toThrow(mongoose.Error.ValidationError);
+	});
+
+	// Test related visualization is not added if limit is reached
+	it('enforces the limit on the number of visualizations', async () => {
+		const dataWithExcessiveVisualizations = {
+			...basePlaybackHistoryData,
+			visualizations: new Array(11)
+				.fill(null)
+				.map(() => new mongoose.Types.ObjectId()),
+		};
+		await expect(
+			new PlayBackHistory(dataWithExcessiveVisualizations).save()
+		).rejects.toThrow(/exceeds the limit of 10/);
 	});
 });
