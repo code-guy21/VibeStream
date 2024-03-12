@@ -321,4 +321,171 @@ describe('User Model Test', () => {
 			mongoose.Error.ValidationError
 		);
 	});
+
+	// Test if clearPlaybackHistory method clears playback history when called
+	it('should clear the playback history array when clearPlaybackHistory method is called', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+
+		const savedUser = await new User(userData).save();
+
+		savedUser.playbackHistory.push({
+			songId: `song1`,
+			platform: 'spotify',
+			playedAt: new Date(),
+		});
+
+		await savedUser.save();
+
+		expect(savedUser.playbackHistory.length).toBeGreaterThan(0);
+
+		await savedUser.clearPlaybackHistory();
+
+		const updatedUser = await User.findById(savedUser._id);
+
+		expect(updatedUser.playbackHistory.length).toEqual(0);
+	});
+
+	it('should remove the oldest visualization in playBackHistory item if max length of 10 is reached', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+
+		let createdUser = await new User(userData).save();
+
+		const songId = 'songId123';
+		const platform = 'spotify';
+		const firstVisualizationId = new mongoose.Types.ObjectId();
+
+		await createdUser.updateOrAddPlaybackHistory(
+			songId,
+			platform,
+			firstVisualizationId
+		);
+
+		for (let i = 0; i < 9; i++) {
+			await createdUser.updateOrAddPlaybackHistory(
+				songId,
+				platform,
+				new mongoose.Types.ObjectId()
+			);
+
+			createdUser = await User.findById(createdUser._id);
+		}
+
+		expect(createdUser.playbackHistory[0].visualizations.length).toEqual(10);
+
+		await createdUser.updateOrAddPlaybackHistory(
+			songId,
+			platform,
+			new mongoose.Types.ObjectId()
+		);
+
+		createdUser = await User.findById(createdUser._id);
+
+		expect(
+			createdUser.playbackHistory[0].visualizations.includes(
+				firstVisualizationId
+			)
+		).toBe(false);
+		expect(createdUser.playbackHistory[0].visualizations.length).toEqual(10);
+	});
+
+	it('should add an item to playbackHistory array if it does not already exist', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+
+		let createdUser = await new User(userData).save();
+
+		expect(createdUser.playbackHistory.length).toEqual(0);
+
+		const songId = 'songId123';
+		const platform = 'spotify';
+		const visualizationId = new mongoose.Types.ObjectId();
+
+		await createdUser.updateOrAddPlaybackHistory(
+			songId,
+			platform,
+			visualizationId
+		);
+
+		createdUser = await User.findById(createdUser._id);
+
+		let playBackItem = createdUser.playbackHistory.findIndex(
+			entry => entry.songId === songId
+		);
+
+		expect(playBackItem).toBeGreaterThan(-1);
+		expect(createdUser.playbackHistory.length).toEqual(1);
+
+		let playbackEntry = createdUser.playbackHistory[playBackItem];
+
+		expect(playbackEntry.songId).toEqual(songId);
+		expect(playbackEntry.platform).toEqual(platform);
+		expect(playbackEntry.visualizations.includes(visualizationId)).toEqual(
+			true
+		);
+	});
+
+	it('should update playedAt field on a playbackHistory item if it exists in playbackHistory array', async () => {
+		const userData = {
+			username: 'testuser',
+			displayName: 'Test User',
+			email: 'testuser@example.com',
+		};
+
+		let createdUser = await new User(userData).save();
+
+		let songId = 'songId123';
+		let platform = 'spotify';
+		let visualizationId = new mongoose.Types.ObjectId();
+
+		await createdUser.updateOrAddPlaybackHistory(
+			songId,
+			platform,
+			visualizationId
+		);
+
+		createdUser = await User.findById(createdUser._id);
+
+		const initialPlayback = createdUser.playbackHistory.findIndex(
+			entry => entry.songId === songId
+		);
+
+		expect(initialPlayback).toBeGreaterThan(-1);
+
+		const initialPlaybackTime =
+			createdUser.playbackHistory[initialPlayback].playedAt;
+
+		// Wait a bit before the next update to ensure a noticeable difference in timestamps
+		await new Promise(resolve => setTimeout(resolve, 1000));
+
+		await createdUser.updateOrAddPlaybackHistory(
+			songId,
+			platform,
+			visualizationId
+		);
+
+		createdUser = await User.findById(createdUser._id);
+
+		const updatedPlaybackIndex = createdUser.playbackHistory.findIndex(
+			entry => entry.songId === songId
+		);
+
+		expect(updatedPlaybackIndex).toBeGreaterThan(-1);
+
+		const updatedPlaybackTime =
+			createdUser.playbackHistory[updatedPlaybackIndex].playedAt;
+
+		expect(createdUser.playbackHistory.length).toEqual(1);
+		expect(updatedPlaybackTime).not.toEqual(initialPlaybackTime);
+	});
 });

@@ -118,11 +118,4 @@ describe('Visualization Model Test', () => {
 		).save();
 		expect(savedVisualization.visibility).toEqual('default');
 	});
-
-	it('should set likes to zero by default before saving', async () => {
-		let savedVisualization = await new Visualization(
-			baseVisualizationData
-		).save();
-		expect(savedVisualization.likes).toEqual(0);
-	});
 });

@@ -17,7 +17,12 @@ const playlistSchema = new Schema(
 		// Unique identifier for the playlist from the platform
 		platformPlaylistId: {
 			type: String,
-			required: [true, 'Platform playlist ID required'],
+			validate: {
+				validator: function (value) {
+					return !(this.playlistType === 'platform' && !value);
+				},
+			},
+			message: 'platformPlaylistId is required for platform playlists',
 		},
 
 		// Platform for which the playlist belongs
@@ -64,7 +69,7 @@ const playlistSchema = new Schema(
 		visibility: {
 			type: String,
 			enum: Object.values(VISIBILITY),
-			default: VISIBILITY.DEFAULT,
+			default: 'default',
 		},
 
 		// Type of the playlist

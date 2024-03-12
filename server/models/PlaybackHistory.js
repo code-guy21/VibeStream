@@ -40,12 +40,20 @@ const playbackHistorySchema = new Schema(
 		},
 
 		// References to visualizations associated with the playback
-		visualizations: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'visualization',
+		visualizations: {
+			type: [
+				{
+					type: Schema.Types.ObjectId,
+					ref: 'visualization',
+				},
+			],
+			validate: {
+				validator: function (value) {
+					return value.length <= 10;
+				},
+				message: 'visualizations exceeds the limit of 10',
 			},
-		],
+		},
 	},
 	{
 		timestamps: {

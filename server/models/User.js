@@ -124,6 +124,38 @@ const userSchema = new Schema(
 	}
 );
 
+// Instance method to add or update tracks in playbackHistory
+userSchema.methods.updateOrAddPlaybackHistory = async function (
+	songId,
+	platform,
+	visualizationId
+) {
+	const playbackEntry = this.playbackHistory.find(
+		entry => entry.songId === songId
+	);
+
+	if (playbackEntry) {
+		playbackEntry.playedAt = new Date();
+		if (!playbackEntry.visualizations.includes(visualizationId)) {
+			if (playbackEntry.visualizations.length >= 10) {
+				playbackEntry.visualizations.shift();
+			}
+			// Remove the oldest visualization if at limit
+			playbackEntry.visualizations.push(visualizationId); // Add the new visualization
+		}
+	} else {
+		// Add new playback history entry
+		this.playbackHistory.push({
+			songId,
+			platform,
+			playedAt: new Date(),
+			visualizations: [visualizationId],
+		});
+	}
+
+	await this.save();
+};
+
 // Instance method to clear playback history
 userSchema.methods.clearPlaybackHistory = async function () {
 	try {
