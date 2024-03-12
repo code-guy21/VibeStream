@@ -2,10 +2,11 @@
 	"name": "vibestream",
 	"version": "1.0.0",
 	"description": "music visualizer",
-	"main": "server.js",
+	"main": "app.js",
 	"scripts": {
-		"start": "node server",
-		"dev": "nodemon server"
+		"start": "node app.js",
+		"dev": "nodemon server",
+		"test": "jest --verbose"
 	},
 	"repository": {
 		"type": "git",
@@ -18,10 +19,16 @@
 	},
 	"homepage": "https://github.com/code-guy21/VibeStream#readme",
 	"dependencies": {
+		"bad-words": "^3.0.4",
+		"dotenv": "^16.3.1",
 		"express": "^4.18.2",
-		"mongoose": "^7.5.3"
+		"mongodb-memory-server": "^9.0.1",
+		"mongoose": "^7.5.3",
+		"sanitize-html": "^2.11.0",
+		"validator": "^13.11.0"
 	},
 	"devDependencies": {
+		"jest": "^29.7.0",
 		"nodemon": "^3.0.1"
 	}
 }
