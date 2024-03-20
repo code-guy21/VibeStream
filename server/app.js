@@ -1,10 +1,10 @@
 const express = require('express');
 const session = require('express-session');
-const passport = require('passport');
 const connectDB = require('./config/db');
 const routes = require('./routes');
+const passport = require('passport');
 
-require('./config/passport')(passport);
+require('./config/passport');
 
 const PORT = 3001;
 
