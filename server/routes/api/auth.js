@@ -10,10 +10,10 @@ router.route('/spotify').get(
 );
 
 router
-	.route(
-		'/spotify/callback',
-		passport.authenticate('spotify', { failureRedirect: '/login' })
-	)
-	.get(spotifyCallback);
+	.route('/spotify/callback')
+	.get(
+		passport.authenticate('spotify', { failureRedirect: '/login' }),
+		spotifyCallback
+	);
 
 module.exports = router;
