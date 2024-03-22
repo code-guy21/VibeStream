@@ -1,14 +1,16 @@
-// Import statements
 const { Schema, model } = require('mongoose');
 const validator = require('validator');
 const playbackHistorySchema = require('./PlaybackHistory');
+const authSchema = require('./Auth');
+const linkedServiceSchema = require('./LinkedService');
 
 const { VISIBILITY } = require('../utils/constants');
 
 /**
- * Schema to represent a user in the VibeStream application.
- * This schema handles user details including authentication, personal information,
- * and user-related activities like playlist curation and visualization preferences.
+ * Defines schema for users within the VibeStream application.
+ * This schema encompasses various aspects of a user's profile, including
+ * authentication methods, linked streaming services, and content interactions.
+ * It serves as a model for user data management and interactions.
  *
  * @module UserModel
  */
@@ -66,13 +68,13 @@ const userSchema = new Schema(
 			enum: Object.values(VISIBILITY),
 			default: VISIBILITY.PUBLIC,
 		},
-		// Authentication methods linked to the user
-		authMethods: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'auth',
-			},
-		],
+
+		// Authentication methods linked to user
+		authMethods: [authSchema],
+
+		// Streaming services linked to user
+		linkedServices: [linkedServiceSchema],
+
 		// Visualizations the user has liked
 		likedVisualizations: [
 			{
@@ -130,30 +132,35 @@ userSchema.methods.updateOrAddPlaybackHistory = async function (
 	platform,
 	visualizationId
 ) {
-	const playbackEntry = this.playbackHistory.find(
-		entry => entry.songId === songId
-	);
+	try {
+		const playbackEntry = this.playbackHistory.find(
+			entry => entry.songId === songId
+		);
 
-	if (playbackEntry) {
-		playbackEntry.playedAt = new Date();
-		if (!playbackEntry.visualizations.includes(visualizationId)) {
-			if (playbackEntry.visualizations.length >= 10) {
-				playbackEntry.visualizations.shift();
+		if (playbackEntry) {
+			playbackEntry.playedAt = new Date();
+			if (!playbackEntry.visualizations.includes(visualizationId)) {
+				if (playbackEntry.visualizations.length >= 10) {
+					playbackEntry.visualizations.shift();
+				}
+				// Remove the oldest visualization if at limit
+				playbackEntry.visualizations.push(visualizationId); // Add the new visualization
 			}
-			// Remove the oldest visualization if at limit
-			playbackEntry.visualizations.push(visualizationId); // Add the new visualization
+		} else {
+			// Add new playback history entry
+			this.playbackHistory.push({
+				songId,
+				platform,
+				playedAt: new Date(),
+				visualizations: [visualizationId],
+			});
 		}
-	} else {
-		// Add new playback history entry
-		this.playbackHistory.push({
-			songId,
-			platform,
-			playedAt: new Date(),
-			visualizations: [visualizationId],
-		});
-	}
 
-	await this.save();
+		await this.save();
+	} catch (error) {
+		console.error('Error updating playback history for user:', this._id, error);
+		throw new Error('Failed to update playback history.');
+	}
 };
 
 // Instance method to clear playback history

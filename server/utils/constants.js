@@ -5,8 +5,12 @@ const VISIBILITY = {
 	FOLLOWERS_ONLY: 'followersOnly',
 };
 
-const PLATFORMS = {
+const SERVICES = {
 	SPOTIFY: 'spotify',
+};
+
+const PROVIDERS = {
+	GOOGLE: 'google',
 };
 
 const PLAYLIST_TYPES = {
@@ -17,6 +21,7 @@ const PLAYLIST_TYPES = {
 
 module.exports = {
 	VISIBILITY,
-	PLATFORMS,
 	PLAYLIST_TYPES,
+	SERVICES,
+	PROVIDERS,
 };

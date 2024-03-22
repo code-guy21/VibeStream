@@ -2,7 +2,7 @@
 const { Schema, model } = require('mongoose');
 
 // Constants for enums
-const { PLAYLIST_TYPES, VISIBILITY, PLATFORMS } = require('../utils/constants');
+const { PLAYLIST_TYPES, VISIBILITY, SERVICES } = require('../utils/constants');
 
 // Playlist Schema definition
 /**
@@ -31,7 +31,7 @@ const playlistSchema = new Schema(
 			required: [true, 'Playlist platform is required.'],
 			validate: {
 				validator: v => {
-					return Object.values(PLATFORMS).includes(v.toLowerCase());
+					return Object.values(SERVICES).includes(v.toLowerCase());
 				},
 				message: props => `${props.value} is not a supported music platform.`,
 			},

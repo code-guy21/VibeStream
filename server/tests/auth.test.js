@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { Auth } = require('../models/');
+const authSchema = require('../models/Auth');
+
+const Auth = mongoose.model('auth', authSchema);
 
 let mongoServer;
 
@@ -29,12 +31,11 @@ afterAll(async () => {
 
 describe('Auth Model Test', () => {
 	let baseAuthData = {
-		authProvider: 'Spotify',
-		profileId: 'profile123',
-		encryptedAuthToken: 'encryptedToken',
-		encryptedRefreshToken: 'refreshToken',
+		authProvider: 'Google',
+		providerId: 'provider123',
+		accessToken: 'encryptedToken',
+		refreshToken: 'refreshToken',
 		expirationDate: new Date(),
-		profileLink: 'http://platform.com/user123',
 	};
 
 	// Test Auth creation is successfull when all required fields are included
@@ -45,19 +46,14 @@ describe('Auth Model Test', () => {
 		expect(savedAuth.authProvider).toEqual(
 			baseAuthData.authProvider.toLowerCase()
 		);
-		expect(savedAuth.profileId).toEqual(baseAuthData.profileId);
-		expect(savedAuth.encryptedAuthToken).toEqual(
-			baseAuthData.encryptedAuthToken
-		);
-		expect(savedAuth.encryptedRefreshToken).toEqual(
-			baseAuthData.encryptedRefreshToken
-		);
+		expect(savedAuth.providerId).toEqual(baseAuthData.providerId);
+		expect(savedAuth.accessToken).toEqual(baseAuthData.accessToken);
+		expect(savedAuth.refreshToken).toEqual(baseAuthData.refreshToken);
 		expect(savedAuth.expirationDate).toEqual(baseAuthData.expirationDate);
-		expect(savedAuth.profileLink).toEqual(baseAuthData.profileLink);
 	});
 
-	// Test Auth creation fails if authProvider is not from valid platform
-	it('should not allow the creation of Auth document is authProvider platform is invalid', async () => {
+	// Test Auth creation fails if authProvider is not from valid providers
+	it('should not allow the creation of Auth document if authProvider is invalid', async () => {
 		const authWithInvalidPlatform = {
 			...baseAuthData,
 			authProvider: 'Yahoo',
@@ -67,39 +63,39 @@ describe('Auth Model Test', () => {
 			mongoose.Error.ValidationError
 		);
 	});
-	// Test Auth creation fails if required profileId is missing
-	it('should not allow the creation of Auth document if profileId is missing', async () => {
-		let authWithoutRequiredProfileId = {
+	// Test Auth creation fails if required providerId is missing
+	it('should not allow the creation of Auth document if providerId is missing', async () => {
+		let authWithoutRequiredproviderId = {
 			...baseAuthData,
-			profileId: undefined,
-		};
-
-		await expect(new Auth(authWithoutRequiredProfileId).save()).rejects.toThrow(
-			mongoose.Error.ValidationError
-		);
-	});
-
-	// Test Auth creation fails if required encryptedAuthToken is missing
-	it('should not allow the creation of Auth document if encryptedAuthToken is missing', async () => {
-		let authWithoutRequiredEncryptedAuthToken = {
-			...baseAuthData,
-			encryptedAuthToken: undefined,
+			providerId: undefined,
 		};
 
 		await expect(
-			new Auth(authWithoutRequiredEncryptedAuthToken).save()
+			new Auth(authWithoutRequiredproviderId).save()
 		).rejects.toThrow(mongoose.Error.ValidationError);
 	});
 
-	// Test Auth creation fails if required encryptedRefreshToken is missing
-	it('should not allow the creation of Auth document if encryptedRefreshToken is missing', async () => {
-		let authWithoutRequiredEncryptedRefreshToken = {
+	// Test Auth creation fails if required accessToken is missing
+	it('should not allow the creation of Auth document if accessToken is missing', async () => {
+		let authWithoutRequiredaccessToken = {
 			...baseAuthData,
-			encryptedRefreshToken: undefined,
+			accessToken: undefined,
 		};
 
 		await expect(
-			new Auth(authWithoutRequiredEncryptedRefreshToken).save()
+			new Auth(authWithoutRequiredaccessToken).save()
+		).rejects.toThrow(mongoose.Error.ValidationError);
+	});
+
+	// Test Auth creation fails if required refreshToken is missing
+	it('should not allow the creation of Auth document if refreshToken is missing', async () => {
+		let authWithoutRequiredrefreshToken = {
+			...baseAuthData,
+			refreshToken: undefined,
+		};
+
+		await expect(
+			new Auth(authWithoutRequiredrefreshToken).save()
 		).rejects.toThrow(mongoose.Error.ValidationError);
 	});
 
@@ -112,18 +108,6 @@ describe('Auth Model Test', () => {
 
 		await expect(
 			new Auth(authWithoutRequiredExpirationDate).save()
-		).rejects.toThrow(mongoose.Error.ValidationError);
-	});
-
-	// Test Auth creation fails if profileLink is not a valid URL
-	it('should not allow the creation of Auth document if profileLink is not a valid URL', async () => {
-		let authWithoutValidProfileLinkURL = {
-			...baseAuthData,
-			profileLink: 'invalid url',
-		};
-
-		await expect(
-			new Auth(authWithoutValidProfileLinkURL).save()
 		).rejects.toThrow(mongoose.Error.ValidationError);
 	});
 });
