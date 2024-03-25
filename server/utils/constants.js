@@ -13,15 +13,14 @@ const PROVIDERS = {
 	GOOGLE: 'google',
 };
 
-const PLAYLIST_TYPES = {
-	VIBESTREAM: 'vibestream',
-	PLATFORM: 'platform',
-	VIBESTREAMLIKED: 'vibestreamliked',
-};
+// const PLAYLIST_TYPES = {
+// 	VIBESTREAM: 'vibestream',
+// 	PLATFORM: 'platform',
+// 	VIBESTREAMLIKED: 'vibestreamliked',
+// };
 
 module.exports = {
 	VISIBILITY,
-	PLAYLIST_TYPES,
 	SERVICES,
 	PROVIDERS,
 };

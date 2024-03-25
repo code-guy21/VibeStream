@@ -1,8 +1,9 @@
 // Import statements
 const { Schema, model } = require('mongoose');
+const Track = require('./Track');
 
 // Constants for enums
-const { PLAYLIST_TYPES, VISIBILITY, SERVICES } = require('../utils/constants');
+const { VISIBILITY } = require('../utils/constants');
 
 // Playlist Schema definition
 /**
@@ -14,31 +15,6 @@ const { PLAYLIST_TYPES, VISIBILITY, SERVICES } = require('../utils/constants');
 
 const playlistSchema = new Schema(
 	{
-		// Unique identifier for the playlist from the platform
-		platformPlaylistId: {
-			type: String,
-			validate: {
-				validator: function (value) {
-					return !(this.playlistType === 'platform' && !value);
-				},
-			},
-			message: 'platformPlaylistId is required for platform playlists',
-		},
-
-		// Platform for which the playlist belongs
-		platform: {
-			type: String,
-			required: [true, 'Playlist platform is required.'],
-			validate: {
-				validator: v => {
-					return Object.values(SERVICES).includes(v.toLowerCase());
-				},
-				message: props => `${props.value} is not a supported music platform.`,
-			},
-			// Ensuring platform is stored in lowercase
-			set: v => v.toLowerCase(),
-		},
-
 		// Title of the playlist
 		title: {
 			type: String,
@@ -56,12 +32,17 @@ const playlistSchema = new Schema(
 			maxLength: [255, 'Description exceeds 255 characters'],
 		},
 
-		// Track IDs within the playlist
-		trackIds: {
-			type: [String],
+		// Tracks within the playlist
+		tracks: {
+			type: [
+				{
+					type: Schema.Types.ObjectId,
+					ref: 'track',
+				},
+			],
 			validate: {
 				validator: v => v.length <= 5000,
-				message: 'Playlist exceeds 5000 song limit',
+				message: 'Playlist exceeds 5000 track limit',
 			},
 		},
 
@@ -70,20 +51,6 @@ const playlistSchema = new Schema(
 			type: String,
 			enum: Object.values(VISIBILITY),
 			default: 'default',
-		},
-
-		// Type of the playlist
-		playlistType: {
-			type: String,
-			enum: Object.values(PLAYLIST_TYPES),
-			default: PLAYLIST_TYPES.VIBESTREAM,
-		},
-
-		// Whether the playlist should sync with the platform
-		syncWithPlatform: {
-			type: Boolean,
-			required: [true, 'Sync option is required'],
-			default: false,
 		},
 
 		// Reference to the owner (user) of the playlist
@@ -98,25 +65,27 @@ const playlistSchema = new Schema(
 	}
 );
 
-// Instance method to add a track to the playlist
-playlistSchema.methods.addTrack = async function (track) {
-	if (!this.trackIds.includes(track)) {
-		this.trackIds.push(track);
-		try {
+// Adding a track to the playlist
+playlistSchema.methods.addTrack = async function (trackId) {
+	if (!this.tracks.includes(trackId)) {
+		const trackExists = await Track.exists({ _id: trackId }); // More direct method for existence checking
+		if (trackExists) {
+			this.tracks.push(trackId);
 			await this.save();
-		} catch (error) {
-			throw error;
+		} else {
+			throw new Error('Track does not exist');
 		}
+	} else {
+		throw new Error('Track already exists in playlist');
 	}
 };
 
 // Instance method to remove a track from a playlist
-playlistSchema.methods.removeTrack = async function (track) {
-	this.trackIds = this.trackIds.filter(id => id !== track);
+playlistSchema.methods.removeTrack = async function (trackId) {
 	try {
-		await this.save();
+		await this.updateOne({ $pull: { tracks: trackId } });
 	} catch (error) {
-		throw error;
+		throw new Error('Track not found in playlist or error removing track');
 	}
 };
 
