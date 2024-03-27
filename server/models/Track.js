@@ -21,15 +21,11 @@ const trackSchema = new Schema(
 		platform: {
 			type: String,
 			required: [true, 'The music platform is required.'],
-			enum: Object.values(SERVICES),
-			validate: {
-				validator: v => {
-					return Object.values(SERVICES).includes(v.toLowerCase());
-				},
+			enum: {
+				values: Object.values(SERVICES),
 				message: props => `${props.value} is not a supported music platform.`,
 			},
-			// Ensuring platform is stored in lowercase
-			set: v => v.toLowerCase(),
+			lowercase: true,
 		},
 
 		// Whether the track is playable or not
