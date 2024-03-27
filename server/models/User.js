@@ -3,6 +3,7 @@ const validator = require('validator');
 const playbackHistorySchema = require('./PlaybackHistory');
 const authSchema = require('./Auth');
 const linkedServiceSchema = require('./LinkedService');
+const bcrypt = require('bcrypt');
 
 const { VISIBILITY } = require('../utils/constants');
 
@@ -43,6 +44,11 @@ const userSchema = new Schema(
 			trim: true,
 			lowercase: true,
 			validate: [validator.isEmail, 'Invalid email address'],
+		},
+		password: {
+			type: String,
+			trim: true,
+			minLength: [8, 'Password must be at least 8 characters long'],
 		},
 		// URL to the user's profile image
 		profileImage: {
@@ -125,6 +131,28 @@ const userSchema = new Schema(
 		toObject: { virtuals: true },
 	}
 );
+
+userSchema.pre('save', async function (next) {
+	if (this.password) {
+		if (this.isModified('password') || this.isNew) {
+			try {
+				const salt = await bcrypt.genSalt(10);
+				this.password = await bcrypt.hash(this.password, salt);
+				next();
+			} catch (err) {
+				next(err);
+			}
+		}
+	} else {
+		next();
+	}
+});
+
+userSchema.methods.toJSON = function () {
+	let obj = this.toObject();
+	delete obj.password;
+	return obj;
+};
 
 // Instance method to add or update tracks in playbackHistory
 userSchema.methods.updateOrAddPlaybackHistory = async function (

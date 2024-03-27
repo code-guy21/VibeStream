@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { User } = require('../models/');
+const bcrypt = require('bcrypt');
 
 let mongoServer;
 
@@ -134,6 +135,61 @@ describe('User Model Test', () => {
 		expect(err.errors.displayName).toBeDefined(); // Now this should be the only error
 	});
 
+	// Test User creation fails when a password is less than 8 characters
+	it('should fail to create a user if the password is less than 8 characters ', async () => {
+		const userWithoutRequiredPasswordLength = new User({
+			username: 'testuser',
+			email: 'testuser3@gmail.com',
+			displayName: 'Test User',
+			password: '12345',
+		});
+		let err;
+		try {
+			await userWithoutRequiredPasswordLength.save();
+		} catch (error) {
+			err = error;
+		}
+		expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
+	});
+
+	// Test if password is excluded when querying a user
+	it('should not include password field when querying a user', async () => {
+		const userData = new User({
+			username: 'testuser',
+			email: 'testuser3@gmail.com',
+			displayName: 'Test User',
+			password: '123456789',
+		});
+
+		await userData.save();
+
+		let searchUser = await User.findOne({ email: userData.email }).select(
+			'-password'
+		);
+
+		expect(searchUser.password).toBeUndefined();
+	});
+
+	// Test if password is hashed before saving
+	it('should hash the user password before saving', async () => {
+		const userData = new User({
+			username: 'testuser',
+			email: 'testuser3@gmail.com',
+			displayName: 'Test User',
+			password: 'plaintextpassword',
+		});
+
+		await userData.save();
+
+		let searchUser = await User.findOne({ email: userData.email });
+
+		let isValid = await bcrypt.compare(
+			'plaintextpassword',
+			searchUser.password
+		);
+
+		expect(isValid).toBe(true);
+	});
 	//Test User creation fails when displayName length is greater than 50 characters
 	it('create user with displayName greater than 50 characters should fail', async () => {
 		let displayName = [...new Array(51)].fill('*');
