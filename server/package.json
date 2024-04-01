@@ -28,6 +28,7 @@
 		"mongodb-memory-server": "^9.0.1",
 		"mongoose": "^7.5.3",
 		"passport": "^0.7.0",
+		"passport-google-oauth20": "^2.0.0",
 		"passport-spotify": "^2.0.0",
 		"sanitize-html": "^2.11.0",
 		"validator": "^13.11.0"

@@ -1,5 +1,5 @@
 const passport = require('passport');
-const setupSpotifyStrategy = require('./strategies/spotifyStrategy');
+const setupGoogleStrategy = require('./strategies/googleStrategy');
 
 passport.serializeUser(function (user, done) {
 	return done(null, user);
@@ -7,4 +7,4 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (obj, done) {
 	return done(null, obj);
 });
-passport.use(setupSpotifyStrategy);
+passport.use(setupGoogleStrategy);

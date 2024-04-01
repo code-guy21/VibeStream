@@ -1,19 +1,20 @@
 const router = require('express').Router();
 const passport = require('passport');
-const { spotifyCallback } = require('../../controllers/authController');
+const { googleCallback } = require('../../controllers/authController');
 
-router.route('/spotify').get(
-	passport.authenticate('spotify', {
-		scope: ['user-read-email', 'user-read-private'],
-		showDialog: true,
+router.route('/google').get(
+	passport.authenticate('google', {
+		scope: ['profile', 'email'],
+		accessType: 'offline',
+		prompt: 'select_account',
 	})
 );
 
 router
-	.route('/spotify/callback')
+	.route('/google/callback')
 	.get(
-		passport.authenticate('spotify', { failureRedirect: '/login' }),
-		spotifyCallback
+		passport.authenticate('google', { failureRedirect: '/login' }),
+		googleCallback
 	);
 
 module.exports = router;

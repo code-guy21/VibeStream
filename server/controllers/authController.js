@@ -1,6 +1,6 @@
 module.exports = {
-	spotifyCallback: (req, res) => {
-		console.log(req.user);
-		res.send('Spotify Logged in!');
+	googleCallback: (req, res) => {
+		// console.log(req.user);
+		res.send('Google Logged in!');
 	},
 };
