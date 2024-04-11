@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const playbackHistorySchema = require('../models/PlaybackHistory');
+const playbackHistorySchema = require('../../models/PlaybackHistory');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const PlayBackHistory = mongoose.model(

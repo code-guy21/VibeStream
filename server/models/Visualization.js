@@ -2,7 +2,7 @@
 const { Schema, model } = require('mongoose');
 
 //Constants for enums
-const { VISIBILITY, PLATFORMS } = require('../utils/constants');
+const { VISIBILITY, SERVICES } = require('../utils/constants');
 
 // Visualization Schema definition
 /**
@@ -24,10 +24,10 @@ const visualizationSchema = new Schema(
 		platform: {
 			type: String,
 			required: [true, 'The music platform is required.'],
-			enum: Object.values(PLATFORMS),
+			enum: Object.values(SERVICES),
 			validate: {
 				validator: v => {
-					return Object.values(PLATFORMS).includes(v.toLowerCase());
+					return Object.values(SERVICES).includes(v.toLowerCase());
 				},
 				message: props => `${props.value} is not a supported music platform.`,
 			},

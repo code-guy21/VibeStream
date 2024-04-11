@@ -5,18 +5,22 @@ const VISIBILITY = {
 	FOLLOWERS_ONLY: 'followersOnly',
 };
 
-const PLATFORMS = {
+const SERVICES = {
 	SPOTIFY: 'spotify',
 };
 
-const PLAYLIST_TYPES = {
-	VIBESTREAM: 'vibestream',
-	PLATFORM: 'platform',
-	VIBESTREAMLIKED: 'vibestreamliked',
+const PROVIDERS = {
+	GOOGLE: 'google',
 };
+
+// const PLAYLIST_TYPES = {
+// 	VIBESTREAM: 'vibestream',
+// 	PLATFORM: 'platform',
+// 	VIBESTREAMLIKED: 'vibestreamliked',
+// };
 
 module.exports = {
 	VISIBILITY,
-	PLATFORMS,
-	PLAYLIST_TYPES,
+	SERVICES,
+	PROVIDERS,
 };

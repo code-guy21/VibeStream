@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { User } = require('../models/');
+const { User } = require('../../models');
+const bcrypt = require('bcrypt');
 
 let mongoServer;
 
@@ -29,7 +30,7 @@ afterAll(async () => {
 
 describe('User Model Test', () => {
 	// Test User creation with all required fields
-	it('create & save user successfully', async () => {
+	it('successfully creates a user with valid required fields', async () => {
 		const userData = {
 			username: 'testuser',
 			displayName: 'Test User',
@@ -45,7 +46,7 @@ describe('User Model Test', () => {
 		expect(savedUser.displayName).toEqual(userData.displayName);
 	});
 	// Test User creation fails when a username is missing
-	it('create user without required username field should fail', async () => {
+	it('fails to create a user without a required username', async () => {
 		const userWithoutRequiredUsername = new User({
 			displayName: 'Test User3', // displayName is now provided
 			email: 'testuser3@gmail.com',
@@ -60,7 +61,7 @@ describe('User Model Test', () => {
 		expect(err.errors.username).toBeDefined(); // Now this should be the only error
 	});
 	//Test user creation fails when using duplicate usernames
-	it('does not allow duplicate usernames', async () => {
+	it('prevents the creation of users with duplicate usernames', async () => {
 		const userData = {
 			username: 'duplicateUser1',
 			displayName: 'Test User1',
@@ -134,6 +135,61 @@ describe('User Model Test', () => {
 		expect(err.errors.displayName).toBeDefined(); // Now this should be the only error
 	});
 
+	// Test User creation fails when a password is less than 8 characters
+	it('should fail to create a user if the password is less than 8 characters ', async () => {
+		const userWithoutRequiredPasswordLength = new User({
+			username: 'testuser',
+			email: 'testuser3@gmail.com',
+			displayName: 'Test User',
+			password: '12345',
+		});
+		let err;
+		try {
+			await userWithoutRequiredPasswordLength.save();
+		} catch (error) {
+			err = error;
+		}
+		expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
+	});
+
+	// Test if password is excluded when querying a user
+	it('should not include password field when querying a user', async () => {
+		const userData = new User({
+			username: 'testuser',
+			email: 'testuser3@gmail.com',
+			displayName: 'Test User',
+			password: '123456789',
+		});
+
+		await userData.save();
+
+		let searchUser = await User.findOne({ email: userData.email }).select(
+			'-password'
+		);
+
+		expect(searchUser.password).toBeUndefined();
+	});
+
+	// Test if password is hashed before saving
+	it('should hash the user password before saving', async () => {
+		const userData = new User({
+			username: 'testuser',
+			email: 'testuser3@gmail.com',
+			displayName: 'Test User',
+			password: 'plaintextpassword',
+		});
+
+		await userData.save();
+
+		let searchUser = await User.findOne({ email: userData.email });
+
+		let isValid = await bcrypt.compare(
+			'plaintextpassword',
+			searchUser.password
+		);
+
+		expect(isValid).toBe(true);
+	});
 	//Test User creation fails when displayName length is greater than 50 characters
 	it('create user with displayName greater than 50 characters should fail', async () => {
 		let displayName = [...new Array(51)].fill('*');
@@ -247,7 +303,7 @@ describe('User Model Test', () => {
 	});
 
 	//Test User creation fails when bio length is greater than 160 characters
-	it('create user with bio greater than 160 characters should fail', async () => {
+	it('tests creating user with bio greater than 160 characters should fail', async () => {
 		let bio = [...new Array(161)].fill('*');
 		const userWithoutRequiredBioLength = new User({
 			displayName: 'Test User',
@@ -266,7 +322,7 @@ describe('User Model Test', () => {
 	});
 
 	// Test that fields not defined in the schema are ignored when saving a user
-	it('insert user successfully, but the field not defined in schema should be undefined', async () => {
+	it('inserts user successfully, but the field not defined in schema should be undefined', async () => {
 		const userWithInvalidField = new User({
 			username: 'testuser',
 			displayName: 'Test User', // displayName must be provided since it's required

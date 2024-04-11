@@ -1,58 +1,52 @@
-const { Schema, model } = require('mongoose');
-
-const validator = require('validator');
+const { Schema } = require('mongoose');
 
 // Constants for enums
-const { PLATFORMS } = require('../utils/constants');
+const { PROVIDERS } = require('../utils/constants');
 
-/** Auth Schema definition
+/**
+ * Auth Schema Definition
+ *
+ * This schema manages authentication data for users choosing to log in via third-party providers
+ * (e.g., Google, Facebook). It stores essential information for user authentication and session management,
+ * including access and refresh tokens provided by the authentication provider.
+ *
  * @module Auth
- * @description Handles the schema definition for Auth
- * This module defines the Auth schema and associated functionality
  */
 
 const authSchema = new Schema(
 	{
-		// Authentication provider (e.g., Spotify, Apple Music)
 		authProvider: {
 			type: String,
 			required: [true, 'Authentication provider is required'],
-			enum: Object.values(PLATFORMS),
-			validate: [
-				v => Object.values(PLATFORMS).includes(v.toLowerCase()),
-				'Unsupported authentication provider',
-			],
-			set: v => v.toLowerCase(),
+			enum: {
+				values: Object.values(PROVIDERS),
+				message: 'Unsupported authentication provider',
+			},
+			lowercase: true,
 		},
 
 		// Unique identifier from the authentication provider
-		profileId: {
+		providerId: {
 			type: String,
-			required: [true, 'Profile ID is required'],
+			required: [true, 'Provider ID is required'],
 		},
 
 		// Securely stored token for user authentication
-		encryptedAuthToken: {
+		accessToken: {
 			type: String,
-			required: [true, 'Encrypted authentication token is required'],
+			required: [true, 'Access token is required'],
 		},
 
 		// Securely stored refresh token for maintaining user sessions
-		encryptedRefreshToken: {
+		refreshToken: {
 			type: String,
-			required: [true, 'Encrypted refresh token is required'],
+			required: [true, 'Refresh token is required'],
 		},
 
 		// Expiration date for the authentication token
 		expirationDate: {
 			type: Date,
 			required: [true, 'Token expiration date is required'],
-		},
-
-		// Link to the user profile on the authentication provider's platform
-		profileLink: {
-			type: String,
-			validate: [validator.isURL, 'Invalid URL format for profile link'],
 		},
 	},
 	{
@@ -63,8 +57,5 @@ const authSchema = new Schema(
 	}
 );
 
-// Complile model from Schema
-const Auth = model('auth', authSchema);
-
 // Export the model
-module.exports = Auth;
+module.exports = authSchema;
