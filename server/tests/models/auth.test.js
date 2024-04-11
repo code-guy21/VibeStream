@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const authSchema = require('../models/Auth');
+const authSchema = require('../../models/Auth');
 
 const Auth = mongoose.model('auth', authSchema);
 

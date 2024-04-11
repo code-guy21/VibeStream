@@ -24,13 +24,16 @@ const PORT = process.env.PORT || 3001; // Server port assignment
 // Express application initialization
 const app = express();
 
-// Session management setup with express-session and MongoDB storage
+// Session storage backend initialization
+const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGODB_URI }); // Session storage backend
+
+// Session management configuration
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET || 'default_secret', // Session encryption key
 		resave: false, // Avoid resaving sessions that haven't changed
 		saveUninitialized: false, // Don't save new sessions that are empty
-		store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }), // Session storage backend
+		store: sessionStore,
 		cookie: {
 			secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
 			httpOnly: true, // Mitigate XSS attacks by restricting cookie access from JavaScript
@@ -39,25 +42,32 @@ app.use(
 	})
 );
 
+// Expose sessionStore for use outside this module
+app.sessionStore = sessionStore;
+
 // Middleware setup
 app.use(express.json()); // JSON parsing middleware for parsing application/json
 
 // Passport middleware for authentication
-app.use(passport.initialize()); // Initialize Passport for authentication
-app.use(passport.session()); // Enable session support for Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
-// API routes initialization
+// Initialize API routes
 app.use(routes);
 
 // Database connection and server startup
-connectDB()
-	.then(() => {
-		console.log('MongoDB successfully connected.');
-		app.listen(PORT, () => {
-			console.log(`Server is running on PORT: ${PORT}`);
-		});
-	})
-	.catch(error => {
+(async () => {
+	try {
+		if (process.env.NODE_ENV !== 'test') {
+			await connectDB();
+			console.log('MongoDB successfully connected.');
+
+			app.listen(PORT, () => console.log(`Server is running on PORT: ${PORT}`));
+		}
+	} catch (error) {
 		console.error('Database connection failed:', error);
 		process.exit(1);
-	});
+	}
+})();
+
+module.exports = app;

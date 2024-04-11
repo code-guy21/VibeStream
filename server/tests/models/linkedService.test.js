@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const linkedServiceSchema = require('../models/LinkedService');
+const linkedServiceSchema = require('../../models/LinkedService');
 
 const LinkedService = mongoose.model('linkedservice', linkedServiceSchema);
 
