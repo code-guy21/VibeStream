@@ -1,6 +1,9 @@
 const router = require('express').Router();
 const passport = require('passport');
-const { googleCallback } = require('../../controllers/authController');
+const {
+	googleCallback,
+	registerUser,
+} = require('../../controllers/authController');
 
 router.route('/google').get(
 	passport.authenticate('google', {
@@ -16,5 +19,7 @@ router
 		passport.authenticate('google', { failureRedirect: '/login' }),
 		googleCallback
 	);
+
+router.route('/register').post(registerUser);
 
 module.exports = router;

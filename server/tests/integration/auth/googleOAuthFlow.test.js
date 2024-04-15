@@ -20,17 +20,16 @@ beforeAll(async () => {
 	const mongoUri = mongoServer.getUri();
 
 	process.env.MONGODB_URI = mongoUri;
-
-	// Delay the import of the app until the environment variable is set
-	app = require('../../../app');
-
+	console.log('Connecting to database...');
 	await mongoose.connect(mongoUri, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 	});
+	console.log('Database connected');
 
-	// Dynamically allocate a port for the server
+	app = require('../../../app'); // Ensure app is required after the environment variable is set
 	server = app.listen(0);
+	await new Promise(resolve => server.once('listening', resolve)); // Ensure server is ready
 });
 afterAll(async () => {
 	await mongoose.connection.close();
@@ -91,6 +90,7 @@ jest.mock('passport-google-oauth20', () => {
 							if (!user) {
 								return this.fail(info);
 							}
+							console.log(this);
 							this.success(user, info);
 						}
 					);
@@ -109,16 +109,12 @@ describe('Google OAuth Callback Flow', () => {
 			method => method.authProvider === 'google'
 		);
 
-		expect(savedUser).toBeTruthy(
-			'The saved user should exist in the database.'
-		);
+		expect(savedUser).toBeTruthy();
 		expect(savedUser.email).toBe('mockuser@example.com');
 		expect(savedUser.displayName).toBe('Mock User');
 		expect(savedUser.profileImage).toBe('http://mockProfilePicUrl.org');
 
-		expect(authMethod).toBeTruthy(
-			'The user should have a Google auth method associated.'
-		);
+		expect(authMethod).toBeTruthy();
 		expect(authMethod.providerId).toBe('mockGoogleId123');
 		expect(authMethod.accessToken).toBe('mockAccessToken');
 		expect(authMethod.refreshToken).toBe('mockRefreshToken');
