@@ -90,7 +90,7 @@ jest.mock('passport-google-oauth20', () => {
 							if (!user) {
 								return this.fail(info);
 							}
-							console.log(this);
+
 							this.success(user, info);
 						}
 					);

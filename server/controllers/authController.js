@@ -1,4 +1,5 @@
 const { User } = require('../models');
+const bcrypt = require('bcrypt');
 
 module.exports = {
 	googleCallback: (req, res) => {
@@ -36,5 +37,8 @@ module.exports = {
 				.status(500)
 				.json({ error: 'Internal Server Error', details: error.message });
 		}
+	},
+	loginUser: async (req, res) => {
+		res.status(200).json({ message: 'Logged in!' });
 	},
 };

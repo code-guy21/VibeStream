@@ -44,7 +44,7 @@ afterAll(async function () {
 
 	// Shut down the server
 	if (server) {
-		server.close();
+		await new Promise(resolve => server.close(resolve));
 	}
 });
 
@@ -53,8 +53,30 @@ beforeEach(async function () {
 });
 
 describe('passport-local', function () {
-	it('creates and registers a user with local passport strategy', async function () {
-		const response = await request(app).post('/api/auth/register').send({
+	it('creates and registers a user', async function () {
+		const response = await request(app)
+			.post('/api/auth/register')
+			.send({
+				username: 'mockUsername',
+				displayName: 'Mock User',
+				email: 'mockuser@example.com',
+				password: 'mockPassword123',
+				profileImage: 'http://mockProfilePicUrl.org',
+			})
+			.expect(200);
+
+		const user = await User.findOne({ email: 'mockuser@example.com' });
+
+		expect(user).toBeTruthy();
+		expect(user.username.toLowerCase()).toBe('mockusername');
+		expect(user.displayName).toBe('Mock User');
+		expect(user.email).toBe('mockuser@example.com');
+		expect(await bcrypt.compare('mockPassword123', user.password)).toBe(true);
+		expect(user.profileImage).toBe('http://mockProfilePicUrl.org');
+	});
+
+	it('authenticates a user with email and password', async function () {
+		await request(app).post('/api/auth/register').send({
 			username: 'mockUsername',
 			displayName: 'Mock User',
 			email: 'mockuser@example.com',
@@ -62,14 +84,14 @@ describe('passport-local', function () {
 			profileImage: 'http://mockProfilePicUrl.org',
 		});
 
-		const user = await User.findOne({ email: 'mockuser@example.com' });
+		let response = await request(app)
+			.post('/api/auth/login')
+			.send({
+				email: 'mockuser@example.com',
+				password: 'mockPassword123',
+			})
+			.expect(200);
 
-		console.log(user);
-
-		expect(user).toBeTruthy();
-		expect(user.username.toLowerCase()).toBe('mockusername');
-		expect(user.email).toBe('mockuser@example.com');
-		expect(await bcrypt.compare('mockPassword123', user.password)).toBe(true);
-		expect(user.profileImage).toBe('http://mockProfilePicUrl.org');
+		expect(response.body).toEqual({ message: 'Logged in!' });
 	});
 });
