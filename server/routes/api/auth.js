@@ -4,6 +4,7 @@ const {
 	googleCallback,
 	registerUser,
 	loginUser,
+	verifyUser,
 } = require('../../controllers/authController');
 
 router.route('/google').get(
@@ -47,5 +48,7 @@ router.post('/login', (req, res, next) => {
 		});
 	})(req, res, next);
 });
+
+router.route('/verify').get(verifyUser);
 
 module.exports = router;

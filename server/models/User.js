@@ -50,6 +50,13 @@ const userSchema = new Schema(
 			trim: true,
 			minLength: [8, 'Password must be at least 8 characters long'],
 		},
+		verificationToken: {
+			type: String,
+		},
+		isVerified: {
+			type: Boolean,
+			default: false,
+		},
 		// URL to the user's profile image
 		profileImage: {
 			type: String,
