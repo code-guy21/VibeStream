@@ -2,6 +2,7 @@ const request = require('supertest');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const { User } = require('../../../models');
+const { generateVerificationToken } = require('../../../utils/email');
 const bcrypt = require('bcrypt');
 let server;
 let app;
@@ -53,7 +54,7 @@ beforeEach(async function () {
 });
 
 describe('passport-local', function () {
-	it('creates and registers a user', async function () {
+	it('registers a user and sends a verification token', async function () {
 		const response = await request(app)
 			.post('/api/auth/register')
 			.send({
@@ -73,16 +74,44 @@ describe('passport-local', function () {
 		expect(user.email).toBe('mockuser@example.com');
 		expect(await bcrypt.compare('mockPassword123', user.password)).toBe(true);
 		expect(user.profileImage).toBe('http://mockProfilePicUrl.org');
+		expect(user.isVerified).toBe(false);
+		expect(user.verificationToken).toBeTruthy();
 	});
 
-	it('authenticates a user with email and password', async function () {
-		await request(app).post('/api/auth/register').send({
+	it("authenticates user's verification token", async function () {
+		let token = generateVerificationToken();
+		let user = await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
 			email: 'mockuser@example.com',
 			password: 'mockPassword123',
 			profileImage: 'http://mockProfilePicUrl.org',
+			verificationToken: token,
 		});
+
+		const response = await request(app)
+			.get(`/api/auth/verify?token=${token}`)
+			.expect(200);
+
+		user = await User.findOne({ email: 'mockuser@example.com' });
+
+		expect(user.isVerified).toBe(true);
+		expect(user.verificationToken).toBe(null);
+	});
+
+	it('authenticates a user with email and password if account is verified', async function () {
+		let user = await User.create({
+			username: 'mockUsername',
+			displayName: 'Mock User',
+			email: 'mockuser@example.com',
+			password: 'mockPassword123',
+			profileImage: 'http://mockProfilePicUrl.org',
+			verificationToken: generateVerificationToken(),
+		});
+
+		await request(app)
+			.get(`/api/auth/verify?token=${user.verificationToken}`)
+			.expect(200);
 
 		let response = await request(app)
 			.post('/api/auth/login')

@@ -15,6 +15,10 @@ module.exports = new LocalStrategy(
 				return done(null, false, { message: 'User account not found' });
 			}
 
+			if (!user.isVerified) {
+				return done(null, false, { message: 'User account is not verified' });
+			}
+
 			if (!user.password) {
 				return done(null, false, {
 					message: 'Password is not set, please check your login method.',
