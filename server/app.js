@@ -37,8 +37,8 @@ app.use(
 		store: sessionStore,
 		cookie: {
 			secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-			httpOnly: true, // Mitigate XSS attacks by restricting cookie access from JavaScript
-			sameSite: 'strict', // Strictly enforce same-site policy for cookies
+			httpOnly: process.env.NODE_ENV === 'production', // Mitigate XSS attacks by restricting cookie access from JavaScript
+			sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Strictly enforce same-site policy for cookies
 		},
 	})
 );

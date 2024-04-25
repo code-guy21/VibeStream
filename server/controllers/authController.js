@@ -41,6 +41,9 @@ module.exports = {
 				.json({ error: 'Internal Server Error', details: error.message });
 		}
 	},
+	spotifyCallback: async (req, res) => {
+		res.send('spotify callback');
+	},
 	loginUser: async (req, res) => {
 		res.status(200).json({ message: 'Logged in!' });
 	},
