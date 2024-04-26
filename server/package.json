@@ -8,7 +8,8 @@
 		"dev": "nodemon server",
 		"test": "jest --verbose",
 		"test:integration": "NODE_ENV=test jest ./tests/integration --detectOpenHandles",
-		"test:models": "jest ./tests/models --verbose"
+		"test:models": "jest ./tests/models --verbose",
+		"test:services": "jest ./tests/services --verbose"
 	},
 	"repository": {
 		"type": "git",
