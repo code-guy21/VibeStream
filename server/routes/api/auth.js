@@ -3,6 +3,7 @@ const passport = require('passport');
 const {
 	googleCallback,
 	registerUser,
+	spotifyCallback,
 	loginUser,
 	verifyUser,
 } = require('../../controllers/authController');
@@ -20,6 +21,53 @@ router
 	.get(
 		passport.authenticate('google', { failureRedirect: '/login' }),
 		googleCallback
+	);
+
+router.route('/spotify').get(
+	passport.authorize('spotify', {
+		scope: ['user-read-email', 'user-read-private'],
+		showDialog: true,
+	})
+);
+
+router
+	.route('/spotify/callback')
+	.get(
+		passport.authorize('spotify', { failureRedirect: '/login' }),
+		(req, res) => {
+			// Check if there was an error during the authorization process
+			if (req.authInfo && req.authInfo.error) {
+				return res
+					.status(500)
+					.json({
+						error: 'Internal server error',
+						details: req.authInfo.error,
+					});
+			}
+
+			// Ensure the user is available in the request
+			if (!req.user) {
+				return res
+					.status(401)
+					.json({
+						error: 'Authentication failed',
+						message: 'User not logged in',
+					});
+			}
+
+			// Check if the account linking was successful
+			if (!req.account) {
+				return res
+					.status(401)
+					.json({
+						error: 'Authentication failed',
+						message: 'Spotify account linking failed',
+					});
+			}
+
+			// Continue with your Spotify callback logic
+			spotifyCallback(req, res);
+		}
 	);
 
 router.route('/register').post(registerUser);
