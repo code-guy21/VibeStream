@@ -1,7 +1,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { User } = require('../../models');
+const { User } = require('../../../models');
 
 let mongoServer;
 let app;
@@ -18,7 +18,7 @@ beforeAll(async () => {
 		useUnifiedTopology: true,
 	});
 
-	app = require('../../app');
+	app = require('../../../app');
 	server = app.listen(0);
 	await new Promise(resolve => server.once('listening', resolve));
 });

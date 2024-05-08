@@ -4,7 +4,7 @@ require('dotenv').config();
 module.exports = {
 	searchTracks: async (req, res) => {
 		try {
-			if (!req.body.term || !req.body.type) {
+			if (!req.query.term || !req.query.type) {
 				return res
 					.status(400)
 					.json({ message: 'Search term and type are required' });
@@ -13,8 +13,8 @@ module.exports = {
 			const baseURL = new URL(process.env.SPOTIFY_BASE_URL);
 
 			baseURL.search = new URLSearchParams({
-				q: req.body.term,
-				type: req.body.type,
+				q: req.query.term,
+				type: req.query.type,
 			});
 
 			const headers = {
