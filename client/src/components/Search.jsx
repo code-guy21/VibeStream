@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import WebPlayback from './WebPlayback';
 
 function Search() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [results, setResults] = useState([]);
 	const [track, setTrack] = useState({});
+	const [token, setToken] = useState('');
 
 	async function searchTracks() {
 		try {
@@ -21,6 +22,12 @@ function Search() {
 		}
 	}
 
+	useEffect(() => {
+		let storedToken = localStorage.getItem('access_token');
+
+		setToken(storedToken);
+	});
+
 	return (
 		<>
 			<label>search</label>
@@ -34,10 +41,7 @@ function Search() {
 						</button>
 					);
 				})}
-				<WebPlayback
-					track={track}
-					token='BQBC6Sffg3dn0_d4ylQDX5ONB4R6062rlvVRkec9U9Cass2280SZKU4PKtcBP57xOxsXGVNFZXT8I_9IkBRacefdgfhd_dbXPwmbRPV4pPFSFRzuZr7KcyFF8i_y-ATemtseRr4Nxugw7UA9VCSSUCSSGrWPrkjpZedArX8ZjblnZJDUgT4jVws-_0mGGWjeoK67gQ'
-				/>
+				<WebPlayback track={track} token={token} />
 			</div>
 		</>
 	);
