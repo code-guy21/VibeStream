@@ -2,10 +2,11 @@ import { Fragment } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import logo from '../../assets/images/vibestream-logo.svg';
 
 const navigation = [
 	{ name: 'Home', href: '/', current: true },
-	{ name: 'Auth', href: '/auth', current: false },
+	{ name: 'Login', href: '/auth', current: false },
 	{ name: 'Playback', href: '/playback', current: false },
 ];
 
@@ -34,11 +35,7 @@ export default function Navbar() {
 							</div>
 							<div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
 								<div className='flex flex-shrink-0 items-center'>
-									<img
-										className='h-8 w-auto'
-										src='https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500'
-										alt='Your Company'
-									/>
+									<img className='h-8 w-auto' src={logo} alt='VibeStream' />
 								</div>
 								<div className='hidden sm:ml-6 sm:block'>
 									<div className='flex space-x-4'>
