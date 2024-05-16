@@ -1,9 +1,10 @@
 import { Outlet } from 'react-router-dom';
-import './assets/styles/global.css';
+import Navbar from './components/Navbar';
 
 function App() {
 	return (
 		<div>
+			<Navbar />
 			<Outlet />
 		</div>
 	);
