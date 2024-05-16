@@ -1,12 +1,10 @@
-import './App.css';
-import Login from './components/Login';
-import Search from './components/Search';
+import { Outlet } from 'react-router-dom';
+import './assets/styles/global.css';
 
 function App() {
 	return (
 		<div>
-			<Login />
-			<Search />
+			<Outlet />
 		</div>
 	);
 }
