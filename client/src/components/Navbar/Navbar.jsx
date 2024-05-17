@@ -14,6 +14,7 @@ export default function Navbar() {
 		{ name: 'Home', href: '/', current: false },
 		{ name: 'Login', href: '/login', current: false },
 		{ name: 'Playback', href: '/playback', current: false },
+		{ name: 'Services', href: '/service', current: false },
 	]);
 
 	useEffect(() => {

@@ -5,6 +5,7 @@ import App from './App';
 import Auth from './containers/Auth';
 import PlayBack from './containers/Playback';
 import HomePage from './pages/HomePage';
+import ServicePage from './pages/ServicePage';
 import './index.css';
 
 import reportWebVitals from './reportWebVitals';
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
 			{
 				path: '/playback',
 				element: <PlayBack />,
+			},
+			{
+				path: '/service',
+				element: <ServicePage />,
 			},
 		],
 	},
