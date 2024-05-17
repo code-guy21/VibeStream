@@ -1,5 +1,11 @@
+import Login from '../../components/Login/index';
+
 const AuthPage = () => {
-	return <>Auth</>;
+	return (
+		<>
+			<Login />
+		</>
+	);
 };
 
 export default AuthPage;

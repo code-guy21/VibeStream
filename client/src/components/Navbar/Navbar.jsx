@@ -1,20 +1,30 @@
-import { Fragment } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../../assets/images/vibestream-logo.svg';
-
-const navigation = [
-	{ name: 'Home', href: '/', current: true },
-	{ name: 'Login', href: '/auth', current: false },
-	{ name: 'Playback', href: '/playback', current: false },
-];
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(' ');
 }
 
 export default function Navbar() {
+	const location = useLocation();
+	const [navigation, setNavigation] = useState([
+		{ name: 'Home', href: '/', current: false },
+		{ name: 'Login', href: '/login', current: false },
+		{ name: 'Playback', href: '/playback', current: false },
+	]);
+
+	useEffect(() => {
+		let updatedNav = navigation.map(el => ({
+			...el,
+			current: el.href === location.pathname,
+		}));
+
+		setNavigation(updatedNav);
+	}, [location.pathname]);
+
 	return (
 		<Disclosure as='nav' className='bg-gray-800'>
 			{({ open }) => (
