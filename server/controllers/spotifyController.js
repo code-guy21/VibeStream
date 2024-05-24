@@ -34,4 +34,5 @@ module.exports = {
 			res.status(status).json({ message });
 		}
 	},
+	getAccessToken: (req, res) => res.json({ token: req.spotifyAccessToken }),
 };
