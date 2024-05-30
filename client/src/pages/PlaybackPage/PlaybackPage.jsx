@@ -7,7 +7,6 @@ const PlayBackPage = ({
 	results,
 	setTrack,
 	track,
-	token,
 	setActive,
 	setPaused,
 	setPlayer,
@@ -59,7 +58,6 @@ const PlayBackPage = ({
 					isActive={isActive}
 					player={player}
 					track={track}
-					token={token}
 				/>
 			</div>
 		</div>

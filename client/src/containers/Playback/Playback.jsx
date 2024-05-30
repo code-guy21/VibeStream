@@ -25,12 +25,6 @@ const PlayBack = () => {
 		}
 	}
 
-	useEffect(() => {
-		let storedToken = localStorage.getItem('access_token');
-
-		setToken(storedToken);
-	});
-
 	return (
 		<>
 			<PlayBackPage
@@ -44,8 +38,7 @@ const PlayBack = () => {
 				searchTracks={searchTracks}
 				results={results}
 				setTrack={setTrack}
-				track={track}
-				token={token}></PlayBackPage>
+				track={track}></PlayBackPage>
 		</>
 	);
 };

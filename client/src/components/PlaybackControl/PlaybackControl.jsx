@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 function PlaybackControl({
-	token,
 	track,
 	isPaused,
 	isActive,
@@ -10,13 +9,31 @@ function PlaybackControl({
 	setPaused,
 	setPlayer,
 }) {
+	const [accessToken, setAccessToken] = useState('');
+
 	useEffect(() => {
+		async function fetchToken() {
+			try {
+				let res = await fetch('/api/spotify/token');
+				let { token } = await res.json();
+				console.log(token);
+				setAccessToken(token);
+				setUpPlayer(token);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+
+		fetchToken();
+	}, []);
+
+	function setUpPlayer(token) {
 		const script = document.createElement('script');
 		script.src = 'https://sdk.scdn.co/spotify-player.js';
 		script.async = true;
 		document.body.appendChild(script);
 
-		window.onSpotifyWebPlaybackSDKReady = () => {
+		window.onSpotifyWebPlaybackSDKReady = async () => {
 			const sdkPlayer = new window.Spotify.Player({
 				name: 'Web Playback SDK',
 				getOAuthToken: cb => cb(token),
@@ -32,7 +49,7 @@ function PlaybackControl({
 			sdkPlayer.connect();
 			setPlayer(sdkPlayer);
 		};
-	}, [token]);
+	}
 
 	useEffect(() => {
 		if (player && track?.uri && isActive) {
@@ -41,11 +58,38 @@ function PlaybackControl({
 				console.log(state);
 			});
 
-			playTrack(track.uri, token);
+			playTrack(track.uri, accessToken);
 		}
-	}, [player, track, isActive, token]);
+	}, [player, track, isActive]);
+
+	async function playTrack(uri, token) {
+		player._options.getOAuthToken(async access_token => {
+			try {
+				let response = await fetch(
+					`https://api.spotify.com/v1/me/player/play`,
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${access_token}`,
+						},
+						body: JSON.stringify({ uris: [uri] }),
+					}
+				);
+
+				if (response.ok) {
+					console.log('Track playback started');
+				} else {
+					console.error('Failed to start playback');
+				}
+			} catch (error) {
+				console.error('Error playing track:', error);
+			}
+		});
+	}
 
 	async function setDeviceAsActive(device_id, token) {
+		console.log(token);
 		await fetch(`https://api.spotify.com/v1/me/player`, {
 			method: 'PUT',
 			headers: {
@@ -56,27 +100,6 @@ function PlaybackControl({
 				device_ids: [device_id],
 				play: false,
 			}),
-		});
-	}
-
-	async function playTrack(uri, token) {
-		player._options.getOAuthToken(access_token => {
-			fetch(`https://api.spotify.com/v1/me/player/play`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${access_token}`,
-				},
-				body: JSON.stringify({ uris: [uri] }),
-			})
-				.then(response => {
-					if (response.ok) {
-						console.log('Track playback started');
-					} else {
-						console.error('Failed to start playback');
-					}
-				})
-				.catch(error => console.error('Error playing track:', error));
 		});
 	}
 
