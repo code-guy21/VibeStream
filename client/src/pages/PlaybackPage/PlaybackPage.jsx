@@ -33,7 +33,7 @@ const PlayBackPage = ({
 			<div className='flex flex-col mt-5'>
 				{results?.map((t, i) => {
 					return (
-						<div className='flex w-full h-16 m-1  border-2'>
+						<div key={i} className='flex w-full h-16 m-1  border-2'>
 							<Button onClick={() => setTrack(t)} key={i}>
 								<img className='w-16 h-full' src={t.album.images[0].url}></img>
 							</Button>
@@ -53,7 +53,6 @@ const PlayBackPage = ({
 				<PlaybackControl
 					setActive={setActive}
 					setPaused={setPaused}
-					setPlayer={setPlayer}
 					isPaused={isPaused}
 					isActive={isActive}
 					player={player}

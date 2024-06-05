@@ -34,5 +34,59 @@ module.exports = {
 			res.status(status).json({ message });
 		}
 	},
-	getAccessToken: (req, res) => res.json({ token: req.spotifyAccessToken }),
+	getAccessToken: (req, res) => {
+		res.json({ token: req.spotifyAccessToken });
+	},
+	playTrack: async (req, res) => {
+		try {
+			let response = await axios.put(
+				'https://api.spotify.com/v1/me/player/play',
+				{
+					uris: req.body.uris,
+					...(req.body.device_id && { device_id: req.body.device_id }),
+				},
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${req.spotifyAccessToken}`,
+					},
+				}
+			);
+
+			if (response.status !== 202) {
+				return res.status(400).json({ message: 'Failed to start playback' });
+			}
+
+			res.status(200).json({ message: 'Track playback started' });
+		} catch (error) {
+			res.status(500).json({ message: error.message });
+		}
+	},
+	setDevice: async (req, res) => {
+		try {
+			const response = await axios.put(
+				'https://api.spotify.com/v1/me/player',
+				{
+					device_ids: [req.body.device_id],
+					play: false,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${req.spotifyAccessToken}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			if (response.status !== 204) {
+				res.status(400).json({ message: 'Failed to set device' });
+			}
+
+			res
+				.status(200)
+				.json({ message: `device ${req.body.device_id} set as active` });
+		} catch (error) {
+			res.status(500).json({ message: error.message });
+		}
+	},
 };

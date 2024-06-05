@@ -25,7 +25,12 @@ router
 
 router.route('/spotify').get(
 	passport.authorize('spotify', {
-		scope: ['user-read-email', 'user-read-private', 'streaming'],
+		scope: [
+			'user-read-email',
+			'user-read-private',
+			'user-read-playback-state',
+			'streaming',
+		],
 		showDialog: true,
 	})
 );

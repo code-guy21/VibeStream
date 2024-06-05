@@ -8,7 +8,6 @@ const PlayBack = () => {
 	const [token, setToken] = useState('');
 	const [isPaused, setPaused] = useState(false);
 	const [isActive, setActive] = useState(false);
-	const [player, setPlayer] = useState(null);
 
 	async function searchTracks() {
 		try {
@@ -30,10 +29,7 @@ const PlayBack = () => {
 			<PlayBackPage
 				setPaused={setPaused}
 				setActive={setActive}
-				setPlayer={setPlayer}
-				isPaused={isPaused}
 				isActive={isActive}
-				player={player}
 				setSearchTerm={setSearchTerm}
 				searchTracks={searchTracks}
 				results={results}

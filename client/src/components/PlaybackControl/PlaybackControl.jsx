@@ -1,26 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { playTrack, setDeviceAsActive } from '../../api/spotify';
 
-function PlaybackControl({
-	track,
-	isPaused,
-	isActive,
-	player,
-	setActive,
-	setPaused,
-	setPlayer,
-}) {
+function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
+	const [player, setPlayer] = useState(null);
 	const [accessToken, setAccessToken] = useState('');
+	const [deviceID, setDeviceID] = useState('');
+	const playerSetupRef = useRef(false);
 
 	useEffect(() => {
 		async function fetchToken() {
 			try {
-				let res = await fetch('/api/spotify/token');
-				let { token } = await res.json();
-				console.log(token);
-				setAccessToken(token);
-				setUpPlayer(token);
+				const res = await fetch('/api/spotify/token');
+				const { token } = await res.json();
+
+				if (token) {
+					setAccessToken(token);
+					if (!playerSetupRef.current) {
+						setUpPlayer(token);
+						playerSetupRef.current = true;
+					}
+				}
 			} catch (error) {
-				console.log(error);
+				console.log('Error fetching token:', error);
 			}
 		}
 
@@ -43,7 +44,14 @@ function PlaybackControl({
 			sdkPlayer.addListener('ready', async ({ device_id }) => {
 				console.log('Ready with Device ID', device_id);
 				setActive(true);
-				await setDeviceAsActive(device_id, token);
+				setDeviceID(device_id);
+				try {
+					let response = await setDeviceAsActive(device_id);
+					let data = await response.json();
+					console.log('Device set as active:', data);
+				} catch (error) {
+					console.error('Error setting device as active:', error.message);
+				}
 			});
 
 			sdkPlayer.connect();
@@ -57,51 +65,19 @@ function PlaybackControl({
 				setPaused(state.paused);
 				console.log(state);
 			});
-
-			playTrack(track.uri, accessToken);
+			playTrackHandler();
 		}
-	}, [player, track, isActive]);
+	}, [player, track, isActive, accessToken, deviceID, setPaused]);
 
-	async function playTrack(uri, token) {
-		player._options.getOAuthToken(async access_token => {
-			try {
-				let response = await fetch(
-					`https://api.spotify.com/v1/me/player/play`,
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${access_token}`,
-						},
-						body: JSON.stringify({ uris: [uri] }),
-					}
-				);
-
-				if (response.ok) {
-					console.log('Track playback started');
-				} else {
-					console.error('Failed to start playback');
-				}
-			} catch (error) {
-				console.error('Error playing track:', error);
-			}
-		});
-	}
-
-	async function setDeviceAsActive(device_id, token) {
-		console.log(token);
-		await fetch(`https://api.spotify.com/v1/me/player`, {
-			method: 'PUT',
-			headers: {
-				Authorization: `Bearer ${token}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				device_ids: [device_id],
-				play: false,
-			}),
-		});
-	}
+	const playTrackHandler = async () => {
+		try {
+			let response = await playTrack(track.uri, accessToken, deviceID);
+			let data = await response.json();
+			console.log('Track playback started:', data);
+		} catch (error) {
+			console.error('Error starting playback:', error);
+		}
+	};
 
 	return (
 		<div>
@@ -111,7 +87,9 @@ function PlaybackControl({
 					<button
 						className='btn-spotify'
 						onClick={() => {
-							player.togglePlay();
+							player.togglePlay().catch(error => {
+								console.error('Error toggling playback:', error);
+							});
 						}}>
 						{isPaused ? 'PLAY' : 'PAUSE'}
 					</button>
