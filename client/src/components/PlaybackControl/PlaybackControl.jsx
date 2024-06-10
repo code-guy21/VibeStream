@@ -41,6 +41,8 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 				volume: 0.5,
 			});
 
+			setPlayer(sdkPlayer);
+
 			sdkPlayer.addListener('ready', async ({ device_id }) => {
 				console.log('Ready with Device ID', device_id);
 				setActive(true);
@@ -54,8 +56,11 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 				}
 			});
 
+			sdkPlayer.addListener('not_ready', ({ device_id }) => {
+				console.log('Device ID has gone offline', device_id);
+			});
+
 			sdkPlayer.connect();
-			setPlayer(sdkPlayer);
 		};
 	}
 

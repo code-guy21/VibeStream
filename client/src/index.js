@@ -6,6 +6,7 @@ import Auth from './containers/Auth';
 import PlayBack from './containers/Playback';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
+import Visualization from './containers/Visualization';
 import './index.css';
 
 import reportWebVitals from './reportWebVitals';
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
 			{
 				path: '/service',
 				element: <ServicePage />,
+			},
+			{
+				path: '/visual',
+				element: <Visualization />,
 			},
 		],
 	},
