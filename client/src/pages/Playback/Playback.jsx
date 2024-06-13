@@ -1,19 +1,30 @@
 import { Input, Label, Field, Fieldset, Button } from '@headlessui/react';
-import PlaybackControl from '../../components/PlaybackControl';
-
-const PlayBackPage = ({
+import { useSelector, useDispatch } from 'react-redux';
+import {
 	setSearchTerm,
-	searchTracks,
-	results,
-	setTrack,
-	track,
-	setActive,
-	setPaused,
-	setPlayer,
-	isPaused,
-	isActive,
-	player,
-}) => {
+	setTrackList,
+	setCurrentTrack,
+} from '../../redux/reducers/playbackSlice';
+
+const Playback = () => {
+	const state = useSelector(state => state.playback);
+	const dispatch = useDispatch();
+
+	async function searchTracks() {
+		try {
+			const resp = await fetch(
+				`/api/spotify/search?term=${state.searchTerm}&type=track`
+			);
+			const data = await resp.json();
+
+			console.log(data.tracks.items);
+
+			dispatch(setTrackList(data.tracks.items));
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 	return (
 		<div className='flex flex-col py-10 px-6 min-h-full'>
 			<Fieldset>
@@ -21,7 +32,7 @@ const PlayBackPage = ({
 					<Input
 						className='rounded-md flex-1'
 						placeholder='Search songs, albums, artists'
-						onChange={e => setSearchTerm(e.target.value)}
+						onChange={e => dispatch(setSearchTerm(e.target.value))}
 						type='text'></Input>
 					<Button
 						className='flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
@@ -31,10 +42,10 @@ const PlayBackPage = ({
 				</Field>
 			</Fieldset>
 			<div className='flex flex-col mt-5'>
-				{results?.map((t, i) => {
+				{state.trackList?.map((t, i) => {
 					return (
 						<div key={i} className='flex w-full h-16 m-1  border-2'>
-							<Button onClick={() => setTrack(t)} key={i}>
+							<Button onClick={() => dispatch(setCurrentTrack(t))} key={i}>
 								<img className='w-16 h-full' src={t.album.images[0].url}></img>
 							</Button>
 							<div className='flex flex-1 flex-col px-2'>
@@ -50,17 +61,9 @@ const PlayBackPage = ({
 						</div>
 					);
 				})}
-				<PlaybackControl
-					setActive={setActive}
-					setPaused={setPaused}
-					isPaused={isPaused}
-					isActive={isActive}
-					player={player}
-					track={track}
-				/>
 			</div>
 		</div>
 	);
 };
 
-export default PlayBackPage;
+export default Playback;

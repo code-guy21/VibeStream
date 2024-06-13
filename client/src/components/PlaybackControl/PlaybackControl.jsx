@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
+import playerStyles from './PlaybackControl.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	setAccessToken,
+	setDeviceID,
+	setPaused,
+	setActive,
+} from '../../redux/reducers/playbackSlice';
 import { playTrack, setDeviceAsActive } from '../../api/spotify';
 
-function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
-	const [player, setPlayer] = useState(null);
-	const [accessToken, setAccessToken] = useState('');
-	const [deviceID, setDeviceID] = useState('');
+function PlaybackControl() {
+	const state = useSelector(state => state);
+	const dispatch = useDispatch();
+	const playerRef = useRef(null);
 	const playerSetupRef = useRef(false);
 
 	useEffect(() => {
@@ -14,7 +22,7 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 				const { token } = await res.json();
 
 				if (token) {
-					setAccessToken(token);
+					dispatch(setAccessToken(token));
 					if (!playerSetupRef.current) {
 						setUpPlayer(token);
 						playerSetupRef.current = true;
@@ -26,7 +34,7 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 		}
 
 		fetchToken();
-	}, []);
+	}, [state.user.loggedIn]);
 
 	function setUpPlayer(token) {
 		const script = document.createElement('script');
@@ -35,18 +43,19 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 		document.body.appendChild(script);
 
 		window.onSpotifyWebPlaybackSDKReady = async () => {
+			if (playerRef.current) return;
+
 			const sdkPlayer = new window.Spotify.Player({
 				name: 'Web Playback SDK',
 				getOAuthToken: cb => cb(token),
 				volume: 0.5,
 			});
 
-			setPlayer(sdkPlayer);
-
+			playerRef.current = sdkPlayer;
 			sdkPlayer.addListener('ready', async ({ device_id }) => {
 				console.log('Ready with Device ID', device_id);
-				setActive(true);
-				setDeviceID(device_id);
+				dispatch(setActive(true));
+				dispatch(setDeviceID(device_id));
 				try {
 					let response = await setDeviceAsActive(device_id);
 					let data = await response.json();
@@ -65,18 +74,30 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 	}
 
 	useEffect(() => {
-		if (player && track?.uri && isActive) {
-			player.addListener('player_state_changed', state => {
-				setPaused(state.paused);
-				console.log(state);
+		if (
+			playerRef.current &&
+			state.playback.currentTrack?.uri &&
+			state.playback.isActive
+		) {
+			playerRef.current.addListener('player_state_changed', st => {
+				dispatch(setPaused(st?.paused));
+				console.log(st);
 			});
 			playTrackHandler();
 		}
-	}, [player, track, isActive, accessToken, deviceID, setPaused]);
+	}, [
+		state.playback.currentTrack,
+		state.playback.isActive,
+		state.playback.accessToken,
+		state.playback.deviceID,
+	]);
 
 	const playTrackHandler = async () => {
 		try {
-			let response = await playTrack(track.uri, accessToken, deviceID);
+			let response = await playTrack(
+				state.playback.currentTrack.uri,
+				state.deviceID
+			);
 			let data = await response.json();
 			console.log('Track playback started:', data);
 		} catch (error) {
@@ -85,24 +106,24 @@ function PlaybackControl({ track, isPaused, isActive, setActive, setPaused }) {
 	};
 
 	return (
-		<div>
-			{track?.uri ? (
-				<div>
-					<img src={track.album.images[0].url} alt='' />
-					<button
-						className='btn-spotify'
-						onClick={() => {
-							player.togglePlay().catch(error => {
-								console.error('Error toggling playback:', error);
-							});
-						}}>
-						{isPaused ? 'PLAY' : 'PAUSE'}
-					</button>
+		<>
+			{state.playback.currentTrack?.uri && (
+				<div className={playerStyles.player}>
+					<img src={state.playback.currentTrack.album.images[0].url} alt='' />
+					<div className={playerStyles.control}>
+						<button
+							className='btn-spotify'
+							onClick={() => {
+								playerRef.current.togglePlay().catch(error => {
+									console.error('Error toggling playback:', error);
+								});
+							}}>
+							{state.playback.isPaused ? 'PLAY' : 'PAUSE'}
+						</button>
+					</div>
 				</div>
-			) : (
-				<p>No track selected</p>
 			)}
-		</div>
+		</>
 	);
 }
 

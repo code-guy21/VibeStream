@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../../redux/reducers/userSlice';
 import logo from '../../assets/images/vibestream-logo.svg';
 
 function Login() {
+	const dispatch = useDispatch();
 	const [form, setForm] = useState({
 		email: '',
 		password: '',
@@ -22,6 +25,7 @@ function Login() {
 			let data = await res.json();
 
 			console.log(data);
+			dispatch(loginUser());
 		} catch (error) {
 			console.log(error);
 		}

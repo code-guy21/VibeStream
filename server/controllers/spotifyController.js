@@ -86,6 +86,7 @@ module.exports = {
 				.status(200)
 				.json({ message: `device ${req.body.device_id} set as active` });
 		} catch (error) {
+			console.log(error);
 			res.status(500).json({ message: error.message });
 		}
 	},

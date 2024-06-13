@@ -1,4 +1,4 @@
-export const playTrack = (uri, toke, deviceID) =>
+export const playTrack = (uri, deviceID) =>
 	fetch('/api/spotify/play', {
 		method: 'POST',
 		headers: {
