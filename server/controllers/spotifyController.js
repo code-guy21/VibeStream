@@ -42,7 +42,8 @@ module.exports = {
 			let response = await axios.put(
 				'https://api.spotify.com/v1/me/player/play',
 				{
-					uris: req.body.uris,
+					...(req.body.uris && { uris: req.body.uris }),
+					...(req.body.context_uri && { context_uri: req.body.context_uri }),
 					...(req.body.device_id && { device_id: req.body.device_id }),
 				},
 				{
@@ -59,6 +60,7 @@ module.exports = {
 
 			res.status(200).json({ message: 'Track playback started' });
 		} catch (error) {
+			console.log(error);
 			res.status(500).json({ message: error.message });
 		}
 	},

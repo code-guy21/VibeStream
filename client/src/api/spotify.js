@@ -1,10 +1,14 @@
-export const playTrack = (uri, deviceID) =>
+export const playTrack = (uri, deviceID, context_uri) =>
 	fetch('/api/spotify/play', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({ uris: [uri], device_id: deviceID }),
+		body: JSON.stringify({
+			uris: uri ? [uri] : null,
+			device_id: deviceID,
+			context_uri: context_uri !== '-' ? context_uri : '',
+		}),
 	});
 
 export const setDeviceAsActive = device_id =>

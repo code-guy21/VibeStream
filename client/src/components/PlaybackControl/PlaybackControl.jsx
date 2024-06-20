@@ -8,10 +8,12 @@ import {
 import playerStyles from './PlaybackControl.module.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+	setCurrentTrack,
 	setAccessToken,
 	setDeviceID,
 	setPaused,
 	setActive,
+	setContextURI,
 } from '../../redux/reducers/playbackSlice';
 import { playTrack, setDeviceAsActive } from '../../api/spotify';
 
@@ -20,6 +22,11 @@ function PlaybackControl() {
 	const dispatch = useDispatch();
 	const playerRef = useRef(null);
 	const playerSetupRef = useRef(false);
+	const stateRef = useRef(state);
+
+	useEffect(() => {
+		stateRef.current = state;
+	}, [state]);
 
 	useEffect(() => {
 		async function fetchToken() {
@@ -71,6 +78,31 @@ function PlaybackControl() {
 				}
 			});
 
+			sdkPlayer.addListener('player_state_changed', st => {
+				console.log('changed');
+				console.log(st);
+				console.log(st.context.uri);
+				console.log(stateRef.current);
+
+				dispatch(setPaused(st?.paused));
+				if (st.context.uri) {
+					dispatch(setContextURI(st.context.uri));
+				}
+
+				if (
+					st.track_window.current_track.uri !==
+					stateRef.current.playback.currentTrack?.uri
+				) {
+					if (!st.context.uri || st.context.uri === '-') {
+						dispatch(setCurrentTrack(st.track_window.current_track));
+					} else {
+						dispatch(
+							setCurrentTrack({ ...st.track_window.current_track, uri: null })
+						);
+					}
+				}
+			});
+
 			sdkPlayer.addListener('not_ready', ({ device_id }) => {
 				console.log('Device ID has gone offline', device_id);
 			});
@@ -80,29 +112,27 @@ function PlaybackControl() {
 	}
 
 	useEffect(() => {
+		console.log('useEffect', state.playback);
 		if (
 			playerRef.current &&
-			state.playback.currentTrack?.uri &&
+			(state.playback.currentTrack?.uri ||
+				(state.playback.contextURI && state.playback.contextURI !== '-')) &&
 			state.playback.isActive
 		) {
-			playerRef.current.addListener('player_state_changed', st => {
-				dispatch(setPaused(st?.paused));
-				console.log(st);
-			});
 			playTrackHandler();
 		}
 	}, [
-		state.playback.currentTrack,
+		state.playback.currentTrack?.uri,
 		state.playback.isActive,
-		state.playback.accessToken,
-		state.playback.deviceID,
+		state.playback.contextURI,
 	]);
 
 	const playTrackHandler = async () => {
 		try {
 			let response = await playTrack(
-				state.playback.currentTrack.uri,
-				state.deviceID
+				state.playback.currentTrack?.uri,
+				state.deviceID,
+				state.playback.contextURI
 			);
 			let data = await response.json();
 			console.log('Track playback started:', data);
@@ -111,11 +141,21 @@ function PlaybackControl() {
 		}
 	};
 
+	const handleNextTrack = async () => {
+		try {
+			let res = await playerRef.current.nextTrack();
+			dispatch(setCurrentTrack({ ...state.playback.currentTrack, uri: null }));
+			console.log(res);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	return (
 		<>
-			{state.playback.currentTrack?.uri && (
+			{state.playback.currentTrack && (
 				<div className={playerStyles.player}>
-					<img src={state.playback.currentTrack.album.images[0].url} alt='' />
+					<img src={state.playback.currentTrack?.album?.images[0].url} alt='' />
 					<div className={playerStyles.control}>
 						<button
 							className='btn-spotify p-1 m-1'
@@ -139,13 +179,7 @@ function PlaybackControl() {
 								<PauseIcon className='h-12 w-12'></PauseIcon>
 							)}
 						</button>
-						<button
-							className='btn-spotify p-1 m-1'
-							onClick={() => {
-								playerRef.current.nextTrack().catch(error => {
-									console.error('Error playing next track:', error);
-								});
-							}}>
+						<button className='btn-spotify p-1 m-1' onClick={handleNextTrack}>
 							<ForwardIcon className='h-6 w-6'></ForwardIcon>
 						</button>
 					</div>

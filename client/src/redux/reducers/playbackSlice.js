@@ -8,6 +8,7 @@ const initialState = {
 	deviceID: '',
 	isPaused: true,
 	isActive: false,
+	contextURI: '-',
 };
 
 export const playBackSlice = createSlice({
@@ -35,6 +36,9 @@ export const playBackSlice = createSlice({
 		setActive: (state, action) => {
 			state.isActive = action.payload;
 		},
+		setContextURI: (state, action) => {
+			state.contextURI = action.payload;
+		},
 	},
 });
 
@@ -46,6 +50,7 @@ export const {
 	setDeviceID,
 	setPaused,
 	setActive,
+	setContextURI,
 } = playBackSlice.actions;
 
 export default playBackSlice.reducer;

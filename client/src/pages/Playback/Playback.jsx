@@ -4,6 +4,7 @@ import {
 	setSearchTerm,
 	setTrackList,
 	setCurrentTrack,
+	setContextURI,
 } from '../../redux/reducers/playbackSlice';
 
 const Playback = () => {
@@ -45,7 +46,12 @@ const Playback = () => {
 				{state.trackList?.map((t, i) => {
 					return (
 						<div key={i} className='flex w-full h-16 m-1  border-2'>
-							<Button onClick={() => dispatch(setCurrentTrack(t))} key={i}>
+							<Button
+								onClick={() => {
+									dispatch(setCurrentTrack(t));
+									dispatch(setContextURI(null));
+								}}
+								key={i}>
 								<img className='w-16 h-full' src={t.album.images[0].url}></img>
 							</Button>
 							<div className='flex flex-1 flex-col px-2'>
