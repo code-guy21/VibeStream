@@ -1,4 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+	PlayIcon,
+	PauseIcon,
+	BackwardIcon,
+	ForwardIcon,
+} from '@heroicons/react/24/solid';
 import playerStyles from './PlaybackControl.module.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -112,13 +118,35 @@ function PlaybackControl() {
 					<img src={state.playback.currentTrack.album.images[0].url} alt='' />
 					<div className={playerStyles.control}>
 						<button
-							className='btn-spotify'
+							className='btn-spotify p-1 m-1'
+							onClick={() => {
+								playerRef.current.previousTrack().catch(error => {
+									console.error('Error playing previous track:', error);
+								});
+							}}>
+							<BackwardIcon className='h-6 w-6'></BackwardIcon>
+						</button>
+						<button
+							className='btn-spotify p-2 m-2'
 							onClick={() => {
 								playerRef.current.togglePlay().catch(error => {
 									console.error('Error toggling playback:', error);
 								});
 							}}>
-							{state.playback.isPaused ? 'PLAY' : 'PAUSE'}
+							{state.playback.isPaused ? (
+								<PlayIcon className='h-12 w-12'></PlayIcon>
+							) : (
+								<PauseIcon className='h-12 w-12'></PauseIcon>
+							)}
+						</button>
+						<button
+							className='btn-spotify p-1 m-1'
+							onClick={() => {
+								playerRef.current.nextTrack().catch(error => {
+									console.error('Error playing next track:', error);
+								});
+							}}>
+							<ForwardIcon className='h-6 w-6'></ForwardIcon>
 						</button>
 					</div>
 				</div>
