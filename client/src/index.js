@@ -9,6 +9,7 @@ import PlayBack from './pages/Playback';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import Visualization from './containers/Visualization';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import './index.css';
 
 import reportWebVitals from './reportWebVitals';
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
 		children: [
 			{
 				path: '/',
-				element: <HomePage />,
+				element: <ProtectedRoute element={<HomePage />}></ProtectedRoute>,
 			},
 			{
 				path: '/login',
@@ -28,15 +29,15 @@ const router = createBrowserRouter([
 			},
 			{
 				path: '/playback',
-				element: <PlayBack />,
+				element: <ProtectedRoute element={<PlayBack />}></ProtectedRoute>,
 			},
 			{
 				path: '/service',
-				element: <ServicePage />,
+				element: <ProtectedRoute element={<ServicePage />}></ProtectedRoute>,
 			},
 			{
 				path: '/visual',
-				element: <Visualization />,
+				element: <ProtectedRoute element={<Visualization />}></ProtectedRoute>,
 			},
 		],
 	},

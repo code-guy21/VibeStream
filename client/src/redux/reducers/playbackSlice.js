@@ -39,6 +39,14 @@ export const playBackSlice = createSlice({
 		setContextURI: (state, action) => {
 			state.contextURI = action.payload;
 		},
+		clearPlayback: (state, action) => {
+			state.searchTerm = '';
+			state.trackList = [];
+			state.accessToken = '';
+			state.deviceID = '';
+			state.isPaused = true;
+			state.isActive = false;
+		},
 	},
 });
 

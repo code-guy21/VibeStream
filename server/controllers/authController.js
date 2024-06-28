@@ -3,7 +3,6 @@ const { generateVerificationToken, sendEmail } = require('../utils/email');
 
 module.exports = {
 	googleCallback: (req, res) => {
-		// console.log(req.user);
 		res.send('Google Logged in!');
 	},
 	registerUser: async (req, res) => {
@@ -45,7 +44,24 @@ module.exports = {
 		res.send('spotify callback');
 	},
 	loginUser: async (req, res) => {
-		res.status(200).json({ message: 'Logged in!' });
+		res.status(200).json({ loggedIn: true, user: req.user });
+	},
+	logoutUser: async (req, res) => {
+		req.logout(err => {
+			if (err) {
+				return res.status(400).json({ message: err.message });
+			}
+			res.status(200).json({ message: 'User logged out' });
+		});
+	},
+	checkAuthStatus: async (req, res) => {
+		if (req.isAuthenticated()) {
+			res.status(200).json({ loggedIn: true, user: req.user });
+		} else {
+			res
+				.status(401)
+				.json({ loggedIn: false, message: 'User is unauthenticated' });
+		}
 	},
 	verifyUser: async (req, res) => {
 		try {

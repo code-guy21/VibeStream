@@ -1,31 +1,36 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/reducers/userSlice';
+import { login } from '../../api/user';
 import logo from '../../assets/images/vibestream-logo.svg';
 
 function Login() {
+	const state = useSelector(state => state.user);
+	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const [form, setForm] = useState({
 		email: '',
 		password: '',
 	});
 
+	useEffect(() => {
+		if (!state.loading && state.loggedIn) {
+			navigate('/');
+		}
+	}, [state.loggedIn, state.loading]);
+
 	async function submitHandler(e) {
 		e.preventDefault();
 
 		try {
-			let res = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: {
-					'content-type': 'application/json',
-				},
-				body: JSON.stringify(form),
-			});
+			let res = await login(form);
 
 			let data = await res.json();
 
 			console.log(data);
-			dispatch(loginUser());
+			dispatch(loginUser(data));
+			navigate('/');
 		} catch (error) {
 			console.log(error);
 		}
@@ -43,6 +48,10 @@ function Login() {
 				password: e.target.value,
 			});
 		}
+	}
+
+	if (state.loading || state.loggedIn) {
+		return null;
 	}
 
 	return (

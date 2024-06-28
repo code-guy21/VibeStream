@@ -1,4 +1,8 @@
 import { Fragment, useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../../redux/reducers/userSlice';
+import { logout } from '../../api/user';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link, useLocation } from 'react-router-dom';
@@ -9,23 +13,58 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
+	const dispatch = useDispatch();
+	const state = useSelector(state => state.user);
 	const location = useLocation();
-	const [navigation, setNavigation] = useState([
-		{ name: 'Home', href: '/', current: false },
-		{ name: 'Login', href: '/login', current: false },
-		{ name: 'Playback', href: '/playback', current: false },
-		{ name: 'Services', href: '/service', current: false },
-		{ name: 'Visual', href: '/visual', current: false },
-	]);
+	const [navigation, setNavigation] = useState([]);
 
 	useEffect(() => {
-		let updatedNav = navigation.map(el => ({
-			...el,
-			current: el.href === location.pathname,
-		}));
+		if (!state.loading) {
+			setNavigation([
+				{ name: 'Home', href: '/', current: false, active: state.loggedIn },
 
-		setNavigation(updatedNav);
-	}, [location.pathname]);
+				{
+					name: 'Playback',
+					href: '/playback',
+					current: false,
+					active: state.loggedIn,
+				},
+				{
+					name: 'Services',
+					href: '/service',
+					current: false,
+					active: state.loggedIn,
+				},
+				{
+					name: 'Visual',
+					href: '/visual',
+					current: false,
+					active: state.loggedIn,
+				},
+				{
+					name: 'Login',
+					href: '/login',
+					current: false,
+					active: !state.loggedIn,
+				},
+				{
+					name: 'Logout',
+					href: false,
+					current: false,
+					active: state.loggedIn,
+					action: async () => {
+						try {
+							const response = await logout();
+							const data = await response.json();
+							dispatch(logoutUser());
+						} catch (error) {
+							console.log(error);
+						}
+					},
+				},
+			]);
+		}
+	}, [location.pathname, state.loggedIn, state.loading]);
 
 	return (
 		<Disclosure as='nav' className='bg-gray-800'>
@@ -46,25 +85,45 @@ export default function Navbar() {
 								</Disclosure.Button>
 							</div>
 							<div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
-								<div className='flex flex-shrink-0 items-center'>
-									<img className='h-8 w-auto' src={logo} alt='VibeStream' />
-								</div>
+								<Link to='/'>
+									<div className='flex flex-shrink-0 items-center'>
+										<img className='h-8 w-auto' src={logo} alt='VibeStream' />
+									</div>
+								</Link>
+
 								<div className='hidden sm:ml-6 sm:block'>
 									<div className='flex space-x-4'>
-										{navigation.map(item => (
-											<Link
-												key={item.name}
-												to={item.href}
-												className={classNames(
-													item.current
-														? 'bg-gray-900 text-white'
-														: 'text-gray-300 hover:bg-gray-700 hover:text-white',
-													'rounded-md px-3 py-2 text-sm font-medium'
-												)}
-												aria-current={item.current ? 'page' : undefined}>
-												{item.name}
-											</Link>
-										))}
+										{navigation.map(
+											item =>
+												item.active &&
+												(item.href ? (
+													<Link
+														key={item.name}
+														to={item.href}
+														className={classNames(
+															item.current
+																? 'bg-gray-900 text-white'
+																: 'text-gray-300 hover:bg-gray-700 hover:text-white',
+															'rounded-md px-3 py-2 text-sm font-medium'
+														)}
+														aria-current={item.current ? 'page' : undefined}>
+														{item.name}
+													</Link>
+												) : (
+													<button
+														key={item.name}
+														onClick={item.action}
+														className={classNames(
+															item.current
+																? 'bg-gray-900 text-white'
+																: 'text-gray-300 hover:bg-gray-700 hover:text-white',
+															'rounded-md px-3 py-2 text-sm font-medium'
+														)}
+														aria-current={item.current ? 'page' : undefined}>
+														{item.name}
+													</button>
+												))
+										)}
 									</div>
 								</div>
 							</div>

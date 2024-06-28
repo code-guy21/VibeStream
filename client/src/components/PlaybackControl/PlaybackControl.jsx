@@ -30,19 +30,21 @@ function PlaybackControl() {
 
 	useEffect(() => {
 		async function fetchToken() {
-			try {
-				const res = await fetch('/api/spotify/token');
-				const { token } = await res.json();
+			if (state.user.loggedIn) {
+				try {
+					const res = await fetch('/api/spotify/token');
+					const { token } = await res.json();
 
-				if (token) {
-					dispatch(setAccessToken(token));
-					if (!playerSetupRef.current) {
-						setUpPlayer(token);
-						playerSetupRef.current = true;
+					if (token) {
+						dispatch(setAccessToken(token));
+						if (!playerSetupRef.current) {
+							setUpPlayer(token);
+							playerSetupRef.current = true;
+						}
 					}
+				} catch (error) {
+					console.log('Error fetching token:', error);
 				}
-			} catch (error) {
-				console.log('Error fetching token:', error);
 			}
 		}
 
@@ -85,13 +87,14 @@ function PlaybackControl() {
 				console.log(stateRef.current);
 
 				dispatch(setPaused(st?.paused));
-				if (st.context.uri) {
+				if (st.context.uri && stateRef.current.user.loggedIn) {
 					dispatch(setContextURI(st.context.uri));
 				}
 
 				if (
 					st.track_window.current_track.uri !==
-					stateRef.current.playback.currentTrack?.uri
+						stateRef.current.playback.currentTrack?.uri &&
+					stateRef.current.user.loggedIn
 				) {
 					if (!st.context.uri || st.context.uri === '-') {
 						dispatch(setCurrentTrack(st.track_window.current_track));
@@ -112,12 +115,11 @@ function PlaybackControl() {
 	}
 
 	useEffect(() => {
-		console.log('useEffect', state.playback);
 		if (
-			playerRef.current &&
-			(state.playback.currentTrack?.uri ||
-				(state.playback.contextURI && state.playback.contextURI !== '-')) &&
-			state.playback.isActive
+			(playerRef.current &&
+				state.playback.isActive &&
+				state.playback.currentTrack?.uri) ||
+			(state.playback.contextURI && state.playback.contextURI !== '-')
 		) {
 			playTrackHandler();
 		}
@@ -126,6 +128,18 @@ function PlaybackControl() {
 		state.playback.isActive,
 		state.playback.contextURI,
 	]);
+
+	useEffect(() => {
+		if (playerRef.current && state.playback.isPaused) {
+			playerRef.current.pause();
+		}
+	}, [state.playback.isPaused]);
+
+	useEffect(() => {
+		if (playerRef.current && state.user.loggedIn) {
+			dispatch(setActive(true));
+		}
+	}, [playerRef.current, state.user.loggedIn]);
 
 	const playTrackHandler = async () => {
 		try {
@@ -144,7 +158,6 @@ function PlaybackControl() {
 	const handleNextTrack = async () => {
 		try {
 			let res = await playerRef.current.nextTrack();
-			dispatch(setCurrentTrack({ ...state.playback.currentTrack, uri: null }));
 			console.log(res);
 		} catch (error) {
 			console.log(error);
@@ -153,38 +166,42 @@ function PlaybackControl() {
 
 	return (
 		<>
-			{state.playback.currentTrack && (
-				<div className={playerStyles.player}>
-					<img src={state.playback.currentTrack?.album?.images[0].url} alt='' />
-					<div className={playerStyles.control}>
-						<button
-							className='btn-spotify p-1 m-1'
-							onClick={() => {
-								playerRef.current.previousTrack().catch(error => {
-									console.error('Error playing previous track:', error);
-								});
-							}}>
-							<BackwardIcon className='h-6 w-6'></BackwardIcon>
-						</button>
-						<button
-							className='btn-spotify p-2 m-2'
-							onClick={() => {
-								playerRef.current.togglePlay().catch(error => {
-									console.error('Error toggling playback:', error);
-								});
-							}}>
-							{state.playback.isPaused ? (
-								<PlayIcon className='h-12 w-12'></PlayIcon>
-							) : (
-								<PauseIcon className='h-12 w-12'></PauseIcon>
-							)}
-						</button>
-						<button className='btn-spotify p-1 m-1' onClick={handleNextTrack}>
-							<ForwardIcon className='h-6 w-6'></ForwardIcon>
-						</button>
+			{(state.playback?.currentTrack?.uri || state.playback.contextURI) &&
+				state.playback.isActive && (
+					<div className={playerStyles.player}>
+						<img
+							src={state.playback.currentTrack?.album?.images[0].url}
+							alt=''
+						/>
+						<div className={playerStyles.control}>
+							<button
+								className='btn-spotify p-1 m-1'
+								onClick={() => {
+									playerRef.current.previousTrack().catch(error => {
+										console.error('Error playing previous track:', error);
+									});
+								}}>
+								<BackwardIcon className='h-6 w-6'></BackwardIcon>
+							</button>
+							<button
+								className='btn-spotify p-2 m-2'
+								onClick={() => {
+									playerRef.current.togglePlay().catch(error => {
+										console.error('Error toggling playback:', error);
+									});
+								}}>
+								{state.playback.isPaused ? (
+									<PlayIcon className='h-12 w-12'></PlayIcon>
+								) : (
+									<PauseIcon className='h-12 w-12'></PauseIcon>
+								)}
+							</button>
+							<button className='btn-spotify p-1 m-1' onClick={handleNextTrack}>
+								<ForwardIcon className='h-6 w-6'></ForwardIcon>
+							</button>
+						</div>
 					</div>
-				</div>
-			)}
+				)}
 		</>
 	);
 }

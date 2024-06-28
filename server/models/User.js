@@ -158,6 +158,9 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.toJSON = function () {
 	let obj = this.toObject();
 	delete obj.password;
+	delete obj.isVerified;
+	delete obj.verificationToken;
+	delete obj.__v;
 	return obj;
 };
 
