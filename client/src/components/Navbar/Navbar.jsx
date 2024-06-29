@@ -19,38 +19,43 @@ export default function Navbar() {
 	const [navigation, setNavigation] = useState([]);
 
 	useEffect(() => {
+		console.log(location);
 		if (!state.loading) {
 			setNavigation([
-				{ name: 'Home', href: '/', current: false, active: state.loggedIn },
+				{
+					name: 'Home',
+					href: '/',
+					current: location.pathname === '/',
+					active: state.loggedIn,
+				},
 
 				{
 					name: 'Playback',
 					href: '/playback',
-					current: false,
+					current: location.pathname === '/playback',
 					active: state.loggedIn,
 				},
 				{
 					name: 'Services',
 					href: '/service',
-					current: false,
+					current: location.pathname === '/service',
 					active: state.loggedIn,
 				},
 				{
 					name: 'Visual',
 					href: '/visual',
-					current: false,
+					current: location.pathname === '/visual',
 					active: state.loggedIn,
 				},
 				{
 					name: 'Login',
 					href: '/login',
-					current: false,
+					current: location.pathname === '/login',
 					active: !state.loggedIn,
 				},
 				{
 					name: 'Logout',
 					href: false,
-					current: false,
 					active: state.loggedIn,
 					action: async () => {
 						try {

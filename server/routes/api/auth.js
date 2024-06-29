@@ -40,7 +40,7 @@ router.route('/spotify').get(
 router
 	.route('/spotify/callback')
 	.get(
-		passport.authorize('spotify', { failureRedirect: '/login' }),
+		passport.authorize('spotify', { failureRedirect: 'http://localhost:3000' }),
 		(req, res) => {
 			// Check if there was an error during the authorization process
 			if (req.authInfo && req.authInfo.error) {

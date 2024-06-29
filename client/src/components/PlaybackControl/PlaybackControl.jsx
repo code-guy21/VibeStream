@@ -4,6 +4,8 @@ import {
 	PauseIcon,
 	BackwardIcon,
 	ForwardIcon,
+	HandThumbUpIcon,
+	HandThumbDownIcon,
 } from '@heroicons/react/24/solid';
 import playerStyles from './PlaybackControl.module.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -169,13 +171,27 @@ function PlaybackControl() {
 			{(state.playback?.currentTrack?.uri || state.playback.contextURI) &&
 				state.playback.isActive && (
 					<div className={playerStyles.player}>
-						<img
-							src={state.playback.currentTrack?.album?.images[0].url}
-							alt=''
-						/>
-						<div className={playerStyles.control}>
+						<div className='flex h-16 flex-1'>
+							<img
+								className='p-2'
+								src={state.playback.currentTrack?.album?.images[0].url}
+								alt=''
+							/>
+							<div className='flex flex-col justify-center'>
+								<div className='text-sm font-bold'>
+									{state.playback.currentTrack.name}
+								</div>
+								<div className='text-sm'>
+									{state.playback.currentTrack?.artists
+										?.map(item => item.name)
+										.join(',')}
+								</div>
+							</div>
+						</div>
+
+						<div className='flex flex-1 h-16 justify-center'>
 							<button
-								className='btn-spotify p-1 m-1'
+								className='btn-spotify'
 								onClick={() => {
 									playerRef.current.previousTrack().catch(error => {
 										console.error('Error playing previous track:', error);
@@ -184,7 +200,7 @@ function PlaybackControl() {
 								<BackwardIcon className='h-6 w-6'></BackwardIcon>
 							</button>
 							<button
-								className='btn-spotify p-2 m-2'
+								className='btn-spotify'
 								onClick={() => {
 									playerRef.current.togglePlay().catch(error => {
 										console.error('Error toggling playback:', error);
@@ -196,9 +212,14 @@ function PlaybackControl() {
 									<PauseIcon className='h-12 w-12'></PauseIcon>
 								)}
 							</button>
-							<button className='btn-spotify p-1 m-1' onClick={handleNextTrack}>
+							<button className='btn-spotify' onClick={handleNextTrack}>
 								<ForwardIcon className='h-6 w-6'></ForwardIcon>
 							</button>
+						</div>
+
+						<div className='flex flex-1 h-16 justify-center items-center gap-x-6'>
+							<HandThumbUpIcon className='h-6 w-6'></HandThumbUpIcon>
+							<HandThumbDownIcon className='h-6 w-6'></HandThumbDownIcon>
 						</div>
 					</div>
 				)}

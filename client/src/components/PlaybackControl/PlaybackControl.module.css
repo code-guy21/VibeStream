@@ -1,15 +1,8 @@
 .player {
 	display: flex;
-	height: 100px;
 	position: fixed;
 	bottom: 0;
 	width: 100%;
 	background-color: #000000e6;
 	color: white;
-}
-
-.control {
-	width: 100%;
-	justify-content: center;
-	display: flex;
 }

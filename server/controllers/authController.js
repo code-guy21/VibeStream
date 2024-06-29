@@ -41,7 +41,7 @@ module.exports = {
 		}
 	},
 	spotifyCallback: async (req, res) => {
-		res.send('spotify callback');
+		res.redirect('http://localhost:3000/');
 	},
 	loginUser: async (req, res) => {
 		res.status(200).json({ loggedIn: true, user: req.user });
