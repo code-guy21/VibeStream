@@ -55,7 +55,7 @@ jest.mock('passport-spotify', () => {
 			authenticate: function (req, options) {
 				const profile = { id: 'mockSpotifyId123' };
 				const accessToken = 'mockAccessToken';
-				const refreshToken = 'mockRefreshToken';
+				const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
 				const expires_in = 3600;
 
 				verify(
@@ -109,7 +109,7 @@ describe('Spotify Callback Flow', () => {
 		expect(updatedUser.linkedServices[serviceIndex]).toMatchObject({
 			serviceName: 'spotify',
 			accessToken: 'mockAccessToken',
-			refreshToken: 'mockRefreshToken',
+			refreshToken: process.env.SPOTIFY_REFRESH_TOKEN,
 			profileId: 'mockSpotifyId123',
 		});
 	});
@@ -117,7 +117,7 @@ describe('Spotify Callback Flow', () => {
 
 describe('Spotify Access Token', () => {
 	it('should not return Access Token if user is unauthenticated', async () => {
-		const user = await User.create({
+		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
 			email: 'mockuser@example.com',
@@ -132,7 +132,7 @@ describe('Spotify Access Token', () => {
 		expect(response.body.message).toBe('User is not authenticated');
 	});
 	it('should not return Access Token if user has not linked Spotify as a service', async () => {
-		const user = await User.create({
+		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
 			email: 'mockuser@example.com',
@@ -153,11 +153,11 @@ describe('Spotify Access Token', () => {
 			.expect(401);
 
 		expect(response.body.message).toBe(
-			'Spotify service not linked or access token missing'
+			'Spotify service not linked or access and refresh tokens missing'
 		);
 	});
 	it('should return Access Token if user is authenticated and has linked Spotify as a service', async () => {
-		const user = await User.create({
+		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
 			email: 'mockuser@example.com',
@@ -182,5 +182,39 @@ describe('Spotify Access Token', () => {
 			.expect(200);
 
 		expect(response.body.token).toBe('mockAccessToken');
+	});
+
+	it('should return the Access Token but if the token is expired it should be updated', async () => {
+		await User.create({
+			username: 'mockUsername',
+			displayName: 'Mock User',
+			email: 'mockuser@example.com',
+			password: 'mockPassword123',
+			profileImage: 'http://mockProfilePicUrl.org',
+			verificationToken: null,
+			isVerified: true,
+			linkedServices: [
+				{
+					serviceName: 'spotify',
+					profileId: 'mockSpotifyId123',
+					accessToken: 'mockAccessToken',
+					refreshToken: process.env.SPOTIFY_REFRESH_TOKEN,
+					expirationDate: new Date(Date.now()),
+				},
+			],
+		});
+
+		const loginUser = await request(app).post('/api/auth/login').send({
+			email: 'mockuser@example.com',
+			password: 'mockPassword123',
+		});
+
+		const response = await request(app)
+			.get('/api/spotify/token')
+			.set('Cookie', loginUser.headers['set-cookie'])
+			.expect(200);
+
+		expect(response.body.token).toBeDefined();
+		expect(response.body.token).not.toBe('mockAccessToken');
 	});
 });

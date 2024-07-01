@@ -113,7 +113,7 @@ describe('passport-local', function () {
 			.get(`/api/auth/verify?token=${user.verificationToken}`)
 			.expect(200);
 
-		let response = await request(app)
+		let { body } = await request(app)
 			.post('/api/auth/login')
 			.send({
 				email: 'mockuser@example.com',
@@ -121,6 +121,9 @@ describe('passport-local', function () {
 			})
 			.expect(200);
 
-		expect(response.body).toEqual({ message: 'Logged in!' });
+		expect(body.loggedIn).toEqual(true);
+		expect(body.user.username).toEqual('mockusername');
+		expect(body.user.email).toEqual('mockuser@example.com');
+		expect(body.user.displayName).toEqual('Mock User');
 	});
 });
