@@ -54,15 +54,18 @@ beforeEach(async function () {
 });
 
 describe('passport-local', function () {
+	let baseUserCredentials = {
+		username: 'mockUsername',
+		displayName: 'Mock User',
+		email: 'mockuser@example.com',
+		password: 'mockPassword123',
+		profileImage: 'http://mockProfilePicUrl.org',
+	};
 	it('registers a user and sends a verification token', async function () {
-		const response = await request(app)
+		await request(app)
 			.post('/api/auth/register')
 			.send({
-				username: 'mockUsername',
-				displayName: 'Mock User',
-				email: 'mockuser@example.com',
-				password: 'mockPassword123',
-				profileImage: 'http://mockProfilePicUrl.org',
+				...baseUserCredentials,
 			})
 			.expect(200);
 
@@ -81,17 +84,11 @@ describe('passport-local', function () {
 	it("authenticates user's verification token", async function () {
 		let token = generateVerificationToken();
 		let user = await User.create({
-			username: 'mockUsername',
-			displayName: 'Mock User',
-			email: 'mockuser@example.com',
-			password: 'mockPassword123',
-			profileImage: 'http://mockProfilePicUrl.org',
+			...baseUserCredentials,
 			verificationToken: token,
 		});
 
-		const response = await request(app)
-			.get(`/api/auth/verify?token=${token}`)
-			.expect(200);
+		await request(app).get(`/api/auth/verify?token=${token}`).expect(200);
 
 		user = await User.findOne({ email: 'mockuser@example.com' });
 
@@ -101,11 +98,7 @@ describe('passport-local', function () {
 
 	it('authenticates a user with email and password if account is verified', async function () {
 		let user = await User.create({
-			username: 'mockUsername',
-			displayName: 'Mock User',
-			email: 'mockuser@example.com',
-			password: 'mockPassword123',
-			profileImage: 'http://mockProfilePicUrl.org',
+			...baseUserCredentials,
 			verificationToken: generateVerificationToken(),
 		});
 
@@ -125,5 +118,57 @@ describe('passport-local', function () {
 		expect(body.user.username).toEqual('mockusername');
 		expect(body.user.email).toEqual('mockuser@example.com');
 		expect(body.user.displayName).toEqual('Mock User');
+	});
+
+	it('logs a user out of the current session', async () => {
+		await User.create({
+			...baseUserCredentials,
+			verificationToken: null,
+			isVerified: true,
+		});
+
+		let { body } = await request(app)
+			.post('/api/auth/login')
+			.send({
+				email: 'mockuser@example.com',
+				password: 'mockPassword123',
+			})
+			.expect(200);
+
+		expect(body.loggedIn).toBe(true);
+
+		let response = await request(app).post('/api/auth/logout').expect(200);
+
+		expect(response.body.message).toBe('User logged out');
+	});
+
+	it('should return the users information if they are authenticated', async () => {
+		await User.create({
+			...baseUserCredentials,
+			verificationToken: null,
+			isVerified: true,
+		});
+
+		let { body, headers } = await request(app)
+			.post('/api/auth/login')
+			.send({
+				email: 'mockuser@example.com',
+				password: 'mockPassword123',
+			})
+			.expect(200);
+
+		expect(body.loggedIn).toBe(true);
+
+		let {
+			body: { loggedIn, user },
+		} = await request(app)
+			.get('/api/auth/check')
+			.set('Cookie', headers['set-cookie'])
+			.expect(200);
+
+		expect(loggedIn).toBe(true);
+		expect(user.username).toBe('mockusername');
+		expect(user.displayName).toBe('Mock User');
+		expect(user.email).toBe('mockuser@example.com');
 	});
 });
