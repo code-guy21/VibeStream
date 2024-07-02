@@ -2,6 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { User } = require('../../../models');
+const refreshAccessToken = require('../../../utils/spotify');
 
 let mongoServer;
 let app;
@@ -116,7 +117,7 @@ describe('Spotify Callback Flow', () => {
 });
 
 describe('Spotify Access Token', () => {
-	it('should not return Access Token if user is unauthenticated', async () => {
+	it('should not return users Access Token if user is unauthenticated', async () => {
 		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
@@ -131,7 +132,7 @@ describe('Spotify Access Token', () => {
 
 		expect(response.body.message).toBe('User is not authenticated');
 	});
-	it('should not return Access Token if user has not linked Spotify as a service', async () => {
+	it('should not return users Access Token if user has not linked Spotify as a service', async () => {
 		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
@@ -156,7 +157,7 @@ describe('Spotify Access Token', () => {
 			'Spotify service not linked or access and refresh tokens missing'
 		);
 	});
-	it('should return Access Token if user is authenticated and has linked Spotify as a service', async () => {
+	it('should return users Access Token if user is authenticated and has linked Spotify as a service', async () => {
 		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
@@ -184,7 +185,7 @@ describe('Spotify Access Token', () => {
 		expect(response.body.token).toBe('mockAccessToken');
 	});
 
-	it('should return the Access Token but if the token is expired it should be updated', async () => {
+	it('should return users Access Token but if the token is expired it should be refreshed', async () => {
 		await User.create({
 			username: 'mockUsername',
 			displayName: 'Mock User',
@@ -216,5 +217,13 @@ describe('Spotify Access Token', () => {
 
 		expect(response.body.token).toBeDefined();
 		expect(response.body.token).not.toBe('mockAccessToken');
+	});
+
+	it('should return a new Access Token', async () => {
+		let { newAccessToken } = await refreshAccessToken(
+			process.env.SPOTIFY_REFRESH_TOKEN
+		);
+
+		expect(newAccessToken).toBeDefined();
 	});
 });

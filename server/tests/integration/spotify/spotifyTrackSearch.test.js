@@ -1,6 +1,6 @@
-const axios = require('axios');
 const mongoose = require('mongoose');
 const request = require('supertest');
+const refreshAccessToken = require('../../../utils/spotify');
 require('dotenv').config();
 
 let accessToken;
@@ -29,23 +29,11 @@ jest.mock('../../../middleware/services/spotify.js', () => {
 
 beforeAll(async () => {
 	try {
-		const baseURL = new URL('https://accounts.spotify.com/api/token');
-		const searchParams = new URLSearchParams({
-			grant_type: 'refresh_token',
-			refresh_token: process.env.SPOTIFY_REFRESH_TOKEN,
-		});
-		const headers = {
-			'Content-Type': 'application/x-www-form-urlencoded',
-			Authorization: `Basic ${Buffer.from(
-				process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET
-			).toString('base64')}`,
-		};
+		const { newAccessToken } = await refreshAccessToken(
+			process.env.SPOTIFY_REFRESH_TOKEN
+		);
 
-		const response = await axios.post(baseURL.toString(), searchParams, {
-			headers,
-		});
-
-		setAccessToken(response.data.access_token);
+		setAccessToken(newAccessToken);
 
 		app = require('../../../app');
 		server = app.listen(0);
