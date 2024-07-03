@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
-const refreshAccessToken = require('../../../utils/spotify');
+const { refreshAccessToken } = require('../../../utils/spotify');
 require('dotenv').config();
 
 let accessToken;

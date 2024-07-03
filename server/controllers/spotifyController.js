@@ -1,30 +1,27 @@
-const axios = require('axios');
-require('dotenv').config();
+const {
+	searchSpotify,
+	spotifyPlay,
+	setSpotifyDevice,
+} = require('../utils/spotify');
 
 module.exports = {
-	searchTracks: async (req, res) => {
+	searchTracks: async ({ query, spotifyAccessToken }, res) => {
 		try {
-			if (!req.query.term || !req.query.type) {
+			if (!query.term || !query.type) {
 				return res
 					.status(400)
 					.json({ message: 'Search term and type are required' });
 			}
 
-			const baseURL = new URL(process.env.SPOTIFY_BASE_URL);
+			let tracks = await searchSpotify(
+				query.term,
+				query.type,
+				spotifyAccessToken
+			);
 
-			baseURL.search = new URLSearchParams({
-				q: req.query.term,
-				type: req.query.type,
-			});
+			console.log(tracks);
 
-			const headers = {
-				'Content-Type': 'application/json',
-				Authorization: 'Bearer ' + req.spotifyAccessToken,
-			};
-
-			let response = await axios.get(baseURL.toString(), { headers });
-
-			res.status(200).json(response.data);
+			res.status(200).json(tracks);
 		} catch (error) {
 			console.error(error);
 			const status = error.response ? error.response.status : 500;
@@ -34,27 +31,14 @@ module.exports = {
 			res.status(status).json({ message });
 		}
 	},
-	getAccessToken: (req, res) => {
-		res.json({ token: req.spotifyAccessToken });
+	getAccessToken: ({ spotifyAccessToken }, res) => {
+		res.json({ token: spotifyAccessToken });
 	},
-	playTrack: async (req, res) => {
+	playTrack: async ({ body, spotifyAccessToken }, res) => {
 		try {
-			let response = await axios.put(
-				'https://api.spotify.com/v1/me/player/play',
-				{
-					...(req.body.uris && { uris: req.body.uris }),
-					...(req.body.context_uri && { context_uri: req.body.context_uri }),
-					...(req.body.device_id && { device_id: req.body.device_id }),
-				},
-				{
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${req.spotifyAccessToken}`,
-					},
-				}
-			);
+			let { playbackStarted } = await spotifyPlay(body, spotifyAccessToken);
 
-			if (response.status !== 202) {
+			if (!playbackStarted) {
 				return res.status(400).json({ message: 'Failed to start playback' });
 			}
 
@@ -64,29 +48,20 @@ module.exports = {
 			res.status(500).json({ message: error.message });
 		}
 	},
-	setDevice: async (req, res) => {
+	setDevice: async ({ body, spotifyAccessToken }, res) => {
 		try {
-			const response = await axios.put(
-				'https://api.spotify.com/v1/me/player',
-				{
-					device_ids: [req.body.device_id],
-					play: false,
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${req.spotifyAccessToken}`,
-						'Content-Type': 'application/json',
-					},
-				}
+			const { deviceSet } = await setSpotifyDevice(
+				body.device_id,
+				spotifyAccessToken
 			);
 
-			if (response.status !== 204) {
+			if (!deviceSet) {
 				res.status(400).json({ message: 'Failed to set device' });
 			}
 
 			res
 				.status(200)
-				.json({ message: `device ${req.body.device_id} set as active` });
+				.json({ message: `device ${body.device_id} set as active` });
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });

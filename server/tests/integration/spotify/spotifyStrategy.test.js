@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { User } = require('../../../models');
-const refreshAccessToken = require('../../../utils/spotify');
+const { refreshAccessToken } = require('../../../utils/spotify');
 
 let mongoServer;
 let app;

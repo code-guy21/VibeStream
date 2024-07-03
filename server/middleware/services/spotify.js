@@ -1,4 +1,4 @@
-const refreshAccessToken = require('../../utils/spotify');
+const { refreshAccessToken } = require('../../utils/spotify');
 
 const hasSpotifyLinkedService = async (req, res, next) => {
 	const spotifyService = req.user.linkedServices?.find(
