@@ -75,8 +75,12 @@ function PlaybackControl() {
 				dispatch(setDeviceID(device_id));
 				try {
 					let response = await setDeviceAsActive(device_id);
-					let data = await response.json();
-					console.log('Device set as active:', data);
+					let { message, accessToken } = await response.json();
+
+					if (stateRef.current.playback.accessToken !== accessToken) {
+						dispatch(setAccessToken(accessToken));
+					}
+					console.log(message, accessToken);
 				} catch (error) {
 					console.error('Error setting device as active:', error.message);
 				}
@@ -150,8 +154,12 @@ function PlaybackControl() {
 				state.deviceID,
 				state.playback.contextURI
 			);
-			let data = await response.json();
-			console.log('Track playback started:', data);
+			let { message, accessToken } = await response.json();
+
+			if (state.playback.accessToken !== accessToken) {
+				dispatch(setAccessToken(accessToken));
+			}
+			console.log(message);
 		} catch (error) {
 			console.error('Error starting playback:', error);
 		}

@@ -5,6 +5,7 @@ import {
 	setTrackList,
 	setCurrentTrack,
 	setContextURI,
+	setAccessToken,
 } from '../../redux/reducers/playbackSlice';
 
 const Playback = () => {
@@ -16,11 +17,15 @@ const Playback = () => {
 			const resp = await fetch(
 				`/api/spotify/search?term=${state.searchTerm}&type=track`
 			);
-			const data = await resp.json();
+			const { tracks, accessToken } = await resp.json();
 
-			console.log(data.tracks.items);
+			console.log(tracks.items, accessToken);
 
-			dispatch(setTrackList(data.tracks.items));
+			if (state.accessToken !== accessToken) {
+				dispatch(setAccessToken(accessToken));
+			}
+
+			dispatch(setTrackList(tracks.items));
 		} catch (error) {
 			console.log(error);
 		}

@@ -13,7 +13,7 @@ module.exports = {
 					.json({ message: 'Search term and type are required' });
 			}
 
-			let tracks = await searchSpotify(
+			let { tracks } = await searchSpotify(
 				query.term,
 				query.type,
 				spotifyAccessToken
@@ -21,7 +21,7 @@ module.exports = {
 
 			console.log(tracks);
 
-			res.status(200).json(tracks);
+			res.status(200).json({ tracks, accessToken: spotifyAccessToken });
 		} catch (error) {
 			console.error(error);
 			const status = error.response ? error.response.status : 500;
@@ -42,7 +42,10 @@ module.exports = {
 				return res.status(400).json({ message: 'Failed to start playback' });
 			}
 
-			res.status(200).json({ message: 'Track playback started' });
+			res.status(200).json({
+				message: 'Track playback started',
+				accessToken: spotifyAccessToken,
+			});
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });
@@ -61,7 +64,10 @@ module.exports = {
 
 			res
 				.status(200)
-				.json({ message: `device ${body.device_id} set as active` });
+				.json({
+					message: `device ${body.device_id} set as active`,
+					accessToken: spotifyAccessToken,
+				});
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });
