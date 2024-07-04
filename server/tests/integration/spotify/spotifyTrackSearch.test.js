@@ -66,15 +66,18 @@ beforeEach(async () => {
 
 describe('Spotify Track Search', () => {
 	it('should return a track list from Spotify API', async () => {
-		let response = await request(app)
+		let {
+			body: { tracks, accessToken },
+		} = await request(app)
 			.get(`/api/spotify/search`)
 			.query({ term: 'Purple Rain', type: 'track' })
 			.set('Accept', 'application/json')
 			.expect(200);
 
-		expect(response.body.tracks.items.length).toBeGreaterThan(0);
-		expect(response.body.tracks.items[0]).toHaveProperty('name');
-		expect(response.body.tracks.items[0].type).toBe('track');
-		expect(response.body.tracks.items[0].name).toBe('Purple Rain');
+		expect(tracks.items.length).toBeGreaterThan(0);
+		expect(tracks.items[0]).toHaveProperty('name');
+		expect(tracks.items[0].type).toBe('track');
+		expect(tracks.items[0].name).toBe('Purple Rain');
+		expect(accessToken).toBeDefined();
 	});
 });
