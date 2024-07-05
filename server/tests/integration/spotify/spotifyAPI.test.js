@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
-const { refreshAccessToken } = require('../../../utils/spotify');
+const {
+	refreshAccessToken,
+	getPlaybackState,
+} = require('../../../utils/spotify');
 require('dotenv').config();
 
 let accessToken;
@@ -67,17 +70,17 @@ beforeEach(async () => {
 describe('Spotify Track Search', () => {
 	it('should return a track list from Spotify API', async () => {
 		let {
-			body: { tracks, accessToken },
+			body: { data, accessToken },
 		} = await request(app)
 			.get(`/api/spotify/search`)
 			.query({ term: 'Purple Rain', type: 'track' })
 			.set('Accept', 'application/json')
 			.expect(200);
 
-		expect(tracks.items.length).toBeGreaterThan(0);
-		expect(tracks.items[0]).toHaveProperty('name');
-		expect(tracks.items[0].type).toBe('track');
-		expect(tracks.items[0].name).toBe('Purple Rain');
+		expect(data.tracks.items.length).toBeGreaterThan(0);
+		expect(data.tracks.items[0]).toHaveProperty('name');
+		expect(data.tracks.items[0].type).toBe('track');
+		expect(data.tracks.items[0].name).toBe('Purple Rain');
 		expect(accessToken).toBeDefined();
 	});
 });

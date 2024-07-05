@@ -41,14 +41,14 @@ const refreshAccessToken = async refreshToken => {
 
 const searchSpotify = async (term, type, accessToken) => {
 	try {
-		let response = await spotifyAxios.get('/search', {
+		let { data } = await spotifyAxios.get('/search', {
 			params: { q: term, type: type },
 			headers: {
 				Authorization: 'Bearer ' + accessToken,
 			},
 		});
 
-		return response.data;
+		return data;
 	} catch (error) {
 		throw new Error(
 			error.response
@@ -63,9 +63,10 @@ const spotifyPlay = async (body, spotifyAccessToken) => {
 		let { status } = await spotifyAxios.put(
 			'/me/player/play',
 			{
-				...(body.uris && { uris: body.uris }),
-				...(body.context_uri && { context_uri: body.context_uri }),
-				...(body.device_id && { device_id: body.device_id }),
+				uris: body.uris,
+				context_uri: body.context_uri,
+				device_id: body.device_id,
+				position_ms: body.position_ms,
 			},
 			{
 				headers: {
@@ -84,6 +85,27 @@ const spotifyPlay = async (body, spotifyAccessToken) => {
 			error.response
 				? error.response.data.error.message
 				: 'Failed to start playback'
+		);
+	}
+};
+
+const getPlaybackState = async spotifyAccessToken => {
+	try {
+		const response = await spotifyAxios.get('/me/player', {
+			headers: {
+				Authorization: `Bearer ${spotifyAccessToken}`,
+			},
+		});
+
+		if (response.status !== 200) {
+			throw new Error('Error getting playback state');
+		}
+		return { playbackState: response.data };
+	} catch (error) {
+		throw new Error(
+			error.response
+				? error.response.data.error.message
+				: 'Failed to get playback state'
 		);
 	}
 };
@@ -122,4 +144,5 @@ module.exports = {
 	searchSpotify,
 	spotifyPlay,
 	setSpotifyDevice,
+	getPlaybackState,
 };

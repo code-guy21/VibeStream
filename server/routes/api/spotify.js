@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const {
-	searchTracks,
+	search,
 	getAccessToken,
 	playTrack,
 	setDevice,
@@ -8,9 +8,7 @@ const {
 const isAuthenticated = require('../../middleware/authentication/');
 const hasSpotifyLinkedService = require('../../middleware/services/spotify');
 
-router
-	.route('/search')
-	.get(isAuthenticated, hasSpotifyLinkedService, searchTracks);
+router.route('/search').get(isAuthenticated, hasSpotifyLinkedService, search);
 
 router.route('/play').post(isAuthenticated, hasSpotifyLinkedService, playTrack);
 

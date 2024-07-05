@@ -2,10 +2,11 @@ const {
 	searchSpotify,
 	spotifyPlay,
 	setSpotifyDevice,
+	getPlaybackState,
 } = require('../utils/spotify');
 
 module.exports = {
-	searchTracks: async ({ query, spotifyAccessToken }, res) => {
+	search: async ({ query, spotifyAccessToken }, res) => {
 		try {
 			if (!query.term || !query.type) {
 				return res
@@ -13,15 +14,13 @@ module.exports = {
 					.json({ message: 'Search term and type are required' });
 			}
 
-			let { tracks } = await searchSpotify(
+			let data = await searchSpotify(
 				query.term,
 				query.type,
 				spotifyAccessToken
 			);
 
-			console.log(tracks);
-
-			res.status(200).json({ tracks, accessToken: spotifyAccessToken });
+			res.status(200).json({ data, accessToken: spotifyAccessToken });
 		} catch (error) {
 			console.error(error);
 			const status = error.response ? error.response.status : 500;
@@ -36,9 +35,29 @@ module.exports = {
 	},
 	playTrack: async ({ body, spotifyAccessToken }, res) => {
 		try {
-			let { playbackStarted } = await spotifyPlay(body, spotifyAccessToken);
+			let response;
 
-			if (!playbackStarted) {
+			if (body.togglePlayback) {
+				response = await spotifyPlay(body, spotifyAccessToken);
+			} else {
+				let { playbackState } = await getPlaybackState(spotifyAccessToken);
+
+				let context = playbackState.context ? playbackState.context.uri : null;
+
+				if (playbackState) {
+					response = await spotifyPlay(
+						{
+							context_uri: context,
+							device_id: playbackState?.device?.id,
+							uris: context ? null : [playbackState.item?.uri],
+							position_ms: playbackState.progress_ms,
+						},
+						spotifyAccessToken
+					);
+				}
+			}
+
+			if (!response.playbackStarted) {
 				return res.status(400).json({ message: 'Failed to start playback' });
 			}
 
@@ -62,12 +81,10 @@ module.exports = {
 				res.status(400).json({ message: 'Failed to set device' });
 			}
 
-			res
-				.status(200)
-				.json({
-					message: `device ${body.device_id} set as active`,
-					accessToken: spotifyAccessToken,
-				});
+			res.status(200).json({
+				message: `device ${body.device_id} set as active`,
+				accessToken: spotifyAccessToken,
+			});
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });
