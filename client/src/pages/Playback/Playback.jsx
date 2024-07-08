@@ -4,8 +4,10 @@ import {
 	setSearchTerm,
 	setTrackList,
 	setCurrentTrack,
-	setContextURI,
+	setUri,
 	setAccessToken,
+	setToggle,
+	setType,
 } from '../../redux/reducers/playbackSlice';
 
 const Playback = () => {
@@ -17,15 +19,15 @@ const Playback = () => {
 			const resp = await fetch(
 				`/api/spotify/search?term=${state.searchTerm}&type=track`
 			);
-			const { tracks, accessToken } = await resp.json();
+			const { data, accessToken } = await resp.json();
 
-			console.log(tracks.items, accessToken);
+			console.log(data.tracks.items, accessToken);
 
 			if (state.accessToken !== accessToken) {
 				dispatch(setAccessToken(accessToken));
 			}
 
-			dispatch(setTrackList(tracks.items));
+			dispatch(setTrackList(data.tracks.items));
 		} catch (error) {
 			console.log(error);
 		}
@@ -54,7 +56,8 @@ const Playback = () => {
 							<Button
 								onClick={() => {
 									dispatch(setCurrentTrack(t));
-									dispatch(setContextURI(null));
+									dispatch(setUri(t.uri));
+									dispatch(setToggle(true));
 								}}
 								key={i}>
 								<img className='w-16 h-full' src={t.album.images[0].url}></img>

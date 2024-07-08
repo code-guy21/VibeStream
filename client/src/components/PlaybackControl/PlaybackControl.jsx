@@ -15,7 +15,8 @@ import {
 	setDeviceID,
 	setPaused,
 	setActive,
-	setContextURI,
+	setUri,
+	setToggle,
 } from '../../redux/reducers/playbackSlice';
 import { playTrack, setDeviceAsActive } from '../../api/spotify';
 
@@ -89,27 +90,13 @@ function PlaybackControl() {
 			sdkPlayer.addListener('player_state_changed', st => {
 				console.log('changed');
 				console.log(st);
-				console.log(st.context.uri);
-				console.log(stateRef.current);
 
-				dispatch(setPaused(st?.paused));
-				if (st.context.uri && stateRef.current.user.loggedIn) {
-					dispatch(setContextURI(st.context.uri));
+				if (st.context?.uri) {
+					dispatch(setUri(st.context.uri));
 				}
 
-				if (
-					st.track_window.current_track.uri !==
-						stateRef.current.playback.currentTrack?.uri &&
-					stateRef.current.user.loggedIn
-				) {
-					if (!st.context.uri || st.context.uri === '-') {
-						dispatch(setCurrentTrack(st.track_window.current_track));
-					} else {
-						dispatch(
-							setCurrentTrack({ ...st.track_window.current_track, uri: null })
-						);
-					}
-				}
+				dispatch(setCurrentTrack(st.track_window.current_track));
+				dispatch(setPaused(st.paused));
 			});
 
 			sdkPlayer.addListener('not_ready', ({ device_id }) => {
@@ -122,24 +109,13 @@ function PlaybackControl() {
 
 	useEffect(() => {
 		if (
-			(playerRef.current &&
-				state.playback.isActive &&
-				state.playback.currentTrack?.uri) ||
-			(state.playback.contextURI && state.playback.contextURI !== '-')
+			playerRef.current &&
+			state.playback.isActive &&
+			state.playback.togglePlayback
 		) {
 			playTrackHandler();
 		}
-	}, [
-		state.playback.currentTrack?.uri,
-		state.playback.isActive,
-		state.playback.contextURI,
-	]);
-
-	useEffect(() => {
-		if (playerRef.current && state.playback.isPaused) {
-			playerRef.current.pause();
-		}
-	}, [state.playback.isPaused]);
+	}, [state.playback.togglePlayback, state.user.loggedIn]);
 
 	useEffect(() => {
 		if (playerRef.current && state.user.loggedIn) {
@@ -150,14 +126,18 @@ function PlaybackControl() {
 	const playTrackHandler = async () => {
 		try {
 			let response = await playTrack(
-				state.playback.currentTrack?.uri,
-				state.deviceID,
-				state.playback.contextURI
+				state.playback.deviceID,
+				state.playback.uri,
+				state.playback.togglePlayback
 			);
 			let { message, accessToken } = await response.json();
 
 			if (state.playback.accessToken !== accessToken) {
 				dispatch(setAccessToken(accessToken));
+			}
+
+			if (state.playback.togglePlayback) {
+				dispatch(setToggle(false));
 			}
 			console.log(message);
 		} catch (error) {
@@ -176,61 +156,60 @@ function PlaybackControl() {
 
 	return (
 		<>
-			{(state.playback?.currentTrack?.uri || state.playback.contextURI) &&
-				state.playback.isActive && (
-					<div className={playerStyles.player}>
-						<div className='flex h-16 flex-1'>
-							<img
-								className='p-2'
-								src={state.playback.currentTrack?.album?.images[0].url}
-								alt=''
-							/>
-							<div className='flex flex-col justify-center'>
-								<div className='text-sm font-bold'>
-									{state.playback.currentTrack.name}
-								</div>
-								<div className='text-sm'>
-									{state.playback.currentTrack?.artists
-										?.map(item => item.name)
-										.join(',')}
-								</div>
+			{state.playback.isActive && state.user.loggedIn && (
+				<div className={playerStyles.player}>
+					<div className='flex h-16 flex-1'>
+						<img
+							className='p-2'
+							src={state.playback.currentTrack?.album?.images[0].url}
+							alt=''
+						/>
+						<div className='flex flex-col justify-center'>
+							<div className='text-sm font-bold'>
+								{state.playback.currentTrack.name}
+							</div>
+							<div className='text-sm'>
+								{state.playback.currentTrack?.artists
+									?.map(item => item.name)
+									.join(',')}
 							</div>
 						</div>
-
-						<div className='flex flex-1 h-16 justify-center'>
-							<button
-								className='btn-spotify'
-								onClick={() => {
-									playerRef.current.previousTrack().catch(error => {
-										console.error('Error playing previous track:', error);
-									});
-								}}>
-								<BackwardIcon className='h-6 w-6'></BackwardIcon>
-							</button>
-							<button
-								className='btn-spotify'
-								onClick={() => {
-									playerRef.current.togglePlay().catch(error => {
-										console.error('Error toggling playback:', error);
-									});
-								}}>
-								{state.playback.isPaused ? (
-									<PlayIcon className='h-12 w-12'></PlayIcon>
-								) : (
-									<PauseIcon className='h-12 w-12'></PauseIcon>
-								)}
-							</button>
-							<button className='btn-spotify' onClick={handleNextTrack}>
-								<ForwardIcon className='h-6 w-6'></ForwardIcon>
-							</button>
-						</div>
-
-						<div className='flex flex-1 h-16 justify-center items-center gap-x-6'>
-							<HandThumbUpIcon className='h-6 w-6'></HandThumbUpIcon>
-							<HandThumbDownIcon className='h-6 w-6'></HandThumbDownIcon>
-						</div>
 					</div>
-				)}
+
+					<div className='flex flex-1 h-16 justify-center'>
+						<button
+							className='btn-spotify'
+							onClick={() => {
+								playerRef.current.previousTrack().catch(error => {
+									console.error('Error playing previous track:', error);
+								});
+							}}>
+							<BackwardIcon className='h-6 w-6'></BackwardIcon>
+						</button>
+						<button
+							className='btn-spotify'
+							onClick={() => {
+								playerRef.current.togglePlay().catch(error => {
+									console.error('Error toggling playback:', error);
+								});
+							}}>
+							{state.playback.isPaused ? (
+								<PlayIcon className='h-12 w-12'></PlayIcon>
+							) : (
+								<PauseIcon className='h-12 w-12'></PauseIcon>
+							)}
+						</button>
+						<button className='btn-spotify' onClick={handleNextTrack}>
+							<ForwardIcon className='h-6 w-6'></ForwardIcon>
+						</button>
+					</div>
+
+					<div className='flex flex-1 h-16 justify-center items-center gap-x-6'>
+						<HandThumbUpIcon className='h-6 w-6'></HandThumbUpIcon>
+						<HandThumbDownIcon className='h-6 w-6'></HandThumbDownIcon>
+					</div>
+				</div>
+			)}
 		</>
 	);
 }

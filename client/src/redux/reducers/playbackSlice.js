@@ -8,7 +8,8 @@ const initialState = {
 	deviceID: '',
 	isPaused: true,
 	isActive: false,
-	contextURI: '-',
+	uri: '',
+	togglePlayback: false,
 };
 
 export const playBackSlice = createSlice({
@@ -36,9 +37,13 @@ export const playBackSlice = createSlice({
 		setActive: (state, action) => {
 			state.isActive = action.payload;
 		},
-		setContextURI: (state, action) => {
-			state.contextURI = action.payload;
+		setUri: (state, action) => {
+			state.uri = action.payload;
 		},
+		setToggle: (state, action) => {
+			state.togglePlayback = action.payload;
+		},
+
 		clearPlayback: (state, action) => {
 			state.searchTerm = '';
 			state.trackList = [];
@@ -58,7 +63,8 @@ export const {
 	setDeviceID,
 	setPaused,
 	setActive,
-	setContextURI,
+	setUri,
+	setToggle,
 } = playBackSlice.actions;
 
 export default playBackSlice.reducer;
