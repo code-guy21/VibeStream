@@ -123,6 +123,21 @@ function PlaybackControl() {
 		}
 	}, [playerRef.current, state.user.loggedIn]);
 
+	useEffect(() => {
+		let stopPlayback = async () => {
+			if (playerRef.current && !state.user.loggedIn) {
+				try {
+					await playerRef.current.pause();
+					console.log('player is paused!');
+				} catch (error) {
+					console.log(error);
+				}
+			}
+		};
+
+		stopPlayback();
+	}, [state.user.loggedIn]);
+
 	const playTrackHandler = async () => {
 		try {
 			let response = await playTrack(
