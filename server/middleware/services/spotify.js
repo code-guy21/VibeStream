@@ -31,6 +31,7 @@ const hasSpotifyLinkedService = async (req, res, next) => {
 	}
 
 	req.spotifyAccessToken = spotifyService.accessToken;
+	req.tokenExpiration = spotifyService.expirationDate;
 
 	next();
 };

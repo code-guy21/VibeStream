@@ -5,6 +5,8 @@ const initialState = {
 	trackList: [],
 	currentTrack: {},
 	accessToken: '',
+	tokenExpiration: '',
+	tokenExpired: true,
 	deviceID: '',
 	isPaused: true,
 	isActive: false,
@@ -44,6 +46,13 @@ export const playBackSlice = createSlice({
 			state.togglePlayback = action.payload;
 		},
 
+		setTokenExpiration: (state, action) => {
+			state.tokenExpiration = action.payload;
+		},
+
+		setTokenExpired: (state, action) => {
+			state.tokenExpired = action.payload;
+		},
 		clearPlayback: (state, action) => {
 			state.searchTerm = '';
 			state.trackList = [];
@@ -65,6 +74,8 @@ export const {
 	setActive,
 	setUri,
 	setToggle,
+	setTokenExpiration,
+	setTokenExpired,
 } = playBackSlice.actions;
 
 export default playBackSlice.reducer;

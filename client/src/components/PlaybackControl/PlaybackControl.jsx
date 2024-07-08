@@ -17,6 +17,8 @@ import {
 	setActive,
 	setUri,
 	setToggle,
+	setTokenExpiration,
+	setTokenExpired,
 } from '../../redux/reducers/playbackSlice';
 import { playTrack, setDeviceAsActive } from '../../api/spotify';
 
@@ -36,13 +38,17 @@ function PlaybackControl() {
 			if (state.user.loggedIn) {
 				try {
 					const res = await fetch('/api/spotify/token');
-					const { token } = await res.json();
+					const { token, tokenExpiration } = await res.json();
 
 					if (token) {
 						dispatch(setAccessToken(token));
+						dispatch(setTokenExpiration(tokenExpiration));
+						dispatch(setTokenExpired(false));
 						if (!playerSetupRef.current) {
-							setUpPlayer(token);
+							setUpPlayer();
 							playerSetupRef.current = true;
+						} else if (playerRef.current) {
+							playerRef.current._options.getOAuthToken = cb => cb(token);
 						}
 					}
 				} catch (error) {
@@ -52,9 +58,9 @@ function PlaybackControl() {
 		}
 
 		fetchToken();
-	}, [state.user.loggedIn]);
+	}, [state.user.loggedIn, state.playback.tokenExpired]);
 
-	function setUpPlayer(token) {
+	function setUpPlayer() {
 		const script = document.createElement('script');
 		script.src = 'https://sdk.scdn.co/spotify-player.js';
 		script.async = true;
@@ -65,21 +71,24 @@ function PlaybackControl() {
 
 			const sdkPlayer = new window.Spotify.Player({
 				name: 'Web Playback SDK',
-				getOAuthToken: cb => cb(token),
+				getOAuthToken: cb => cb(stateRef.current.playback.accessToken),
 				volume: 0.5,
 			});
 
 			playerRef.current = sdkPlayer;
+
 			sdkPlayer.addListener('ready', async ({ device_id }) => {
 				console.log('Ready with Device ID', device_id);
 				dispatch(setActive(true));
 				dispatch(setDeviceID(device_id));
 				try {
 					let response = await setDeviceAsActive(device_id);
-					let { message, accessToken } = await response.json();
+					let { message, accessToken, tokenExpiration } = await response.json();
 
 					if (stateRef.current.playback.accessToken !== accessToken) {
 						dispatch(setAccessToken(accessToken));
+						dispatch(setTokenExpiration(tokenExpiration));
+						dispatch(setTokenExpiration(false));
 					}
 					console.log(message, accessToken);
 				} catch (error) {
@@ -90,6 +99,10 @@ function PlaybackControl() {
 			sdkPlayer.addListener('player_state_changed', st => {
 				console.log('changed');
 				console.log(st);
+
+				if (new Date(stateRef.current.playback.tokenExpiration) < new Date()) {
+					dispatch(setTokenExpired(true));
+				}
 
 				if (st.context?.uri) {
 					dispatch(setUri(st.context.uri));
@@ -133,6 +146,7 @@ function PlaybackControl() {
 					console.log(error);
 				}
 			}
+			dispatch(setPaused(true));
 		};
 
 		stopPlayback();
@@ -145,10 +159,12 @@ function PlaybackControl() {
 				state.playback.uri,
 				state.playback.togglePlayback
 			);
-			let { message, accessToken } = await response.json();
+			let { message, accessToken, tokenExpiration } = await response.json();
 
 			if (state.playback.accessToken !== accessToken) {
 				dispatch(setAccessToken(accessToken));
+				dispatch(setTokenExpiration(tokenExpiration));
+				dispatch(setTokenExpiration(false));
 			}
 
 			if (state.playback.togglePlayback) {

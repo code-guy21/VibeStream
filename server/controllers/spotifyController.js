@@ -6,7 +6,7 @@ const {
 } = require('../utils/spotify');
 
 module.exports = {
-	search: async ({ query, spotifyAccessToken }, res) => {
+	search: async ({ query, spotifyAccessToken, tokenExpiration }, res) => {
 		try {
 			if (!query.term || !query.type) {
 				return res
@@ -20,7 +20,9 @@ module.exports = {
 				spotifyAccessToken
 			);
 
-			res.status(200).json({ data, accessToken: spotifyAccessToken });
+			res
+				.status(200)
+				.json({ data, accessToken: spotifyAccessToken, tokenExpiration });
 		} catch (error) {
 			console.error(error);
 			const status = error.response ? error.response.status : 500;
@@ -30,10 +32,10 @@ module.exports = {
 			res.status(status).json({ message });
 		}
 	},
-	getAccessToken: ({ spotifyAccessToken }, res) => {
-		res.json({ token: spotifyAccessToken });
+	getAccessToken: ({ spotifyAccessToken, tokenExpiration }, res) => {
+		res.json({ token: spotifyAccessToken, tokenExpiration });
 	},
-	playTrack: async ({ body, spotifyAccessToken }, res) => {
+	playTrack: async ({ body, spotifyAccessToken, tokenExpiration }, res) => {
 		try {
 			let response;
 
@@ -64,13 +66,14 @@ module.exports = {
 			res.status(200).json({
 				message: 'Track playback started',
 				accessToken: spotifyAccessToken,
+				tokenExpiration,
 			});
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });
 		}
 	},
-	setDevice: async ({ body, spotifyAccessToken }, res) => {
+	setDevice: async ({ body, spotifyAccessToken, tokenExpiration }, res) => {
 		try {
 			const { deviceSet } = await setSpotifyDevice(
 				body.device_id,
@@ -84,6 +87,7 @@ module.exports = {
 			res.status(200).json({
 				message: `device ${body.device_id} set as active`,
 				accessToken: spotifyAccessToken,
+				tokenExpiration,
 			});
 		} catch (error) {
 			console.log(error);

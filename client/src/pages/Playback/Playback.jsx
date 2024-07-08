@@ -8,6 +8,8 @@ import {
 	setAccessToken,
 	setToggle,
 	setType,
+	setTokenExpiration,
+	setTokenExpired,
 } from '../../redux/reducers/playbackSlice';
 
 const Playback = () => {
@@ -19,12 +21,14 @@ const Playback = () => {
 			const resp = await fetch(
 				`/api/spotify/search?term=${state.searchTerm}&type=track`
 			);
-			const { data, accessToken } = await resp.json();
+			const { data, accessToken, tokenExpiration } = await resp.json();
 
 			console.log(data.tracks.items, accessToken);
 
 			if (state.accessToken !== accessToken) {
 				dispatch(setAccessToken(accessToken));
+				dispatch(setTokenExpiration(tokenExpiration));
+				dispatch(setTokenExpired(false));
 			}
 
 			dispatch(setTrackList(data.tracks.items));
