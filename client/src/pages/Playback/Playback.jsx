@@ -1,5 +1,6 @@
 import { Input, Label, Field, Fieldset, Button } from '@headlessui/react';
 import { useSelector, useDispatch } from 'react-redux';
+import { searchTracks } from '../../api/spotify';
 import {
 	setSearchTerm,
 	setTrackList,
@@ -16,11 +17,9 @@ const Playback = () => {
 	const state = useSelector(state => state.playback);
 	const dispatch = useDispatch();
 
-	async function searchTracks() {
+	async function search() {
 		try {
-			const resp = await fetch(
-				`/api/spotify/search?term=${state.searchTerm}&type=track`
-			);
+			const resp = await searchTracks(state.searchTerm);
 			const { data, accessToken, tokenExpiration } = await resp.json();
 
 			console.log(data.tracks.items, accessToken);
@@ -48,7 +47,7 @@ const Playback = () => {
 						type='text'></Input>
 					<Button
 						className='flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-						onClick={searchTracks}>
+						onClick={search}>
 						submit
 					</Button>
 				</Field>

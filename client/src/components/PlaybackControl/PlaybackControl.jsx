@@ -20,7 +20,7 @@ import {
 	setTokenExpiration,
 	setTokenExpired,
 } from '../../redux/reducers/playbackSlice';
-import { playTrack, setDeviceAsActive } from '../../api/spotify';
+import { fetchToken, playTrack, setDeviceAsActive } from '../../api/spotify';
 
 function PlaybackControl() {
 	const state = useSelector(state => state);
@@ -34,10 +34,10 @@ function PlaybackControl() {
 	}, [state]);
 
 	useEffect(() => {
-		async function fetchToken() {
+		async function getToken() {
 			if (state.user.loggedIn) {
 				try {
-					const res = await fetch('/api/spotify/token');
+					const res = await fetchToken();
 					const { token, tokenExpiration } = await res.json();
 
 					if (token) {
@@ -57,7 +57,7 @@ function PlaybackControl() {
 			}
 		}
 
-		fetchToken();
+		getToken();
 	}, [state.user.loggedIn, state.playback.tokenExpired]);
 
 	function setUpPlayer() {

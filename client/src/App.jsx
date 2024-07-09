@@ -1,16 +1,41 @@
 import { Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchAuthStatus } from './redux/reducers/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAuthStatus, logoutUser } from './redux/reducers/userSlice';
+import { getAuthStatus } from './api/user';
 import Navbar from './components/Navbar';
 import PlaybackControl from './components/PlaybackControl/PlaybackControl';
 
 function App() {
+	const user = useSelector(state => state.user);
 	const dispatch = useDispatch();
 
 	useEffect(() => {
 		dispatch(fetchAuthStatus());
-	}, [dispatch]);
+
+		const checkAuthStatus = async () => {
+			try {
+				let response = await getAuthStatus();
+
+				if (!response.loggedIn) {
+					dispatch(logoutUser());
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		};
+
+		let authInterval;
+
+		if (user.loggedIn) {
+			authInterval = setInterval(checkAuthStatus, 1000 * 60 * 5);
+		}
+
+		return () => {
+			clearInterval(authInterval);
+		};
+	}, [user.loggedIn]);
+
 	return (
 		<div>
 			<Navbar />
