@@ -17,7 +17,9 @@ function App() {
 			try {
 				let response = await getAuthStatus();
 
-				if (!response.loggedIn) {
+				const userData = await response.json();
+
+				if (!userData.loggedIn) {
 					dispatch(logoutUser());
 				}
 			} catch (error) {
@@ -27,12 +29,14 @@ function App() {
 
 		let authInterval;
 
-		if (user.loggedIn) {
+		if (user.loggedIn && !authInterval) {
 			authInterval = setInterval(checkAuthStatus, 1000 * 60 * 5);
 		}
 
 		return () => {
-			clearInterval(authInterval);
+			if (authInterval) {
+				clearInterval(authInterval);
+			}
 		};
 	}, [user.loggedIn]);
 
