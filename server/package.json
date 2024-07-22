@@ -7,9 +7,9 @@
 		"start": "node app.js",
 		"dev": "nodemon server",
 		"test": "jest --verbose",
-		"test:auth": "NODE_ENV=test jest ./tests/integration/auth --detectOpenHandles",
+		"test:auth": "NODE_ENV=test jest ./tests/integration/auth --verbose",
 		"test:models": "jest ./tests/models --verbose",
-		"test:spotify": "NODE_ENV=test jest ./tests/integration/spotify --detectOpenHandles --verbose"
+		"test:spotify": "NODE_ENV=test jest ./tests/integration/spotify --verbose"
 	},
 	"repository": {
 		"type": "git",

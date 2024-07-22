@@ -1,30 +1,28 @@
-const axios = require('axios');
-require('dotenv').config();
+const {
+	searchSpotify,
+	spotifyPlay,
+	setSpotifyDevice,
+	getPlaybackState,
+} = require('../utils/spotify');
 
 module.exports = {
-	searchTracks: async (req, res) => {
+	search: async ({ query, spotifyAccessToken, tokenExpiration }, res) => {
 		try {
-			if (!req.query.term || !req.query.type) {
+			if (!query.term || !query.type) {
 				return res
 					.status(400)
 					.json({ message: 'Search term and type are required' });
 			}
 
-			const baseURL = new URL(process.env.SPOTIFY_BASE_URL);
+			let data = await searchSpotify(
+				query.term,
+				query.type,
+				spotifyAccessToken
+			);
 
-			baseURL.search = new URLSearchParams({
-				q: req.query.term,
-				type: req.query.type,
-			});
-
-			const headers = {
-				'Content-Type': 'application/json',
-				Authorization: 'Bearer ' + req.spotifyAccessToken,
-			};
-
-			let response = await axios.get(baseURL.toString(), { headers });
-
-			res.status(200).json(response.data);
+			res
+				.status(200)
+				.json({ data, accessToken: spotifyAccessToken, tokenExpiration });
 		} catch (error) {
 			console.error(error);
 			const status = error.response ? error.response.status : 500;
@@ -32,6 +30,68 @@ module.exports = {
 				? error.response.data.error.message
 				: 'Failed to process your request';
 			res.status(status).json({ message });
+		}
+	},
+	getAccessToken: ({ spotifyAccessToken, tokenExpiration }, res) => {
+		res.json({ token: spotifyAccessToken, tokenExpiration });
+	},
+	playTrack: async ({ body, spotifyAccessToken, tokenExpiration }, res) => {
+		try {
+			let response;
+
+			if (body.togglePlayback) {
+				response = await spotifyPlay(body, spotifyAccessToken);
+			} else {
+				let { playbackState } = await getPlaybackState(spotifyAccessToken);
+
+				let context = playbackState.context ? playbackState.context.uri : null;
+
+				if (playbackState) {
+					response = await spotifyPlay(
+						{
+							context_uri: context,
+							device_id: playbackState?.device?.id,
+							uris: context ? null : [playbackState.item?.uri],
+							position_ms: playbackState.progress_ms,
+						},
+						spotifyAccessToken
+					);
+				}
+			}
+
+			if (!response.playbackStarted) {
+				return res.status(400).json({ message: 'Failed to start playback' });
+			}
+
+			res.status(200).json({
+				message: 'Track playback started',
+				accessToken: spotifyAccessToken,
+				tokenExpiration,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: error.message });
+		}
+	},
+	setDevice: async ({ body, spotifyAccessToken, tokenExpiration }, res) => {
+		try {
+			const { deviceSet } = await setSpotifyDevice(
+				body.device_id,
+				spotifyAccessToken
+			);
+
+			if (!deviceSet) {
+				res.status(400).json({ message: 'Failed to set device' });
+			}
+
+			res.status(200).json({
+				message: `device ${body.device_id} set as active`,
+				accessToken: spotifyAccessToken,
+				tokenExpiration,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ message: error.message });
 		}
 	},
 };

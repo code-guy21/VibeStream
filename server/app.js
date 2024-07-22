@@ -36,6 +36,7 @@ app.use(
 		saveUninitialized: false, // Don't save new sessions that are empty
 		store: sessionStore,
 		cookie: {
+			maxAge: 1000 * 60 * 60 * 24,
 			secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
 			httpOnly: process.env.NODE_ENV === 'production', // Mitigate XSS attacks by restricting cookie access from JavaScript
 			sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Strictly enforce same-site policy for cookies
