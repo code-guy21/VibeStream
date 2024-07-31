@@ -20,6 +20,7 @@ import {
 	setTokenExpiration,
 	setTokenExpired,
 	setAudioAnalysis,
+	setTrackState,
 } from '../../redux/reducers/playbackSlice';
 import {
 	fetchToken,
@@ -142,6 +143,8 @@ function PlaybackControl() {
 				) {
 					dispatch(setCurrentTrack(st.track_window.current_track));
 				}
+
+				dispatch(setTrackState(st));
 			});
 
 			sdkPlayer.addListener('not_ready', ({ device_id }) => {
