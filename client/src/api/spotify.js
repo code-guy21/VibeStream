@@ -40,3 +40,6 @@ export const searchTracks = term =>
 	customFetch(`/api/spotify/search?term=${term}&type=track`);
 
 export const fetchToken = () => customFetch('/api/spotify/token');
+
+export const fetchAudioAnalysis = trackId =>
+	customFetch(`/api/spotify/audio?id=${trackId}`);

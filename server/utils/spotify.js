@@ -39,6 +39,20 @@ const refreshAccessToken = async refreshToken => {
 	}
 };
 
+const spotifyAudioAnalysis = async (trackId, accessToken) => {
+	try {
+		let { data } = await spotifyAxios.get(`/audio-analysis/${trackId}`, {
+			headers: {
+				Authorization: 'Bearer ' + accessToken,
+			},
+		});
+
+		return data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 const searchSpotify = async (term, type, accessToken) => {
 	try {
 		let { data } = await spotifyAxios.get('/search', {
@@ -145,4 +159,5 @@ module.exports = {
 	spotifyPlay,
 	setSpotifyDevice,
 	getPlaybackState,
+	spotifyAudioAnalysis,
 };

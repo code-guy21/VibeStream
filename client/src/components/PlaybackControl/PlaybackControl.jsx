@@ -19,8 +19,14 @@ import {
 	setToggle,
 	setTokenExpiration,
 	setTokenExpired,
+	setAudioAnalysis,
 } from '../../redux/reducers/playbackSlice';
-import { fetchToken, playTrack, setDeviceAsActive } from '../../api/spotify';
+import {
+	fetchToken,
+	playTrack,
+	setDeviceAsActive,
+	fetchAudioAnalysis,
+} from '../../api/spotify';
 
 function PlaybackControl() {
 	const state = useSelector(state => state);
@@ -59,6 +65,26 @@ function PlaybackControl() {
 
 		getToken();
 	}, [state.user.loggedIn, state.playback.tokenExpired]);
+
+	useEffect(() => {
+		async function getAudioAnalysis() {
+			if (playerRef.current && state.playback.isActive && state.user.loggedIn) {
+				try {
+					let response = await fetchAudioAnalysis(
+						state.playback.currentTrack.id
+					);
+
+					let analysis = await response.json();
+
+					dispatch(setAudioAnalysis(analysis));
+				} catch (error) {
+					console.log('Error fetching audio analysis', error);
+				}
+			}
+		}
+
+		getAudioAnalysis();
+	}, [state.playback.currentTrack]);
 
 	function setUpPlayer() {
 		const script = document.createElement('script');
@@ -108,8 +134,14 @@ function PlaybackControl() {
 					dispatch(setUri(st.context.uri));
 				}
 
-				dispatch(setCurrentTrack(st.track_window.current_track));
 				dispatch(setPaused(st.paused));
+
+				if (
+					st.track_window.current_track.id !==
+					stateRef.current.playback.currentTrack.id
+				) {
+					dispatch(setCurrentTrack(st.track_window.current_track));
+				}
 			});
 
 			sdkPlayer.addListener('not_ready', ({ device_id }) => {

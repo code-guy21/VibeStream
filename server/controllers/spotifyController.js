@@ -3,6 +3,7 @@ const {
 	spotifyPlay,
 	setSpotifyDevice,
 	getPlaybackState,
+	spotifyAudioAnalysis,
 } = require('../utils/spotify');
 
 module.exports = {
@@ -71,6 +72,15 @@ module.exports = {
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });
+		}
+	},
+	getAudioAnalysis: async ({ query, spotifyAccessToken }, res) => {
+		try {
+			let analysis = await spotifyAudioAnalysis(query.id, spotifyAccessToken);
+
+			res.json(analysis);
+		} catch (error) {
+			console.log(error);
 		}
 	},
 	setDevice: async ({ body, spotifyAccessToken, tokenExpiration }, res) => {

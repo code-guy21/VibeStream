@@ -12,6 +12,7 @@ const initialState = {
 	isActive: false,
 	uri: '',
 	togglePlayback: false,
+	audioAnalysis: {},
 };
 
 export const playBackSlice = createSlice({
@@ -53,6 +54,9 @@ export const playBackSlice = createSlice({
 		setTokenExpired: (state, action) => {
 			state.tokenExpired = action.payload;
 		},
+		setAudioAnalysis: (state, action) => {
+			state.audioAnalysis = action.payload;
+		},
 		clearPlayback: (state, action) => {
 			state.searchTerm = '';
 			state.trackList = [];
@@ -60,6 +64,8 @@ export const playBackSlice = createSlice({
 			state.deviceID = '';
 			state.isPaused = true;
 			state.isActive = false;
+			state.togglePlayback = false;
+			state.audioAnalysis = {};
 		},
 	},
 });
@@ -76,6 +82,7 @@ export const {
 	setToggle,
 	setTokenExpiration,
 	setTokenExpired,
+	setAudioAnalysis,
 } = playBackSlice.actions;
 
 export default playBackSlice.reducer;
