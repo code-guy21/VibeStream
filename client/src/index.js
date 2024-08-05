@@ -8,7 +8,7 @@ import Auth from './containers/Auth';
 import PlayBack from './pages/Playback';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
-import Visualization from './containers/Visualization';
+import VisualizationPage from './pages/VisualizationPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import './index.css';
 
@@ -37,7 +37,9 @@ const router = createBrowserRouter([
 			},
 			{
 				path: '/visual',
-				element: <ProtectedRoute element={<Visualization />}></ProtectedRoute>,
+				element: (
+					<ProtectedRoute element={<VisualizationPage />}></ProtectedRoute>
+				),
 			},
 		],
 	},

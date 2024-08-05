@@ -16,6 +16,7 @@ import {
 import { useSelector } from 'react-redux';
 import SceneComponent from '../../components/SceneComponent';
 import { debounce } from 'lodash';
+import styles from './VisualizationPage.module.css';
 
 let crystalOrb;
 let bounceAnimation;
@@ -219,7 +220,7 @@ const VisualizationPage = () => {
 	}, []);
 
 	return (
-		<div className='visualization-container'>
+		<div className={styles.visualizationContainer}>
 			<SceneComponent antialias onSceneReady={onSceneReady} id='my-canvas' />
 		</div>
 	);
