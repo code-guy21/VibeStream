@@ -21,6 +21,7 @@ import {
 	setTokenExpired,
 	setAudioAnalysis,
 	setTrackState,
+	setAnalysisLoading,
 } from '../../redux/reducers/playbackSlice';
 import {
 	fetchToken,
@@ -79,6 +80,7 @@ function PlaybackControl() {
 					let analysis = await response.json();
 
 					dispatch(setAudioAnalysis(analysis));
+					dispatch(setAnalysisLoading(false));
 				} catch (error) {
 					console.log('Error fetching audio analysis', error);
 				}
@@ -149,7 +151,10 @@ function PlaybackControl() {
 						st.track_window.current_track.id !==
 						stateRef.current.playback.currentTrack.id
 					) {
+						console.log('Track changed, setting analysis loading to true');
 						dispatch(setCurrentTrack(st.track_window.current_track));
+
+						dispatch(setAnalysisLoading(true));
 					}
 
 					dispatch(setTrackState(st));

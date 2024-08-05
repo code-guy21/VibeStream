@@ -13,6 +13,7 @@ const initialState = {
 	uri: '',
 	togglePlayback: false,
 	audioAnalysis: {},
+	analysisLoading: false,
 	trackState: {},
 };
 
@@ -61,6 +62,9 @@ export const playBackSlice = createSlice({
 		setTrackState: (state, action) => {
 			state.trackState = action.payload;
 		},
+		setAnalysisLoading: (state, action) => {
+			state.analysisLoading = action.payload;
+		},
 		clearPlayback: (state, action) => {
 			state.searchTerm = '';
 			state.trackList = [];
@@ -71,6 +75,7 @@ export const playBackSlice = createSlice({
 			state.togglePlayback = false;
 			state.audioAnalysis = {};
 			state.trackState = {};
+			state.analysisLoading = false;
 		},
 	},
 });
@@ -89,6 +94,7 @@ export const {
 	setTokenExpired,
 	setAudioAnalysis,
 	setTrackState,
+	setAnalysisLoading,
 } = playBackSlice.actions;
 
 export default playBackSlice.reducer;

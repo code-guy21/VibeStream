@@ -22,9 +22,8 @@ let crystalOrb;
 let bounceAnimation;
 
 const VisualizationPage = () => {
-	const { audioAnalysis, isPaused, trackState, currentTrack } = useSelector(
-		state => state.playback
-	);
+	const { audioAnalysis, isPaused, trackState, currentTrack, analysisLoading } =
+		useSelector(state => state.playback);
 	const animationRef = useRef(null);
 	const requestRef = useRef(null);
 	const beatIndexRef = useRef(0);
@@ -140,7 +139,8 @@ const VisualizationPage = () => {
 	};
 
 	const handleAnimation = beatTimes => {
-		if (beatIndexRef.current >= beatTimes.length || isPaused) return;
+		if (beatIndexRef.current >= beatTimes.length || isPaused || analysisLoading)
+			return;
 
 		const nextBounceTime = beatTimes[beatIndexRef.current];
 		const now = performance.now();
@@ -196,22 +196,30 @@ const VisualizationPage = () => {
 
 	const debouncePauseHandling = useCallback(
 		debounce(() => {
-			if (isPaused) {
+			if (isPaused || analysisLoading) {
 				stopAnimation();
 			} else {
 				syncAnimationWithTrack();
 			}
 		}, 200),
-		[isPaused, audioAnalysis, trackState.position]
+		[isPaused, audioAnalysis, trackState.position, analysisLoading]
 	);
 
 	useEffect(() => {
-		syncAnimationWithTrack();
-	}, [audioAnalysis, currentTrack, trackState.position]);
+		if (!analysisLoading) {
+			syncAnimationWithTrack();
+		}
+	}, [audioAnalysis, currentTrack, trackState.position, analysisLoading]);
 
 	useEffect(() => {
 		debouncePauseHandling();
-	}, [isPaused, audioAnalysis, trackState.position, debouncePauseHandling]);
+	}, [
+		isPaused,
+		audioAnalysis,
+		trackState.position,
+		debouncePauseHandling,
+		analysisLoading,
+	]);
 
 	useEffect(() => {
 		return () => {
