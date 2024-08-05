@@ -4,6 +4,7 @@ import { logoutUser } from '../redux/reducers/userSlice';
 const customFetch = async (url, options) => {
 	try {
 		const response = await fetch(url, options);
+
 		if (response.status === 401) {
 			store.dispatch(logoutUser());
 		}

@@ -22,7 +22,7 @@ async function sendEmail(user) {
 			from: 'alexissj16@knights.ucf.edu',
 			to: user.email,
 			subject: 'email verification',
-			text: `click this link to verify your account http://localhost:3001/api/auth/verify?token=${user.verificationToken}`,
+			text: `click this link to verify your account ${process.env.SENDGRID_CALLBACK}?token=${user.verificationToken}`,
 		};
 
 		const info = await transporter.sendMail(mailOptions);

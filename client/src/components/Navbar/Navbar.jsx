@@ -54,6 +54,12 @@ export default function Navbar() {
 					active: !state.loggedIn,
 				},
 				{
+					name: 'Register',
+					href: '/register',
+					current: location.pathname === '/register',
+					active: !state.loggedIn,
+				},
+				{
 					name: 'Logout',
 					href: false,
 					active: state.loggedIn,

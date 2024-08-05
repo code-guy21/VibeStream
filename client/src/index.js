@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import VisualizationPage from './pages/VisualizationPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import RegisterPage from './pages/RegisterPage';
 import './index.css';
 
 import reportWebVitals from './reportWebVitals';
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
 				element: (
 					<ProtectedRoute element={<VisualizationPage />}></ProtectedRoute>
 				),
+			},
+			{
+				path: '/register',
+				element: <RegisterPage />,
 			},
 		],
 	},

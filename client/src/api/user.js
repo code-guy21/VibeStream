@@ -8,6 +8,16 @@ export const login = formData => {
 	});
 };
 
+export const register = formData => {
+	return fetch('/api/auth/register', {
+		method: 'POST',
+		headers: {
+			'content-type': 'application/json',
+		},
+		body: JSON.stringify(formData),
+	});
+};
+
 export const logout = () => {
 	return fetch('/api/auth/logout', {
 		method: 'POST',

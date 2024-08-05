@@ -7,7 +7,7 @@ module.exports = {
 	},
 	registerUser: async (req, res) => {
 		try {
-			let { username, displayName, email, password, profileImage } = req.body;
+			let { username, displayName, email, password } = req.body;
 
 			let user = await User.findOne({ email });
 
@@ -22,7 +22,6 @@ module.exports = {
 				displayName,
 				email,
 				password,
-				profileImage,
 				verificationToken: generateVerificationToken(),
 			});
 
