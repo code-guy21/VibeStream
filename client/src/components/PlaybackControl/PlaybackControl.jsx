@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
 	PlayIcon,
 	PauseIcon,
@@ -28,6 +28,7 @@ import {
 	setDeviceAsActive,
 	fetchAudioAnalysis,
 } from '../../api/spotify';
+import { debounce } from 'lodash';
 
 function PlaybackControl() {
 	const state = useSelector(state => state);
@@ -123,29 +124,42 @@ function PlaybackControl() {
 				}
 			});
 
-			sdkPlayer.addListener('player_state_changed', st => {
-				console.log('changed');
-				console.log(st);
+			sdkPlayer.addListener(
+				'player_state_changed',
+				debounce(st => {
+					console.log('changed');
+					console.log(st);
 
-				if (new Date(stateRef.current.playback.tokenExpiration) < new Date()) {
-					dispatch(setTokenExpired(true));
-				}
+					if (
+						new Date(stateRef.current.playback.tokenExpiration) < new Date()
+					) {
+						dispatch(setTokenExpired(true));
+					}
 
-				if (st.context?.uri) {
-					dispatch(setUri(st.context.uri));
-				}
+					if (st.context?.uri) {
+						dispatch(setUri(st.context.uri));
+					}
 
-				dispatch(setPaused(st.paused));
+					// Update paused state only if it has changed
+					if (st.paused !== stateRef.current.playback.isPaused) {
+						dispatch(setPaused(st.paused));
+					}
 
-				if (
-					st.track_window.current_track.id !==
-					stateRef.current.playback.currentTrack.id
-				) {
-					dispatch(setCurrentTrack(st.track_window.current_track));
-				}
+					if (
+						st.track_window.current_track.id !==
+						stateRef.current.playback.currentTrack.id
+					) {
+						dispatch(setCurrentTrack(st.track_window.current_track));
+					}
 
-				dispatch(setTrackState(st));
-			});
+					dispatch(setTrackState(st));
+
+					// // Immediate sync for animation timing
+					// if (st.paused !== stateRef.current.playback.isPaused) {
+					// 	syncAnimationState(st.paused);
+					// }
+				}, 300)
+			);
 
 			sdkPlayer.addListener('not_ready', ({ device_id }) => {
 				console.log('Device ID has gone offline', device_id);
@@ -154,6 +168,15 @@ function PlaybackControl() {
 			sdkPlayer.connect();
 		};
 	}
+
+	// const syncAnimationState = async isPaused => {
+	// 	if (playerRef.current) {
+	// 		const state = await playerRef.current.getCurrentState();
+	// 		if (state) {
+	// 			dispatch(setPaused(state.paused));
+	// 		}
+	// 	}
+	// };
 
 	useEffect(() => {
 		if (
@@ -220,6 +243,39 @@ function PlaybackControl() {
 		}
 	};
 
+	const handleTogglePlay = async () => {
+		try {
+			await playerRef.current.togglePlay();
+			// Explicitly handle state after toggling play
+			// setTimeout(() => {
+			// 	playerRef.current.getCurrentState().then(state => {
+			// 		if (state && state.paused !== stateRef.current.playback.isPaused) {
+			// 			dispatch(setPaused(state.paused));
+			// 		}
+			// 	});
+			// }, 500);
+		} catch (error) {
+			console.error('Error toggling playback:', error);
+		}
+	};
+
+	// Enhanced fallback mechanism to check paused state more frequently after track change or play/pause toggle
+	// useEffect(() => {
+	// 	const checkState = () => {
+	// 		if (playerRef.current) {
+	// 			playerRef.current.getCurrentState().then(state => {
+	// 				if (state && state.paused !== stateRef.current.playback.isPaused) {
+	// 					dispatch(setPaused(state.paused));
+	// 				}
+	// 			});
+	// 		}
+	// 	};
+
+	// 	const interval = setInterval(checkState, 500);
+
+	// 	return () => clearInterval(interval);
+	// }, []);
+
 	return (
 		<>
 			{state.playback.isActive && state.user.loggedIn && (
@@ -252,13 +308,7 @@ function PlaybackControl() {
 							}}>
 							<BackwardIcon className='h-6 w-6'></BackwardIcon>
 						</button>
-						<button
-							className='btn-spotify'
-							onClick={() => {
-								playerRef.current.togglePlay().catch(error => {
-									console.error('Error toggling playback:', error);
-								});
-							}}>
+						<button className='btn-spotify' onClick={handleTogglePlay}>
 							{state.playback.isPaused ? (
 								<PlayIcon className='h-12 w-12'></PlayIcon>
 							) : (
