@@ -229,7 +229,11 @@ const VisualizationPage = () => {
 
 	return (
 		<div className={styles.visualizationContainer}>
-			<SceneComponent antialias onSceneReady={onSceneReady} id='my-canvas' />
+			{analysisLoading ? (
+				<div className={styles.loader}></div>
+			) : (
+				<SceneComponent antialias onSceneReady={onSceneReady} id='my-canvas' />
+			)}
 		</div>
 	);
 };

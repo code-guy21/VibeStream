@@ -1,5 +1,31 @@
 .visualizationContainer {
-	height: 100vh;
 	width: 100%;
+	height: 100vh;
 	overflow: hidden;
+	position: relative;
+	background: linear-gradient(135deg, rgba(10, 10, 20, 1), rgba(40, 40, 60, 1));
+}
+
+.loader {
+	border: 8px solid rgba(255, 255, 255, 0.1);
+	border-top: 8px solid rgba(52, 152, 219, 0.8);
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	animation: spin 1s linear infinite;
+	position: absolute;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+	background: rgba(10, 10, 20, 0.8);
+}
+
+@keyframes spin {
+	0% {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+	100% {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
 }
