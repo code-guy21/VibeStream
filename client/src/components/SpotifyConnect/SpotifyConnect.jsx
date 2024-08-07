@@ -2,8 +2,9 @@ import { ReactComponent as SpotifyIcon } from '../../assets/images/spotify-logo.
 
 function SpotifyConnect() {
 	const handleSpotifyLogin = async () => {
-		window.location.href =
-			'https://vibestream-e5e0.onrender.com/api/auth/spotify';
+		window.location.replace(
+			`${process.env.REACT_APP_CLIENT_URL}/api/auth/spotify`
+		);
 	};
 
 	return (
