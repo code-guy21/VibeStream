@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/reducers/userSlice';
 import { login } from '../../api/user';
 import logo from '../../assets/images/vibestream-logo.svg';
+import { Link } from 'react-router-dom';
 
 function Login() {
 	const state = useSelector(state => state.user);
@@ -117,11 +118,11 @@ function Login() {
 
 					<p className='mt-10 text-center text-sm text-gray-500'>
 						Don't have an account?{' '}
-						<a
-							href='#'
+						<Link
+							to='/register'
 							className='font-semibold leading-6 text-indigo-600 hover:text-indigo-500'>
 							Sign up
-						</a>
+						</Link>
 					</p>
 				</div>
 			</div>

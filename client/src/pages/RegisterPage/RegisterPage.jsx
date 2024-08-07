@@ -1,14 +1,17 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { register } from '../../api/user';
+import { ToastContainer, toast } from 'react-toastify';
 import logo from '../../assets/images/vibestream-logo.svg';
+import { Link } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
 
 function RegisterPage() {
 	const state = useSelector(state => state.user);
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
+
 	const [form, setForm] = useState({
 		email: '',
 		password: '',
@@ -28,10 +31,18 @@ function RegisterPage() {
 		try {
 			let res = await register(form);
 
+			console.log(res);
+
 			let data = await res.json();
 
 			console.log(data);
-			navigate('/');
+
+			if (res.status === 400) {
+				console.log('popping');
+				toast.error(data.message);
+			} else {
+				navigate('/verify');
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -170,13 +181,14 @@ function RegisterPage() {
 
 					<p className='mt-10 text-center text-sm text-gray-500'>
 						Already have an account?{' '}
-						<a
-							href='#'
+						<Link
+							to='/login'
 							className='font-semibold leading-6 text-indigo-600 hover:text-indigo-500'>
 							Sign In
-						</a>
+						</Link>
 					</p>
 				</div>
+				<ToastContainer></ToastContainer>
 			</div>
 		</>
 	);
