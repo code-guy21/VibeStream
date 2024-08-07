@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/reducers/userSlice';
 import { login } from '../../api/user';
+import { ToastContainer, toast } from 'react-toastify';
 import logo from '../../assets/images/vibestream-logo.svg';
 import { Link } from 'react-router-dom';
 
@@ -29,9 +30,12 @@ function Login() {
 
 			let data = await res.json();
 
-			console.log(data);
-			dispatch(loginUser(data));
-			navigate('/');
+			if (res.status === 401 || res.status === 500) {
+				toast.error(data.message);
+			} else {
+				dispatch(loginUser(data));
+				navigate('/');
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -125,6 +129,8 @@ function Login() {
 						</Link>
 					</p>
 				</div>
+
+				<ToastContainer></ToastContainer>
 			</div>
 		</>
 	);
