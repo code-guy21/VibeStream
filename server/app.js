@@ -12,7 +12,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const path = require('path');
-
+const cors = require('cors');
 require('dotenv').config();
 
 // Internal module imports
@@ -50,6 +50,14 @@ app.sessionStore = sessionStore;
 
 // Middleware setup
 app.use(express.json()); // JSON parsing middleware for parsing application/json
+
+//CORS configuration
+app.use(
+	cors({
+		origin: process.env.CLIENT_URL,
+		credentials: true,
+	})
+);
 
 // Passport middleware for authentication
 app.use(passport.initialize());
