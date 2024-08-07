@@ -26,6 +26,9 @@ const PORT = process.env.PORT || 3001; // Server port assignment
 // Express application initialization
 const app = express();
 
+//set trust proxy for deployment
+app.set('trust proxy', 1);
+
 // Session storage backend initialization
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGODB_URI }); // Session storage backend
 
