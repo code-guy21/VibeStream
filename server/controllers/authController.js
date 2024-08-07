@@ -1,5 +1,6 @@
 const { User } = require('../models');
 const { generateVerificationToken, sendEmail } = require('../utils/email');
+require('dotenv').config();
 
 module.exports = {
 	googleCallback: (req, res) => {
@@ -40,13 +41,13 @@ module.exports = {
 		}
 	},
 	spotifyCallback: async (req, res) => {
-		res.redirect('http://localhost:3000/');
+		res.redirect(process.env.CLIENT_URL);
 	},
 	loginUser: async (req, res) => {
 		res.status(200).json({ loggedIn: true, user: req.user });
 	},
 	logoutUser: async (req, res) => {
-		req.logout(err => {
+		req.logout({ keepSessionInfo: true }, err => {
 			if (err) {
 				return res.status(400).json({ message: err.message });
 			}

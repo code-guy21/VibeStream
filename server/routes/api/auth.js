@@ -9,6 +9,7 @@ const {
 	checkAuthStatus,
 	logoutUser,
 } = require('../../controllers/authController');
+require('dotenv').config();
 
 router.route('/google').get(
 	passport.authenticate('google', {
@@ -40,7 +41,7 @@ router.route('/spotify').get(
 router
 	.route('/spotify/callback')
 	.get(
-		passport.authorize('spotify', { failureRedirect: 'http://localhost:3000' }),
+		passport.authorize('spotify', { failureRedirect: process.env.CLIENT_URL }),
 		(req, res) => {
 			// Check if there was an error during the authorization process
 			if (req.authInfo && req.authInfo.error) {
@@ -74,28 +75,32 @@ router
 router.route('/register').post(registerUser);
 
 router.post('/login', (req, res, next) => {
-	passport.authenticate('local', (err, user, info) => {
-		if (err) {
-			return res
-				.status(500)
-				.json({ error: 'Internal server error', details: err.message });
-		}
-		if (!user) {
-			// User authentication failed
-			return res
-				.status(401)
-				.json({ error: 'Authentication failed', message: info.message });
-		}
-		req.logIn(user, function (err) {
+	passport.authenticate(
+		'local',
+		{ keepSessionInfo: true },
+		(err, user, info) => {
 			if (err) {
 				return res
 					.status(500)
-					.json({ error: 'Login error', details: err.message });
+					.json({ error: 'Internal server error', details: err.message });
 			}
-			// Delegate to controller if additional processing is needed
-			return loginUser(req, res);
-		});
-	})(req, res, next);
+			if (!user) {
+				// User authentication failed
+				return res
+					.status(401)
+					.json({ error: 'Authentication failed', message: info.message });
+			}
+			req.logIn(user, function (err) {
+				if (err) {
+					return res
+						.status(500)
+						.json({ error: 'Login error', details: err.message });
+				}
+				// Delegate to controller if additional processing is needed
+				return loginUser(req, res);
+			});
+		}
+	)(req, res, next);
 });
 
 router.route('/verify').get(verifyUser);

@@ -39,7 +39,7 @@ app.use(
 			maxAge: 1000 * 60 * 60 * 24,
 			secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
 			httpOnly: process.env.NODE_ENV === 'production', // Mitigate XSS attacks by restricting cookie access from JavaScript
-			sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Strictly enforce same-site policy for cookies
+			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Strictly enforce same-site policy for cookies
 		},
 	})
 );
@@ -53,6 +53,10 @@ app.use(express.json()); // JSON parsing middleware for parsing application/json
 // Passport middleware for authentication
 app.use(passport.initialize());
 app.use(passport.session());
+
+if (process.env.NODE_ENV === 'production') {
+	app.use(express.static(path.join(__dirname, '../client/build')));
+}
 
 // Initialize API routes
 app.use(routes);
