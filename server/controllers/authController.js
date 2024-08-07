@@ -69,7 +69,7 @@ module.exports = {
 			let user = await User.findOne({ verificationToken: token });
 
 			if (!user) {
-				return res.status(400).json({ message: 'verification failed' });
+				return res.redirect(`${process.env.CLIENT_URL}/verify?status=failure`);
 			}
 
 			user.verificationToken = null;
@@ -77,11 +77,9 @@ module.exports = {
 
 			await user.save();
 
-			res.status(200).json({ message: 'user has been verified' });
+			res.redirect(`${process.env.CLIENT_URL}/verify?status=success`);
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'Interval Server Error', error: error.message });
+			res.redirect(`${process.env.CLIENT_URL}/verify?status=error`);
 		}
 	},
 };

@@ -11,7 +11,8 @@ import ServicePage from './pages/ServicePage';
 import VisualizationPage from './pages/VisualizationPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import RegisterPage from './pages/RegisterPage';
-import VerifyPage from './pages/VerifyPage';
+import VerifyInstructionPage from './pages/VerifyInstructionPage';
+import VerifyStatusPage from './pages/VerifyStatusPage';
 import './index.css';
 
 import reportWebVitals from './reportWebVitals';
@@ -38,8 +39,12 @@ const router = createBrowserRouter([
 				element: <ProtectedRoute element={<ServicePage />}></ProtectedRoute>,
 			},
 			{
+				path: '/verify-instruction',
+				element: <VerifyInstructionPage />,
+			},
+			{
 				path: '/verify',
-				element: <VerifyPage />,
+				element: <VerifyStatusPage />,
 			},
 			{
 				path: '/visual',

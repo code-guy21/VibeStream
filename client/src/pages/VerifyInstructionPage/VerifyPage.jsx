@@ -2,7 +2,7 @@ import React from 'react';
 import logo from '../../assets/images/vibestream-logo.svg';
 import { Link } from 'react-router-dom';
 
-function VerifyPage() {
+function VerifyInstructionPage() {
 	return (
 		<>
 			<div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
@@ -36,4 +36,4 @@ function VerifyPage() {
 	);
 }
 
-export default VerifyPage;
+export default VerifyInstructionPage;
