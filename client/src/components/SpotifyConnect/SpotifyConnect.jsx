@@ -1,4 +1,4 @@
-import { ReactComponent as SpotifyIcon } from '../../assets/images/spotify-logo.svg';
+import SpotifyLogo from '../../assets/images/Spotify_Logo_CMYK_Green.png'; // For PNG usage
 
 function SpotifyConnect() {
 	const handleSpotifyLogin = async () => {
@@ -19,10 +19,12 @@ function SpotifyConnect() {
 					<div>
 						<button
 							onClick={handleSpotifyLogin}
-							className='inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-gray-500 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500'>
-							<SpotifyIcon className='h-5 w-5' />
-
-							<span className='ml-2'>Spotify</span>
+							className='inline-flex w-full items-center justify-center rounded-md bg-white px-4 py-2 text-gray-500 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500'>
+							<img
+								src={SpotifyLogo}
+								alt='Connect with Spotify'
+								className='h-auto w-auto max-h-8 max-w-32 object-contain mr-2' // Maintains aspect ratio
+							/>
 						</button>
 					</div>
 				</div>
