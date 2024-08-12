@@ -1,4 +1,4 @@
-import SpotifyLogo from '../../assets/images/Spotify_Logo_CMYK_Green.png'; // For PNG usage
+import SpotifyLogo from '../../assets/images/Spotify_Logo_CMYK_Green.png';
 
 function SpotifyConnect() {
 	const handleSpotifyLogin = async () => {
@@ -22,9 +22,10 @@ function SpotifyConnect() {
 							className='inline-flex w-full items-center justify-center rounded-md bg-white px-4 py-2 text-gray-500 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500'>
 							<img
 								src={SpotifyLogo}
-								alt='Connect with Spotify'
-								className='h-auto w-auto max-h-8 max-w-32 object-contain mr-2' // Maintains aspect ratio
+								alt='Spotify Logo'
+								className='h-auto w-auto max-h-8 object-contain mr-2'
 							/>
+							<span>Connect with Spotify</span>
 						</button>
 					</div>
 				</div>

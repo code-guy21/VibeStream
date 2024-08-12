@@ -309,7 +309,7 @@ function PlaybackControl() {
 
 					<div className='flex flex-1 h-16 justify-center'>
 						<button
-							className='btn-spotify'
+							className='btn-playback'
 							onClick={() => {
 								playerRef.current.previousTrack().catch(error => {
 									console.error('Error playing previous track:', error);
@@ -317,14 +317,14 @@ function PlaybackControl() {
 							}}>
 							<BackwardIcon className='h-6 w-6'></BackwardIcon>
 						</button>
-						<button className='btn-spotify' onClick={handleTogglePlay}>
+						<button className='btn-playback' onClick={handleTogglePlay}>
 							{state.playback.isPaused ? (
 								<PlayIcon className='h-12 w-12'></PlayIcon>
 							) : (
 								<PauseIcon className='h-12 w-12'></PauseIcon>
 							)}
 						</button>
-						<button className='btn-spotify' onClick={handleNextTrack}>
+						<button className='btn-playback' onClick={handleNextTrack}>
 							<ForwardIcon className='h-6 w-6'></ForwardIcon>
 						</button>
 					</div>
