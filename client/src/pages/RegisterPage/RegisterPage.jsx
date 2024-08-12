@@ -40,6 +40,8 @@ function RegisterPage() {
 			if (res.status === 400) {
 				console.log('popping');
 				toast.error(data.message);
+			} else if (res.status === 500) {
+				toast.error(data.details);
 			} else {
 				navigate('/app/verify-instruction');
 			}
