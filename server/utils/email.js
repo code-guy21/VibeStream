@@ -19,10 +19,22 @@ function generateVerificationToken() {
 async function sendEmail(user) {
 	try {
 		const mailOptions = {
-			from: 'alexissj16@knights.ucf.edu',
+			from: '"VibeStream Support" <service.vibestream@gmail.com>',
 			to: user.email,
 			subject: 'email verification',
-			text: `click this link to verify your account ${process.env.SENDGRID_CALLBACK}?token=${user.verificationToken}`,
+			html: ` <div style="font-family: Arial, sans-serif; color: #333; padding: 20px; line-height: 1.6;">
+			<h2 style="color: #4CAF50;">Welcome to VibeStream, ${user.username}!</h2>
+			<p>Thank you for signing up. To get started, please verify your email address by clicking the button below:</p>
+			<a href="${process.env.SENDGRID_CALLBACK}?token=${user.verificationToken}" 
+			   style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+			  Verify Email
+			</a>
+			<p>If the button above doesn't work, copy and paste the following link into your browser:</p>
+			<p><a href="${process.env.SENDGRID_CALLBACK}?token=${user.verificationToken}" 
+				  style="color: #4CAF50;">${process.env.SENDGRID_CALLBACK}?token=${user.verificationToken}</a></p>
+			<p>If you did not create an account, please ignore this email.</p>
+			<p>Thank you,<br/>The VibeStream Team</p>
+		  </div>`,
 		};
 
 		const info = await transporter.sendMail(mailOptions);
