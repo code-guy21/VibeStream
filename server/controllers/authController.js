@@ -18,6 +18,14 @@ module.exports = {
 					.json({ message: 'Account with this email already exists' });
 			}
 
+			user = await User.findOne({ username });
+
+			if (user) {
+				return res
+					.status(400)
+					.json({ message: 'Account with this username already exists' });
+			}
+
 			user = await User.create({
 				username,
 				displayName,
