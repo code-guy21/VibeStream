@@ -41,7 +41,7 @@ function RegisterPage() {
 				console.log('popping');
 				toast.error(data.message);
 			} else {
-				navigate('/verify-instruction');
+				navigate('/app/verify-instruction');
 			}
 		} catch (error) {
 			console.log(error);

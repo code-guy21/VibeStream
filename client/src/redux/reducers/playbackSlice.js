@@ -69,13 +69,10 @@ export const playBackSlice = createSlice({
 			state.searchTerm = '';
 			state.trackList = [];
 			state.accessToken = '';
-			state.tokenExpiration = '';
-			state.tokenExpired = true;
 			state.deviceID = '';
 			state.isPaused = true;
 			state.isActive = false;
 			state.togglePlayback = false;
-			state.analysisLoading = false;
 		},
 	},
 });

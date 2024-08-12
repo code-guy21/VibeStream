@@ -291,14 +291,18 @@ function PlaybackControl() {
 							src={state.playback.currentTrack?.album?.images[0].url}
 							alt=''
 						/>
-						<div className='flex flex-col justify-center'>
-							<div className='text-sm font-bold'>
-								{state.playback.currentTrack.name}
+						<div className='flex flex-col justify-center overflow-hidden'>
+							<div className={`${playerStyles.info} text-sm font-bold track`}>
+								<p className={playerStyles.scrollText}>
+									{state.playback.currentTrack.name}
+								</p>
 							</div>
-							<div className='text-sm'>
-								{state.playback.currentTrack?.artists
-									?.map(item => item.name)
-									.join(',')}
+							<div className={`${playerStyles.info} text-sm`}>
+								<p className={playerStyles.scrollText}>
+									{state.playback.currentTrack?.artists
+										?.map(item => item.name)
+										.join(',')}
+								</p>
 							</div>
 						</div>
 					</div>

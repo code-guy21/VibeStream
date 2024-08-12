@@ -37,7 +37,7 @@ function VerifyStatusPage() {
 				{status === 'success' && (
 					<div className='mt-10 text-center'>
 						<Link
-							to='/login'
+							to='/app/login'
 							className='font-semibold leading-6 text-indigo-600 hover:text-indigo-500'>
 							Proceed to Login
 						</Link>

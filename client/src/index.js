@@ -6,7 +6,6 @@ import { store } from './redux/store';
 import App from './App';
 import Auth from './containers/Auth';
 import PlayBack from './pages/Playback';
-import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import VisualizationPage from './pages/VisualizationPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
@@ -14,46 +13,52 @@ import RegisterPage from './pages/RegisterPage';
 import VerifyInstructionPage from './pages/VerifyInstructionPage';
 import VerifyStatusPage from './pages/VerifyStatusPage';
 import './index.css';
+import LandingPage from './pages/LandingPage';
+import HomePage from './pages/HomePage';
 
 import reportWebVitals from './reportWebVitals';
 
 const router = createBrowserRouter([
 	{
 		path: '/',
+		element: <LandingPage />,
+	},
+	{
+		path: '/app',
 		element: <App />,
 		children: [
 			{
-				path: '/',
+				path: '/app/',
 				element: <ProtectedRoute element={<HomePage />}></ProtectedRoute>,
 			},
 			{
-				path: '/login',
+				path: '/app/login',
 				element: <Auth />,
 			},
 			{
-				path: '/playback',
+				path: '/app/playback',
 				element: <ProtectedRoute element={<PlayBack />}></ProtectedRoute>,
 			},
 			{
-				path: '/service',
+				path: '/app/service',
 				element: <ProtectedRoute element={<ServicePage />}></ProtectedRoute>,
 			},
 			{
-				path: '/verify-instruction',
+				path: '/app/verify-instruction',
 				element: <VerifyInstructionPage />,
 			},
 			{
-				path: '/verify',
+				path: '/app/verify',
 				element: <VerifyStatusPage />,
 			},
 			{
-				path: '/visual',
+				path: '/app/visual',
 				element: (
 					<ProtectedRoute element={<VisualizationPage />}></ProtectedRoute>
 				),
 			},
 			{
-				path: '/register',
+				path: '/app/register',
 				element: <RegisterPage />,
 			},
 		],

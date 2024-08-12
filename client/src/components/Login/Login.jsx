@@ -18,7 +18,7 @@ function Login() {
 
 	useEffect(() => {
 		if (!state.loading && state.loggedIn) {
-			navigate('/');
+			navigate('/app');
 		}
 	}, [state.loggedIn, state.loading]);
 

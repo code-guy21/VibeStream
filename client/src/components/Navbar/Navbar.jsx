@@ -1,6 +1,5 @@
 import { Fragment, useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../../redux/reducers/userSlice';
 import { logout } from '../../api/user';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
@@ -24,39 +23,39 @@ export default function Navbar() {
 			setNavigation([
 				{
 					name: 'Home',
-					href: '/',
-					current: location.pathname === '/',
+					href: '/app',
+					current: location.pathname === '/app',
 					active: state.loggedIn,
 				},
 
 				{
 					name: 'Playback',
-					href: '/playback',
-					current: location.pathname === '/playback',
+					href: '/app/playback',
+					current: location.pathname === '/app/playback',
 					active: state.loggedIn,
 				},
 				{
 					name: 'Services',
-					href: '/service',
-					current: location.pathname === '/service',
+					href: '/app/service',
+					current: location.pathname === '/app/service',
 					active: state.loggedIn,
 				},
 				{
 					name: 'Visual',
-					href: '/visual',
-					current: location.pathname === '/visual',
+					href: '/app/visual',
+					current: location.pathname === '/app/visual',
 					active: state.loggedIn,
 				},
 				{
 					name: 'Login',
-					href: '/login',
-					current: location.pathname === '/login',
+					href: '/app/login',
+					current: location.pathname === '/app/login',
 					active: !state.loggedIn,
 				},
 				{
 					name: 'Register',
-					href: '/register',
-					current: location.pathname === '/register',
+					href: '/app/register',
+					current: location.pathname === '/app/register',
 					active: !state.loggedIn,
 				},
 				{
@@ -77,6 +76,12 @@ export default function Navbar() {
 		}
 	}, [location.pathname, state.loggedIn, state.loading]);
 
+	// Hide Navbar on Landing Page
+
+	if (location.pathname === '/') {
+		return null;
+	}
+
 	return (
 		<Disclosure as='nav' className='bg-gray-800'>
 			{({ open }) => (
@@ -96,7 +101,7 @@ export default function Navbar() {
 								</Disclosure.Button>
 							</div>
 							<div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
-								<Link to='/'>
+								<Link to='/app'>
 									<div className='flex flex-shrink-0 items-center'>
 										<img className='h-8 w-auto' src={logo} alt='VibeStream' />
 									</div>

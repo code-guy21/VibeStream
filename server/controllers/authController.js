@@ -41,7 +41,7 @@ module.exports = {
 		}
 	},
 	spotifyCallback: async (req, res) => {
-		res.redirect(process.env.CLIENT_URL);
+		res.redirect(`${process.env.CLIENT_URL}/app`);
 	},
 	loginUser: async (req, res) => {
 		res.status(200).json({ loggedIn: true, user: req.user });
@@ -69,7 +69,9 @@ module.exports = {
 			let user = await User.findOne({ verificationToken: token });
 
 			if (!user) {
-				return res.redirect(`${process.env.CLIENT_URL}/verify?status=failure`);
+				return res.redirect(
+					`${process.env.CLIENT_URL}/app/verify?status=failure`
+				);
 			}
 
 			user.verificationToken = null;
@@ -77,9 +79,9 @@ module.exports = {
 
 			await user.save();
 
-			res.redirect(`${process.env.CLIENT_URL}/verify?status=success`);
+			res.redirect(`${process.env.CLIENT_URL}/app/verify?status=success`);
 		} catch (error) {
-			res.redirect(`${process.env.CLIENT_URL}/verify?status=error`);
+			res.redirect(`${process.env.CLIENT_URL}/app/verify?status=error`);
 		}
 	},
 };
