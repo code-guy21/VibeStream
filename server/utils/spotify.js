@@ -126,6 +126,9 @@ const getPlaybackState = async spotifyAccessToken => {
 
 const setSpotifyDevice = async (device_id, spotifyAccessToken) => {
 	try {
+		console.log(`Attempting to set device with ID: ${device_id}`);
+		console.log(`Using Access Token: ${spotifyAccessToken}`);
+
 		const { status } = await spotifyAxios.put(
 			'/me/player',
 			{
@@ -140,11 +143,18 @@ const setSpotifyDevice = async (device_id, spotifyAccessToken) => {
 		);
 
 		if (status !== 204) {
+			console.error(`Failed to set device. Status: ${status}`);
 			return { deviceSet: false };
 		}
 
+		console.log('Device set successfully.');
 		return { deviceSet: true };
 	} catch (error) {
+		// Log the full error response for debugging
+		console.error(
+			'Error details:',
+			error.response ? error.response.data : error.message
+		);
 		throw new Error(
 			error.response
 				? error.response.data.error.message
