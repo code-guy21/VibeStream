@@ -13,14 +13,17 @@ module.exports = new SpotifyStrategy(
 	async function (req, accessToken, refreshToken, expires_in, profile, done) {
 		try {
 			if (!req.user) {
+				console.log('User not logged in');
 				return done(null, false, { message: 'User not logged in' });
 			}
 
+			console.log('Spotify Profile:', profile);
 			let linkedServiceIndex = req.user.linkedServices.findIndex(service => {
 				return service.serviceName === SERVICES.SPOTIFY;
 			});
 
 			if (linkedServiceIndex > -1) {
+				console.log('Spotify service already linked');
 				return done(null, false, { message: 'Spotify service already linked' });
 			}
 
@@ -34,9 +37,10 @@ module.exports = new SpotifyStrategy(
 
 			await req.user.save();
 
+			console.log('User linked to Spotify successfully');
 			return done(null, req.user);
 		} catch (error) {
-			console.log(error);
+			console.error('Error in Spotify Strategy:', error);
 			return done(error, null);
 		}
 	}
