@@ -1,9 +1,8 @@
-// src/pages/HomePage.js
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/vibestream-logo.svg';
 import backgroundVideo from '../../assets/videos/record.mp4';
+import fallbackImage from '../../assets/images/fallback-image.jpg';
 
 const LandingPage = () => {
 	const navigate = useNavigate();
@@ -14,20 +13,22 @@ const LandingPage = () => {
 
 	return (
 		<div className='relative min-h-screen flex flex-col'>
-			{/* Background Video */}
 			<video
 				autoPlay
 				loop
 				muted
+				playsInline
 				className='absolute w-full h-full object-cover'>
 				<source src={backgroundVideo} type='video/mp4' />
-				Your browser does not support the video tag.
+				<img
+					src={fallbackImage}
+					alt='Fallback Background'
+					className='absolute w-full h-full object-cover'
+				/>
 			</video>
 
-			{/* Overlay */}
 			<div className='absolute inset-0 bg-black opacity-60'></div>
 
-			{/* Content */}
 			<div className='relative z-10 flex flex-col items-center justify-center text-center px-4'>
 				<img
 					className='mx-auto h-16 w-auto mb-4'
