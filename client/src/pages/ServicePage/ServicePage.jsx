@@ -1,20 +1,32 @@
+import React from 'react';
 import SpotifyConnect from '../../components/SpotifyConnect';
 import logo from '../../assets/images/vibestream-logo.svg';
+import styles from './ServicePage.module.css';
 
 function ServicePage() {
 	return (
-		<>
-			<div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
-				<div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-					<img className='mx-auto h-10 w-auto' src={logo} alt='Your Company' />
-					<h2 className='mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900'>
-						Link a Service
-					</h2>
-				</div>
+		<div
+			className={`relative flex min-h-screen flex-col justify-center items-center ${styles.pageBackground}`}>
+			{/* Background Gradient & Elements */}
+			<div className={`${styles.gradientOverlay} absolute inset-0`}></div>
 
-				<SpotifyConnect />
+			<div className='relative z-10 text-center'>
+				<img
+					className='mx-auto h-20 w-auto mb-8'
+					src={logo}
+					alt='VibeStream Logo'
+				/>
+				<h2 className={`${styles.heading} text-4xl font-bold mb-6`}>
+					Link a Service
+				</h2>
+				<p className={`${styles.subheading} text-xl text-gray-300 mb-10`}>
+					Connect Spotify to start vibing!
+				</p>
+				<div className='flex justify-center'>
+					<SpotifyConnect />
+				</div>
 			</div>
-		</>
+		</div>
 	);
 }
 
