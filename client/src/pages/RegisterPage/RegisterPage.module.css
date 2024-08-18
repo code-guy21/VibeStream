@@ -38,10 +38,39 @@
 	transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
 }
 
+/* Maintain background color when input loses focus */
+.inputField:not(:focus) {
+	background-color: rgba(
+		255,
+		255,
+		255,
+		0.1
+	); /* Ensures the background doesn't turn white */
+	color: white; /* Ensures text remains visible */
+}
+
+/* Input field focus state */
 .inputField:focus {
-	background-color: rgba(255, 255, 255, 0.2);
+	background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter on focus */
 	box-shadow: 0 0 0 2px #7f5bdf; /* Subtle purple focus ring */
 	outline: none; /* Remove default outline */
+}
+
+/* Adjust for iOS specifically to ensure visibility */
+@supports (-webkit-appearance: none) {
+	.inputField {
+		-webkit-appearance: none;
+		background-color: rgba(
+			255,
+			255,
+			255,
+			0.1
+		) !important; /* Override iOS default styling */
+	}
+
+	.inputField:focus {
+		background-color: rgba(255, 255, 255, 0.2) !important;
+	}
 }
 
 /* Sign up button */
