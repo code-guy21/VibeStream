@@ -1,3 +1,4 @@
+import React from 'react';
 import { Input, Label, Field, Fieldset, Button } from '@headlessui/react';
 import { useSelector, useDispatch } from 'react-redux';
 import { searchTracks } from '../../api/spotify';
@@ -13,6 +14,8 @@ import {
 	setTokenExpired,
 } from '../../redux/reducers/playbackSlice';
 import SpotifyLogo from '../../assets/images/Spotify_Logo_CMYK_Green.png';
+import { PlayIcon } from '@heroicons/react/24/solid';
+import styles from './Playback.module.css';
 
 const Playback = () => {
 	const state = useSelector(state => state.playback);
@@ -36,26 +39,28 @@ const Playback = () => {
 	}
 
 	return (
-		<div className='flex flex-col py-10 px-6 min-h-full'>
-			<Fieldset>
-				<Field className='flex justify-center'>
+		<div className='flex flex-col py-10 px-6 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white'>
+			<Fieldset className='flex flex-col items-center'>
+				<Field className='flex justify-center items-center w-full max-w-xl'>
 					<Input
-						className='rounded-md flex-1'
+						className='rounded-l-full bg-gray-700 text-white px-4 py-2 w-full focus:ring-2 focus:ring-green-500 focus:outline-none'
 						placeholder='Search songs, albums, artists'
 						onChange={e => dispatch(setSearchTerm(e.target.value))}
 						type='text'
 					/>
-					<Button
-						className='flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-						onClick={search}>
+					<Button className={styles.purpleButton} onClick={search}>
 						Search
 					</Button>
 				</Field>
 			</Fieldset>
-			<div className='flex flex-col mt-5'>
+			<div className='flex flex-col mt-8'>
 				{state.trackList?.map((t, i) => (
-					<div key={i} className='flex w-full h-16 m-1 border-2'>
+					<div
+						key={i}
+						className='flex items-center w-full h-16 bg-gray-800 rounded-lg shadow-md m-1'>
+						{/* Album Art with Hover Effect */}
 						<Button
+							className={styles.albumArtContainer}
 							onClick={() => {
 								dispatch(setCurrentTrack(t));
 								dispatch(setUri(t.uri));
@@ -63,30 +68,36 @@ const Playback = () => {
 							}}
 							key={i}>
 							<img
-								className='w-16 h-full'
+								className='w-16 h-full rounded-lg shadow-lg'
 								src={t.album.images[0].url}
 								alt={t.name}
 							/>
+							{/* Play Icon Overlay */}
+							<PlayIcon className={styles.playIconOverlay} />
 						</Button>
-						<div className='flex flex-1 flex-col px-2'>
-							<div className='text-md font-medium'>
+						<div className='flex flex-1 flex-col px-2 overflow-hidden'>
+							<div
+								className={`${styles.textMd} font-medium text-white ${styles.textEllipsis} flex items-center`}>
 								<a
 									href={`https://open.spotify.com/track/${t.id}`}
 									target='_blank'
-									rel='noopener noreferrer'>
+									rel='noopener noreferrer'
+									className='hover:text-green-500 flex-1'>
 									{t.name}
 								</a>
 								<img
 									src={SpotifyLogo}
 									alt='Spotify Logo'
-									className='inline-block h-4 ml-2'
+									className='inline-block h-4 ml-2 flex-shrink-0'
 								/>
 							</div>
-							<div className='text-sm'>
+							<div
+								className={`${styles.textSm} text-gray-400 ${styles.textEllipsis}`}>
 								<a
 									href={`https://open.spotify.com/artist/${t.artists[0].id}`}
 									target='_blank'
-									rel='noopener noreferrer'>
+									rel='noopener noreferrer'
+									className='hover:text-green-500'>
 									{t.artists.map(art => art.name).join(', ')}
 								</a>
 							</div>

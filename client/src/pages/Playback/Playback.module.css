@@ -1,0 +1,88 @@
+/* Purple-themed search button flush with search bar */
+.purpleButton {
+	background-color: #7f5bdf; /* Purple background */
+	color: white;
+	padding: 0.5rem 1.5rem;
+	border-radius: 0 9999px 9999px 0; /* Rounded right side */
+	transition: background-color 0.3s ease;
+	height: 42px; /* Match input height */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.purpleButton:hover {
+	background-color: #6b46c1; /* Darker purple on hover */
+}
+
+/* Input field flush with search button */
+.searchInput {
+	background-color: #4a5568; /* Darker gray */
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: 9999px 0 0 9999px; /* Rounded left side */
+	border: none;
+	height: 42px; /* Match button height */
+	flex-grow: 1;
+	outline: none;
+	transition: background-color 0.3s ease;
+}
+
+.searchInput:focus {
+	background-color: #5a6a80; /* Slightly lighter gray on focus */
+	box-shadow: 0 0 0 2px #7f5bdf; /* Purple ring on focus */
+}
+
+/* Hover effect on album artwork */
+.albumArtContainer {
+	position: relative;
+	overflow: hidden;
+	border-radius: 0.5rem;
+	transition: transform 0.3s ease;
+}
+
+.albumArtContainer:hover {
+	transform: scale(1.05); /* Slight zoom on hover */
+}
+
+.albumArtContainer:hover .playIconOverlay {
+	opacity: 1; /* Show play icon on hover */
+}
+
+/* Play icon overlay */
+.playIconOverlay {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 2rem;
+	color: white;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none; /* Prevent interference with clicking */
+}
+
+.textEllipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+	.textMd {
+		font-size: 0.875rem;
+	}
+
+	.textSm {
+		font-size: 0.75rem;
+	}
+
+	.h16 {
+		height: 3.5rem;
+	}
+
+	.w16 {
+		width: 3.5rem;
+	}
+}
