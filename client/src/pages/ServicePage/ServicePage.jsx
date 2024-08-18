@@ -20,7 +20,7 @@ function ServicePage() {
 					Link a Service
 				</h2>
 				<p className={`${styles.subheading} text-xl text-gray-300 mb-10`}>
-					Connect Spotify to start vibing!
+					Connect to start vibing!
 				</p>
 				<div className='flex justify-center'>
 					<SpotifyConnect />

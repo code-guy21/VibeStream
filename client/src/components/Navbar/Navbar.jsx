@@ -29,15 +29,9 @@ export default function Navbar() {
 				},
 
 				{
-					name: 'Playback',
+					name: 'Search',
 					href: '/app/playback',
 					current: location.pathname === '/app/playback',
-					active: state.loggedIn,
-				},
-				{
-					name: 'Services',
-					href: '/app/service',
-					current: location.pathname === '/app/service',
 					active: state.loggedIn,
 				},
 				{
@@ -46,6 +40,13 @@ export default function Navbar() {
 					current: location.pathname === '/app/visual',
 					active: state.loggedIn,
 				},
+				{
+					name: 'Services',
+					href: '/app/service',
+					current: location.pathname === '/app/service',
+					active: state.loggedIn,
+				},
+
 				{
 					name: 'Login',
 					href: '/app/login',
