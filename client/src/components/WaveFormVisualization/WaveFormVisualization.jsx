@@ -1,4 +1,3 @@
-// src/components/WaveformVisualization.jsx
 import React, { useEffect, useRef, useCallback } from 'react';
 import {
 	FreeCamera,
@@ -28,6 +27,14 @@ const WaveformVisualization = () => {
 	const sceneRef = useRef(null);
 	const waveformLineRef = useRef(null);
 	const glowLayerRef = useRef(null);
+
+	// Cleanup function to stop animations and dispose of the scene
+	const cleanup = () => {
+		cancelAnimationFrame(requestRef.current);
+		if (sceneRef.current) {
+			sceneRef.current.dispose();
+		}
+	};
 
 	const onSceneReady = scene => {
 		scene.clearColor = new Color4(0.05, 0.05, 0.15, 1.0);
@@ -65,17 +72,12 @@ const WaveformVisualization = () => {
 		glowLayerRef.current.intensity = 2.0;
 		glowLayerRef.current.addIncludedOnlyMesh(waveformLineRef.current);
 
+		// Sync animation immediately after the scene is ready
 		syncAnimationWithTrack();
 	};
 
-	const updateWaveform = (audioAnalysis, beatTimes, currentTime) => {
-		if (
-			!waveformLineRef.current ||
-			!audioAnalysis ||
-			isPaused ||
-			analysisLoading
-		)
-			return;
+	const updateWaveform = (audioAnalysis, currentTime) => {
+		if (!waveformLineRef.current || !audioAnalysis || analysisLoading) return;
 
 		const positions = waveformLineRef.current.getVerticesData(
 			VertexBuffer.PositionKind
@@ -131,27 +133,17 @@ const WaveformVisualization = () => {
 		}
 
 		requestRef.current = requestAnimationFrame(() =>
-			updateWaveform(audioAnalysis, beatTimes, currentTime + 0.016)
+			updateWaveform(audioAnalysis, currentTime + 0.016)
 		);
 	};
 
-	const handleAnimation = beatTimes => {
-		if (beatIndexRef.current >= beatTimes.length || isPaused || analysisLoading)
-			return;
+	const handleAnimation = () => {
+		if (analysisLoading) return;
 
-		const nextBeatTime = beatTimes[beatIndexRef.current];
-		const now = performance.now();
+		const currentTime = trackState.position / 1000 || 0;
+		updateWaveform(audioAnalysis, currentTime);
 
-		if (nextBeatTime <= now) {
-			beatIndexRef.current += 1;
-		}
-
-		const currentTime = (performance.now() - nextBeatTime) / 1000;
-		updateWaveform(audioAnalysis, beatTimes, currentTime);
-
-		requestRef.current = requestAnimationFrame(() =>
-			handleAnimation(beatTimes)
-		);
+		requestRef.current = requestAnimationFrame(handleAnimation);
 	};
 
 	const stopAnimation = () => {
@@ -159,28 +151,16 @@ const WaveformVisualization = () => {
 	};
 
 	const syncAnimationWithTrack = () => {
-		if (audioAnalysis?.beats?.length > 0) {
+		if (audioAnalysis) {
 			stopAnimation();
 
-			const currentTime = trackState.position || 0;
-			const beatTimes = audioAnalysis.beats.map(
-				beat => performance.now() + beat.start * 1000 - currentTime
-			);
-
-			const initialIndex = audioAnalysis.beats.findIndex(
-				beat => beat.start * 1000 >= currentTime
-			);
-			beatIndexRef.current = initialIndex >= 0 ? initialIndex : 0;
-
-			requestRef.current = requestAnimationFrame(() =>
-				handleAnimation(beatTimes)
-			);
+			handleAnimation(); // Start the animation loop immediately
 		}
 	};
 
 	const debouncePauseHandling = useCallback(
 		debounce(() => {
-			if (isPaused || analysisLoading) {
+			if (analysisLoading) {
 				stopAnimation();
 			} else {
 				syncAnimationWithTrack();
@@ -205,9 +185,17 @@ const WaveformVisualization = () => {
 		analysisLoading,
 	]);
 
+	// Ensure animation starts or stops correctly on switch
+	useEffect(() => {
+		// Start animation immediately if the track is not paused
+		if (!isPaused) {
+			syncAnimationWithTrack();
+		}
+	}, [isPaused]);
+
 	useEffect(() => {
 		return () => {
-			stopAnimation();
+			cleanup();
 		};
 	}, []);
 
