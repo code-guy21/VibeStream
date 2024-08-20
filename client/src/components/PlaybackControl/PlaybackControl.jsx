@@ -71,11 +71,15 @@ function PlaybackControl() {
 
 	useEffect(() => {
 		async function getAudioAnalysis() {
-			if (playerRef.current && state.playback.isActive && state.user.loggedIn) {
+			const { currentTrack } = state.playback;
+			if (
+				playerRef.current &&
+				state.playback.isActive &&
+				state.user.loggedIn &&
+				currentTrack
+			) {
 				try {
-					let response = await fetchAudioAnalysis(
-						state.playback.currentTrack.id
-					);
+					let response = await fetchAudioAnalysis(currentTrack.id);
 
 					let analysis = await response.json();
 
@@ -147,22 +151,18 @@ function PlaybackControl() {
 						dispatch(setPaused(st.paused));
 					}
 
+					const currentTrack = st.track_window.current_track;
 					if (
-						st.track_window.current_track.id !==
-						stateRef.current.playback.currentTrack.id
+						currentTrack &&
+						currentTrack.id !== stateRef.current.playback.currentTrack?.id
 					) {
 						console.log('Track changed, setting analysis loading to true');
-						dispatch(setCurrentTrack(st.track_window.current_track));
+						dispatch(setCurrentTrack(currentTrack));
 
 						dispatch(setAnalysisLoading(true));
 					}
 
 					dispatch(setTrackState(st));
-
-					// // Immediate sync for animation timing
-					// if (st.paused !== stateRef.current.playback.isPaused) {
-					// 	syncAnimationState(st.paused);
-					// }
 				}, 300)
 			);
 
@@ -286,22 +286,24 @@ function PlaybackControl() {
 			{state.playback.isActive && state.user.loggedIn && (
 				<div className={playerStyles.player}>
 					<div className='flex h-16 flex-1'>
-						<img
-							className='p-2'
-							src={state.playback.currentTrack?.album?.images[0].url}
-							alt=''
-						/>
+						{state.playback.currentTrack?.album?.images[0]?.url && (
+							<img
+								className='p-2'
+								src={state.playback.currentTrack.album.images[0].url}
+								alt=''
+							/>
+						)}
 						<div className='flex flex-col justify-center overflow-hidden'>
 							<div className={`${playerStyles.info} text-sm font-bold track`}>
 								<p className={playerStyles.scrollText}>
-									{state.playback.currentTrack.name}
+									{state.playback.currentTrack?.name || 'No Track Playing'}
 								</p>
 							</div>
 							<div className={`${playerStyles.info} text-sm`}>
 								<p className={playerStyles.scrollText}>
 									{state.playback.currentTrack?.artists
 										?.map(item => item.name)
-										.join(',')}
+										.join(',') || 'Unknown Artist'}
 								</p>
 							</div>
 						</div>

@@ -1,4 +1,3 @@
-// src/components/WaveformVisualization.jsx
 import React, { useEffect, useRef, useCallback } from 'react';
 import {
 	FreeCamera,
@@ -24,17 +23,9 @@ const WaveformVisualization = () => {
 		state => state.playback
 	);
 	const requestRef = useRef(null);
-	const beatIndexRef = useRef(0);
 	const sceneRef = useRef(null);
 	const waveformLineRef = useRef(null);
 	const glowLayerRef = useRef(null);
-
-	const cleanup = () => {
-		cancelAnimationFrame(requestRef.current);
-		if (sceneRef.current) {
-			sceneRef.current.dispose();
-		}
-	};
 
 	const onSceneReady = scene => {
 		scene.clearColor = new Color4(0.05, 0.05, 0.15, 1.0);
@@ -85,9 +76,11 @@ const WaveformVisualization = () => {
 			!waveformLineRef.current ||
 			!audioAnalysis ||
 			!audioAnalysis.segments ||
-			analysisLoading
-		)
+			analysisLoading ||
+			isPaused
+		) {
 			return;
+		}
 
 		const positions = waveformLineRef.current.getVerticesData(
 			VertexBuffer.PositionKind
@@ -151,7 +144,14 @@ const WaveformVisualization = () => {
 	};
 
 	const handleAnimation = () => {
-		if (analysisLoading) return;
+		if (
+			analysisLoading ||
+			!audioAnalysis ||
+			!audioAnalysis.segments ||
+			isPaused
+		) {
+			return;
+		}
 
 		const currentTime = trackState.position / 1000 || 0;
 		updateWaveform(audioAnalysis, currentTime);
@@ -161,37 +161,23 @@ const WaveformVisualization = () => {
 
 	const stopAnimation = () => {
 		cancelAnimationFrame(requestRef.current);
-		if (sceneRef.current) {
-			sceneRef.current.stopAnimation(waveformLineRef.current);
-		}
 	};
 
 	const syncAnimationWithTrack = () => {
-		if (!audioAnalysis || !audioAnalysis.beats) {
-			console.error('Audio analysis or beats data is missing');
-			return;
+		if (audioAnalysis && audioAnalysis.segments) {
+			stopAnimation();
+			handleAnimation();
 		}
-
-		stopAnimation();
-
-		const currentTime = trackState.position || 0;
-		const beatTimes = audioAnalysis.beats.map(
-			beat => performance.now() + beat.start * 1000 - currentTime
-		);
-
-		const initialIndex = audioAnalysis.beats.findIndex(
-			beat => beat.start * 1000 >= currentTime
-		);
-		beatIndexRef.current = initialIndex >= 0 ? initialIndex : 0;
-
-		requestRef.current = requestAnimationFrame(() =>
-			handleAnimation(beatTimes)
-		);
 	};
 
 	const debouncePauseHandling = useCallback(
 		debounce(() => {
-			if (isPaused || analysisLoading) {
+			if (
+				isPaused ||
+				analysisLoading ||
+				!audioAnalysis ||
+				!audioAnalysis.segments
+			) {
 				stopAnimation();
 			} else {
 				syncAnimationWithTrack();
@@ -217,14 +203,11 @@ const WaveformVisualization = () => {
 	]);
 
 	useEffect(() => {
-		if (!isPaused) {
-			syncAnimationWithTrack();
-		}
-	}, [isPaused]);
-
-	useEffect(() => {
 		return () => {
-			cleanup();
+			stopAnimation();
+			if (sceneRef.current) {
+				sceneRef.current.dispose();
+			}
 		};
 	}, []);
 
