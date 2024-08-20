@@ -66,10 +66,16 @@ function Login() {
 						className={`${styles.heading} text-3xl font-bold text-white mb-6`}>
 						Sign in to your account
 					</h2>
+
+					<p className='text-sm text-yellow-400 mb-4'>
+						This is a demo. Use <strong>vibestreamtest@gmail.com</strong> and{' '}
+						<strong>vibestreamtest123456</strong> to sign in.
+					</p>
 				</div>
 
 				<div className='mt-8 sm:mx-auto sm:w-full sm:max-w-sm'>
 					<form className='space-y-6' onSubmit={submitHandler}>
+						{/* Email Input */}
 						<div>
 							<label
 								htmlFor='email'
@@ -89,6 +95,7 @@ function Login() {
 							</div>
 						</div>
 
+						{/* Password Input */}
 						<div>
 							<div className='flex items-center justify-between'>
 								<label
@@ -110,6 +117,7 @@ function Login() {
 							</div>
 						</div>
 
+						{/* Sign-In Button */}
 						<div>
 							<button type='submit' className={`${styles.signInButton}`}>
 								Sign in
