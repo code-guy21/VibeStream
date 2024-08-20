@@ -39,7 +39,8 @@ const Playback = () => {
 	}
 
 	return (
-		<div className='flex flex-col py-10 px-6 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white'>
+		<div
+			className={`flex flex-col py-10 px-6 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white ${styles.playbackContainer}`}>
 			<Fieldset className='flex flex-col items-center'>
 				<Field className='flex justify-center items-center w-full max-w-xl'>
 					<Input
@@ -58,7 +59,6 @@ const Playback = () => {
 					<div
 						key={i}
 						className='flex items-center w-full h-16 bg-gray-800 rounded-lg shadow-md m-1'>
-						{/* Album Art with Hover Effect */}
 						<Button
 							className={styles.albumArtContainer}
 							onClick={() => {
@@ -72,7 +72,6 @@ const Playback = () => {
 								src={t.album.images[0].url}
 								alt={t.name}
 							/>
-							{/* Play Icon Overlay */}
 							<PlayIcon className={styles.playIconOverlay} />
 						</Button>
 						<div className='flex flex-1 flex-col px-2 overflow-hidden'>
