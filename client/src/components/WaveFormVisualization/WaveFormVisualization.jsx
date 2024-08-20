@@ -161,6 +161,9 @@ const WaveformVisualization = () => {
 
 	const stopAnimation = () => {
 		cancelAnimationFrame(requestRef.current);
+		if (sceneRef.current) {
+			sceneRef.current.stopAnimation(waveformLineRef.current);
+		}
 	};
 
 	const syncAnimationWithTrack = () => {
@@ -188,7 +191,7 @@ const WaveformVisualization = () => {
 
 	const debouncePauseHandling = useCallback(
 		debounce(() => {
-			if (analysisLoading) {
+			if (isPaused || analysisLoading) {
 				stopAnimation();
 			} else {
 				syncAnimationWithTrack();
