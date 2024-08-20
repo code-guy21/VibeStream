@@ -1,3 +1,4 @@
+// src/components/WaveformVisualization.jsx
 import React, { useEffect, useRef, useCallback } from 'react';
 import {
 	FreeCamera,
@@ -23,19 +24,26 @@ const WaveformVisualization = () => {
 		state => state.playback
 	);
 	const requestRef = useRef(null);
+	const beatIndexRef = useRef(0);
 	const sceneRef = useRef(null);
 	const waveformLineRef = useRef(null);
 	const glowLayerRef = useRef(null);
+
+	const cleanup = () => {
+		cancelAnimationFrame(requestRef.current);
+		if (sceneRef.current) {
+			sceneRef.current.dispose();
+		}
+	};
 
 	const onSceneReady = scene => {
 		scene.clearColor = new Color4(0.05, 0.05, 0.15, 1.0);
 		sceneRef.current = scene;
 
-		// Adjust camera based on screen size
 		const isMobile = window.innerWidth <= 640;
 		const camera = new FreeCamera(
 			'camera1',
-			new Vector3(0, 1, isMobile ? -5 : -10), // Closer on mobile
+			new Vector3(0, 1, isMobile ? -5 : -10),
 			scene
 		);
 		camera.setTarget(Vector3.Zero());
@@ -49,7 +57,6 @@ const WaveformVisualization = () => {
 		);
 		ambientLight.intensity = 0.8;
 
-		// Create a line that represents the waveform
 		const points = [];
 		for (let i = 0; i <= 400; i++) {
 			points.push(new Vector3(i / 40 - 5, 0, 0));
@@ -67,15 +74,20 @@ const WaveformVisualization = () => {
 		waveformLineRef.current.material = lineMaterial;
 
 		glowLayerRef.current = new GlowLayer('glow', scene);
-		glowLayerRef.current.intensity = isMobile ? 2.5 : 2.0; // Brighter on mobile
+		glowLayerRef.current.intensity = isMobile ? 2.5 : 2.0;
 		glowLayerRef.current.addIncludedOnlyMesh(waveformLineRef.current);
 
-		// Sync animation immediately after the scene is ready
 		syncAnimationWithTrack();
 	};
 
 	const updateWaveform = (audioAnalysis, currentTime) => {
-		if (!waveformLineRef.current || !audioAnalysis || analysisLoading) return;
+		if (
+			!waveformLineRef.current ||
+			!audioAnalysis ||
+			!audioAnalysis.segments ||
+			analysisLoading
+		)
+			return;
 
 		const positions = waveformLineRef.current.getVerticesData(
 			VertexBuffer.PositionKind
@@ -99,7 +111,7 @@ const WaveformVisualization = () => {
 				currentSegment.timbre.length;
 
 			const isMobile = window.innerWidth <= 640;
-			const amplitudeMultiplier = isMobile ? 0.3 : 0.2; // Increase amplitude on mobile
+			const amplitudeMultiplier = isMobile ? 0.3 : 0.2;
 
 			const colorFactor = Scalar.Clamp(loudness / 60 + 0.5, 0, 1);
 			const color = new Color3(
@@ -152,11 +164,26 @@ const WaveformVisualization = () => {
 	};
 
 	const syncAnimationWithTrack = () => {
-		if (audioAnalysis) {
-			stopAnimation();
-
-			handleAnimation(); // Start the animation loop immediately
+		if (!audioAnalysis || !audioAnalysis.beats) {
+			console.error('Audio analysis or beats data is missing');
+			return;
 		}
+
+		stopAnimation();
+
+		const currentTime = trackState.position || 0;
+		const beatTimes = audioAnalysis.beats.map(
+			beat => performance.now() + beat.start * 1000 - currentTime
+		);
+
+		const initialIndex = audioAnalysis.beats.findIndex(
+			beat => beat.start * 1000 >= currentTime
+		);
+		beatIndexRef.current = initialIndex >= 0 ? initialIndex : 0;
+
+		requestRef.current = requestAnimationFrame(() =>
+			handleAnimation(beatTimes)
+		);
 	};
 
 	const debouncePauseHandling = useCallback(
@@ -186,9 +213,7 @@ const WaveformVisualization = () => {
 		analysisLoading,
 	]);
 
-	// Ensure animation starts or stops correctly on switch
 	useEffect(() => {
-		// Start animation immediately if the track is not paused
 		if (!isPaused) {
 			syncAnimationWithTrack();
 		}
@@ -196,10 +221,7 @@ const WaveformVisualization = () => {
 
 	useEffect(() => {
 		return () => {
-			stopAnimation();
-			if (sceneRef.current) {
-				sceneRef.current.dispose();
-			}
+			cleanup();
 		};
 	}, []);
 
