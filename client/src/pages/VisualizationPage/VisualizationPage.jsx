@@ -5,9 +5,17 @@ import styles from './VisualizationPage.module.css';
 
 const VisualizationPage = () => {
 	const [selectedTab, setSelectedTab] = useState('crystalOrb');
+	const [isFullScreen, setIsFullScreen] = useState(false);
+
+	const toggleFullScreen = () => {
+		setIsFullScreen(!isFullScreen);
+	};
 
 	return (
-		<div className={styles.visualizationPage}>
+		<div
+			className={`${styles.visualizationPage} ${
+				isFullScreen ? styles.fullScreen : ''
+			}`}>
 			<div className={styles.tabContainer}>
 				<button
 					className={`${styles.tabButton} ${
@@ -28,6 +36,10 @@ const VisualizationPage = () => {
 				{selectedTab === 'crystalOrb' && <CrystalOrbVisualization />}
 				{selectedTab === 'waveform' && <WaveformVisualization />}
 			</div>
+			{/* Exit Full Screen Button */}
+			<button className={styles.exitButton} onClick={toggleFullScreen}>
+				{isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+			</button>
 		</div>
 	);
 };
