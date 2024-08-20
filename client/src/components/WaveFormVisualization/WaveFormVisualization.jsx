@@ -15,7 +15,6 @@ import {
 } from '@babylonjs/core';
 import SceneComponent from '../SceneComponent';
 import { useSelector } from 'react-redux';
-import { debounce } from 'lodash';
 import styles from './WaveFormVisualization.module.css';
 
 const WaveformVisualization = () => {
@@ -26,52 +25,22 @@ const WaveformVisualization = () => {
 	const sceneRef = useRef(null);
 	const waveformLineRef = useRef(null);
 	const glowLayerRef = useRef(null);
+	const shouldStopRef = useRef(false); // New flag to control immediate stop
 
-	const onSceneReady = scene => {
-		scene.clearColor = new Color4(0.05, 0.05, 0.15, 1.0);
-		sceneRef.current = scene;
-
-		const isMobile = window.innerWidth <= 640;
-		const camera = new FreeCamera(
-			'camera1',
-			new Vector3(0, 1, isMobile ? -5 : -10),
-			scene
-		);
-		camera.setTarget(Vector3.Zero());
-		const canvas = scene.getEngine().getRenderingCanvas();
-		camera.attachControl(canvas, true);
-
-		const ambientLight = new HemisphericLight(
-			'ambientLight',
-			new Vector3(0, 1, 0),
-			scene
-		);
-		ambientLight.intensity = 0.8;
-
-		const points = [];
-		for (let i = 0; i <= 400; i++) {
-			points.push(new Vector3(i / 40 - 5, 0, 0));
+	const stopAnimation = useCallback(() => {
+		shouldStopRef.current = true; // Set flag to stop any ongoing animation
+		if (requestRef.current) {
+			cancelAnimationFrame(requestRef.current);
+			requestRef.current = null;
 		}
-		waveformLineRef.current = MeshBuilder.CreateLines(
-			'waveformLine',
-			{ points, updatable: true },
-			scene
-		);
-
-		const lineMaterial = new StandardMaterial('lineMaterial', scene);
-		lineMaterial.emissiveColor = new Color3(0.2, 0.7, 1);
-		lineMaterial.specularColor = new Color3(1, 1, 1);
-		lineMaterial.diffuseColor = new Color3(0, 0, 0);
-		waveformLineRef.current.material = lineMaterial;
-
-		glowLayerRef.current = new GlowLayer('glow', scene);
-		glowLayerRef.current.intensity = isMobile ? 2.5 : 2.0;
-		glowLayerRef.current.addIncludedOnlyMesh(waveformLineRef.current);
-
-		syncAnimationWithTrack();
-	};
+		if (sceneRef.current) {
+			sceneRef.current.stopAnimation(waveformLineRef.current);
+		}
+	}, []);
 
 	const updateWaveform = (audioAnalysis, currentTime) => {
+		if (shouldStopRef.current) return; // Immediately return if stop flag is set
+
 		if (
 			!waveformLineRef.current ||
 			!audioAnalysis ||
@@ -79,6 +48,7 @@ const WaveformVisualization = () => {
 			analysisLoading ||
 			isPaused
 		) {
+			stopAnimation();
 			return;
 		}
 
@@ -138,69 +108,81 @@ const WaveformVisualization = () => {
 			);
 		}
 
-		requestRef.current = requestAnimationFrame(() =>
-			updateWaveform(audioAnalysis, currentTime + 0.016)
-		);
+		if (!isPaused && !shouldStopRef.current) {
+			requestRef.current = requestAnimationFrame(() =>
+				updateWaveform(audioAnalysis, currentTime + 0.016)
+			);
+		}
 	};
 
-	const handleAnimation = () => {
-		if (
-			analysisLoading ||
-			!audioAnalysis ||
-			!audioAnalysis.segments ||
-			isPaused
-		) {
+	const syncAnimationWithTrack = () => {
+		shouldStopRef.current = false; // Reset stop flag before starting
+		if (isPaused || !audioAnalysis || !audioAnalysis.segments) {
+			stopAnimation(); // Ensure the animation stops immediately if paused
 			return;
 		}
 
 		const currentTime = trackState.position / 1000 || 0;
 		updateWaveform(audioAnalysis, currentTime);
-
-		requestRef.current = requestAnimationFrame(handleAnimation);
 	};
-
-	const stopAnimation = () => {
-		cancelAnimationFrame(requestRef.current);
-	};
-
-	const syncAnimationWithTrack = () => {
-		if (audioAnalysis && audioAnalysis.segments) {
-			stopAnimation();
-			handleAnimation();
-		}
-	};
-
-	const debouncePauseHandling = useCallback(
-		debounce(() => {
-			if (
-				isPaused ||
-				analysisLoading ||
-				!audioAnalysis ||
-				!audioAnalysis.segments
-			) {
-				stopAnimation();
-			} else {
-				syncAnimationWithTrack();
-			}
-		}, 200),
-		[isPaused, audioAnalysis, trackState.position, analysisLoading]
-	);
 
 	useEffect(() => {
-		if (!analysisLoading) {
+		if (isPaused || analysisLoading) {
+			stopAnimation();
+		} else {
 			syncAnimationWithTrack();
 		}
-	}, [audioAnalysis, trackState.position, analysisLoading]);
-
-	useEffect(() => {
-		debouncePauseHandling();
 	}, [
 		isPaused,
 		audioAnalysis,
 		trackState.position,
-		debouncePauseHandling,
 		analysisLoading,
+		stopAnimation,
 	]);
+
+	const onSceneReady = scene => {
+		scene.clearColor = new Color4(0.05, 0.05, 0.15, 1.0);
+		sceneRef.current = scene;
+
+		const isMobile = window.innerWidth <= 640;
+		const camera = new FreeCamera(
+			'camera1',
+			new Vector3(0, 1, isMobile ? -5 : -10),
+			scene
+		);
+		camera.setTarget(Vector3.Zero());
+		const canvas = scene.getEngine().getRenderingCanvas();
+		camera.attachControl(canvas, true);
+
+		const ambientLight = new HemisphericLight(
+			'ambientLight',
+			new Vector3(0, 1, 0),
+			scene
+		);
+		ambientLight.intensity = 0.8;
+
+		const points = [];
+		for (let i = 0; i <= 400; i++) {
+			points.push(new Vector3(i / 40 - 5, 0, 0));
+		}
+		waveformLineRef.current = MeshBuilder.CreateLines(
+			'waveformLine',
+			{ points, updatable: true },
+			scene
+		);
+
+		const lineMaterial = new StandardMaterial('lineMaterial', scene);
+		lineMaterial.emissiveColor = new Color3(0.2, 0.7, 1);
+		lineMaterial.specularColor = new Color3(1, 1, 1);
+		lineMaterial.diffuseColor = new Color3(0, 0, 0);
+		waveformLineRef.current.material = lineMaterial;
+
+		glowLayerRef.current = new GlowLayer('glow', scene);
+		glowLayerRef.current.intensity = isMobile ? 2.5 : 2.0;
+		glowLayerRef.current.addIncludedOnlyMesh(waveformLineRef.current);
+
+		syncAnimationWithTrack();
+	};
 
 	useEffect(() => {
 		return () => {
@@ -209,7 +191,7 @@ const WaveformVisualization = () => {
 				sceneRef.current.dispose();
 			}
 		};
-	}, []);
+	}, [stopAnimation]);
 
 	return (
 		<div className={styles.visualizationContainer}>
