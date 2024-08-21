@@ -238,6 +238,16 @@ const CrystalOrbVisualization = () => {
 	);
 
 	useEffect(() => {
+		debouncePauseHandling();
+	}, [
+		isPaused,
+		audioAnalysis,
+		trackState.position,
+		debouncePauseHandling,
+		analysisLoading,
+	]);
+
+	useEffect(() => {
 		if (!analysisLoading) {
 			syncAnimationWithTrack();
 		}
