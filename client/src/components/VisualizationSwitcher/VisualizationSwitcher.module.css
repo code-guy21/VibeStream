@@ -9,7 +9,6 @@
 	position: relative;
 	z-index: 10; /* Ensure buttons are on top */
 	color: white; /* Ensure text is visible against a dark background */
-	margin-top: -20px; /* Adjust to ensure proper alignment */
 }
 
 .tabButton {
@@ -34,5 +33,4 @@
 	background-color: #61dafb;
 	color: #0a0a1a;
 	border-color: #61dafb;
-	border-bottom: none;
 }

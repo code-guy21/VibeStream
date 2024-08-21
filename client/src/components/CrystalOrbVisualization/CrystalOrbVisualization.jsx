@@ -1,4 +1,3 @@
-// src/components/CrystalOrbVisualization.jsx
 import React, { useEffect, useRef, useCallback } from 'react';
 import {
 	FreeCamera,
@@ -13,6 +12,7 @@ import {
 	Texture,
 	ParticleSystem,
 	Color4,
+	Scalar,
 } from '@babylonjs/core';
 import SceneComponent from '../SceneComponent';
 import { useSelector } from 'react-redux';
@@ -28,6 +28,22 @@ const CrystalOrbVisualization = () => {
 	const beatIndexRef = useRef(0);
 	const sceneRef = useRef(null);
 	const crystalOrbRef = useRef(null);
+	const lastColorChangeRef = useRef(0);
+	const colorTransitionProgressRef = useRef(0);
+
+	// Define the colors to cycle through
+	const colors = [
+		new Color3(0.4, 0.6, 1), // Blue
+		new Color3(0.6, 0.4, 1), // Purple
+		new Color3(1, 0.4, 0.4), // Red
+		new Color3(1, 0.6, 0.8), // Pink
+		new Color3(1, 0.6, 0.4), // Orange
+		new Color3(0.4, 1, 0.4), // Green
+	];
+
+	let colorIndex = 0;
+	let currentColor = colors[colorIndex];
+	let targetColor = colors[(colorIndex + 1) % colors.length];
 
 	const onSceneReady = scene => {
 		scene.clearColor = new Color4(0.1, 0.1, 0.2, 1.0);
@@ -66,10 +82,10 @@ const CrystalOrbVisualization = () => {
 			'https://www.babylonjs-playground.com/textures/flare.png',
 			scene
 		);
-		orbMaterial.emissiveColor = new Color3(0.4, 0.6, 1);
+		orbMaterial.emissiveColor = currentColor;
 		orbMaterial.specularPower = 64;
 		orbMaterial.roughness = 0.5;
-		orbMaterial.diffuseColor = new Color3(0.4, 0.6, 1);
+		orbMaterial.diffuseColor = currentColor;
 		crystalOrbRef.current.material = orbMaterial;
 
 		const glowLayer = new GlowLayer('glow', scene);
@@ -130,12 +146,40 @@ const CrystalOrbVisualization = () => {
 		animationRef.current = bounceAnimation;
 	};
 
+	// Function to gradually change the orb's color over time with fade-in effect
+	const updateColor = currentTime => {
+		const timeSinceLastChange = currentTime - lastColorChangeRef.current;
+
+		if (timeSinceLastChange > 5000) {
+			// Change color every 5 seconds (Increase this for slower changes)
+			colorIndex = (colorIndex + 1) % colors.length;
+			currentColor = crystalOrbRef.current.material.emissiveColor;
+			targetColor = colors[colorIndex];
+			colorTransitionProgressRef.current = 0;
+			lastColorChangeRef.current = currentTime;
+		}
+
+		// Gradually transition to the target color
+		if (colorTransitionProgressRef.current < 1) {
+			colorTransitionProgressRef.current += 0.005; // Adjust the speed of transition (Lower this for slower fading)
+			const lerpedColor = Color3.Lerp(
+				currentColor,
+				targetColor,
+				colorTransitionProgressRef.current
+			);
+			crystalOrbRef.current.material.emissiveColor = lerpedColor;
+			crystalOrbRef.current.material.diffuseColor = lerpedColor;
+		}
+	};
+
 	const handleAnimation = beatTimes => {
 		if (beatIndexRef.current >= beatTimes.length || isPaused || analysisLoading)
 			return;
 
 		const nextBounceTime = beatTimes[beatIndexRef.current];
 		const now = performance.now();
+
+		updateColor(now); // Gradually update color with fade-in effect
 
 		if (nextBounceTime <= now) {
 			if (animationRef.current && !isPaused) {
