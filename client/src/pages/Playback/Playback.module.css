@@ -68,6 +68,12 @@
 	text-overflow: ellipsis;
 }
 
+/* New CSS to account for the navbar */
+.playbackContainer {
+	margin-top: 4rem; /* Adjust based on the height of your navbar */
+	padding-bottom: 80px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
 	.textMd {
@@ -85,9 +91,8 @@
 	.w16 {
 		width: 3.5rem;
 	}
-}
 
-/* New CSS to account for the navbar */
-.playbackContainer {
-	margin-top: 4rem; /* Adjust based on the height of your navbar */
+	.playbackContainer {
+		padding-bottom: 80px; /* Increase padding on mobile if the playback control is taller */
+	}
 }
