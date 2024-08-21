@@ -12,7 +12,8 @@ import {
 	Texture,
 	ParticleSystem,
 	Color4,
-	Scalar,
+	EasingFunction,
+	CubicEase,
 } from '@babylonjs/core';
 import SceneComponent from '../SceneComponent';
 import { useSelector } from 'react-redux';
@@ -31,7 +32,7 @@ const CrystalOrbVisualization = () => {
 	const lastColorChangeRef = useRef(0);
 	const colorTransitionProgressRef = useRef(0);
 
-	// Define the colors to cycle through
+	// Define the colors to cycle through: blue, purple, red, pink, orange, green
 	const colors = [
 		new Color3(0.4, 0.6, 1), // Blue
 		new Color3(0.6, 0.4, 1), // Purple
@@ -134,13 +135,18 @@ const CrystalOrbVisualization = () => {
 			Animation.ANIMATIONLOOPMODE_CYCLE
 		);
 
+		// Use easing for smoother bounces
+		const easingFunction = new CubicEase();
+		easingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+
 		const keys = [
 			{ frame: 0, value: 1 },
-			{ frame: 15, value: 2 },
+			{ frame: 15, value: 1.8 }, // Adjusted bounce height for more dynamic feel
 			{ frame: 30, value: 1 },
 		];
 
 		bounceAnimation.setKeys(keys);
+		bounceAnimation.setEasingFunction(easingFunction); // Apply easing function to animation
 		crystalOrbRef.current.animations.push(bounceAnimation);
 
 		animationRef.current = bounceAnimation;
@@ -236,16 +242,6 @@ const CrystalOrbVisualization = () => {
 			syncAnimationWithTrack();
 		}
 	}, [audioAnalysis, trackState.position, analysisLoading]);
-
-	useEffect(() => {
-		debouncePauseHandling();
-	}, [
-		isPaused,
-		audioAnalysis,
-		trackState.position,
-		debouncePauseHandling,
-		analysisLoading,
-	]);
 
 	useEffect(() => {
 		return () => {
