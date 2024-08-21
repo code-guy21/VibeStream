@@ -210,7 +210,7 @@ const CrystalOrbVisualization = () => {
 	}, []);
 
 	return (
-		<div className={styles.visualizationContainer}>
+		<div className={styles.visualizationWrapper}>
 			{analysisLoading ? (
 				<div className={styles.loader}></div>
 			) : (
