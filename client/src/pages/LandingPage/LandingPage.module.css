@@ -1,0 +1,51 @@
+/* General styling for the Landing Page */
+
+/* Consistent Heading Style */
+.heading {
+	font-family: 'Montserrat', sans-serif; /* Same as used in other components */
+	animation: fade-in 1s ease-in-out;
+}
+
+/* Subheading styling */
+.subheading {
+	font-family: 'Roboto', sans-serif;
+	animation: fade-in 1.5s ease-in-out;
+}
+
+/* Button with purple aesthetic and hover effects */
+.launchButton {
+	background-color: #7f5bdf; /* Purple background */
+	color: white;
+	padding: 0.75rem 2rem;
+	border-radius: 9999px;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 600;
+	transition: background-color 0.3s ease, color 0.3s ease;
+	animation: fade-in 2s ease-in-out;
+}
+
+.launchButton:hover {
+	background-color: white;
+	color: #7f5bdf;
+}
+
+/* Fade-in animation for elements */
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Ensure video covers the background properly */
+.videoBackground {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	z-index: -1;
+}

@@ -1,0 +1,37 @@
+.player {
+	display: flex;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: #000000e6;
+	color: white;
+	z-index: 1000; /* Ensure it's above other content */
+	padding: 10px; /* Add some padding to give it some space */
+}
+
+.info {
+	width: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+.scrollText {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: transform 0.5s ease-in-out;
+	display: inline-block;
+}
+
+.info:hover .scrollText {
+	animation: scroll-text 10s linear infinite;
+}
+
+@keyframes scroll-text {
+	0% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}

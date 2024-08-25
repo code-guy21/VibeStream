@@ -1,0 +1,38 @@
+.visualizationPage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	height: 100vh;
+	background-color: #0a0a1a;
+	padding-top: 6rem; /* Increase padding to ensure space below the navbar */
+}
+
+.visualizationContainer {
+	width: 100%;
+	height: calc(
+		100vh - 160px
+	); /* Adjust height to account for navbar, switcher, and player */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	padding: 0; /* Remove padding to maximize space for visualizations */
+}
+
+.visualizationWrapper {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+@media (max-width: 768px) {
+	.visualizationPage {
+		padding-top: 5rem; /* Ensure enough space on smaller screens */
+	}
+	.visualizationContainer {
+		height: calc(100vh - 180px); /* Adjust height for mobile */
+	}
+}

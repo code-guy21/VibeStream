@@ -64,6 +64,7 @@ async function authenticateUser(callbackData) {
 				displayName,
 				email,
 				profileImage,
+				isVerified: true,
 			});
 		}
 
