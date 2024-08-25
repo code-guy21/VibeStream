@@ -1,0 +1,5 @@
+/* Navbar.module.css */
+nav {
+	position: relative;
+	z-index: 1000; /* Ensure the navbar stays on top */
+}

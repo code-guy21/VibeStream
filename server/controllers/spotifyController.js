@@ -3,6 +3,7 @@ const {
 	spotifyPlay,
 	setSpotifyDevice,
 	getPlaybackState,
+	spotifyAudioAnalysis,
 } = require('../utils/spotify');
 
 module.exports = {
@@ -73,8 +74,18 @@ module.exports = {
 			res.status(500).json({ message: error.message });
 		}
 	},
+	getAudioAnalysis: async ({ query, spotifyAccessToken }, res) => {
+		try {
+			let analysis = await spotifyAudioAnalysis(query.id, spotifyAccessToken);
+
+			res.json(analysis);
+		} catch (error) {
+			console.log(error);
+		}
+	},
 	setDevice: async ({ body, spotifyAccessToken, tokenExpiration }, res) => {
 		try {
+			console.log(body, spotifyAccessToken, tokenExpiration);
 			const { deviceSet } = await setSpotifyDevice(
 				body.device_id,
 				spotifyAccessToken
@@ -82,13 +93,13 @@ module.exports = {
 
 			if (!deviceSet) {
 				res.status(400).json({ message: 'Failed to set device' });
+			} else {
+				res.status(200).json({
+					message: `Device ${body.device_id} set as active`,
+					accessToken: spotifyAccessToken,
+					tokenExpiration,
+				});
 			}
-
-			res.status(200).json({
-				message: `device ${body.device_id} set as active`,
-				accessToken: spotifyAccessToken,
-				tokenExpiration,
-			});
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: error.message });

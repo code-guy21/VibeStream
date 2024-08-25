@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
 	PlayIcon,
 	PauseIcon,
@@ -19,8 +19,17 @@ import {
 	setToggle,
 	setTokenExpiration,
 	setTokenExpired,
+	setAudioAnalysis,
+	setTrackState,
+	setAnalysisLoading,
 } from '../../redux/reducers/playbackSlice';
-import { fetchToken, playTrack, setDeviceAsActive } from '../../api/spotify';
+import {
+	fetchToken,
+	playTrack,
+	setDeviceAsActive,
+	fetchAudioAnalysis,
+} from '../../api/spotify';
+import { debounce } from 'lodash';
 
 function PlaybackControl() {
 	const state = useSelector(state => state);
@@ -60,6 +69,31 @@ function PlaybackControl() {
 		getToken();
 	}, [state.user.loggedIn, state.playback.tokenExpired]);
 
+	useEffect(() => {
+		async function getAudioAnalysis() {
+			const { currentTrack } = state.playback;
+			if (
+				playerRef.current &&
+				state.playback.isActive &&
+				state.user.loggedIn &&
+				currentTrack
+			) {
+				try {
+					let response = await fetchAudioAnalysis(currentTrack.id);
+
+					let analysis = await response.json();
+
+					dispatch(setAudioAnalysis(analysis));
+					dispatch(setAnalysisLoading(false));
+				} catch (error) {
+					console.log('Error fetching audio analysis', error);
+				}
+			}
+		}
+
+		getAudioAnalysis();
+	}, [state.playback.currentTrack]);
+
 	function setUpPlayer() {
 		const script = document.createElement('script');
 		script.src = 'https://sdk.scdn.co/spotify-player.js';
@@ -96,21 +130,41 @@ function PlaybackControl() {
 				}
 			});
 
-			sdkPlayer.addListener('player_state_changed', st => {
-				console.log('changed');
-				console.log(st);
+			sdkPlayer.addListener(
+				'player_state_changed',
+				debounce(st => {
+					console.log('changed');
+					console.log(st);
 
-				if (new Date(stateRef.current.playback.tokenExpiration) < new Date()) {
-					dispatch(setTokenExpired(true));
-				}
+					if (
+						new Date(stateRef.current.playback.tokenExpiration) < new Date()
+					) {
+						dispatch(setTokenExpired(true));
+					}
 
-				if (st.context?.uri) {
-					dispatch(setUri(st.context.uri));
-				}
+					if (st.context?.uri) {
+						dispatch(setUri(st.context.uri));
+					}
 
-				dispatch(setCurrentTrack(st.track_window.current_track));
-				dispatch(setPaused(st.paused));
-			});
+					// Update paused state only if it has changed
+					if (st.paused !== stateRef.current.playback.isPaused) {
+						dispatch(setPaused(st.paused));
+					}
+
+					const currentTrack = st.track_window.current_track;
+					if (
+						currentTrack &&
+						currentTrack.id !== stateRef.current.playback.currentTrack?.id
+					) {
+						console.log('Track changed, setting analysis loading to true');
+						dispatch(setCurrentTrack(currentTrack));
+
+						dispatch(setAnalysisLoading(true));
+					}
+
+					dispatch(setTrackState(st));
+				}, 300)
+			);
 
 			sdkPlayer.addListener('not_ready', ({ device_id }) => {
 				console.log('Device ID has gone offline', device_id);
@@ -119,6 +173,15 @@ function PlaybackControl() {
 			sdkPlayer.connect();
 		};
 	}
+
+	// const syncAnimationState = async isPaused => {
+	// 	if (playerRef.current) {
+	// 		const state = await playerRef.current.getCurrentState();
+	// 		if (state) {
+	// 			dispatch(setPaused(state.paused));
+	// 		}
+	// 	}
+	// };
 
 	useEffect(() => {
 		if (
@@ -185,31 +248,70 @@ function PlaybackControl() {
 		}
 	};
 
+	const handleTogglePlay = async () => {
+		try {
+			await playerRef.current.togglePlay();
+			// Explicitly handle state after toggling play
+			// setTimeout(() => {
+			// 	playerRef.current.getCurrentState().then(state => {
+			// 		if (state && state.paused !== stateRef.current.playback.isPaused) {
+			// 			dispatch(setPaused(state.paused));
+			// 		}
+			// 	});
+			// }, 500);
+		} catch (error) {
+			console.error('Error toggling playback:', error);
+		}
+	};
+
+	// Enhanced fallback mechanism to check paused state more frequently after track change or play/pause toggle
+	// useEffect(() => {
+	// 	const checkState = () => {
+	// 		if (playerRef.current) {
+	// 			playerRef.current.getCurrentState().then(state => {
+	// 				if (state && state.paused !== stateRef.current.playback.isPaused) {
+	// 					dispatch(setPaused(state.paused));
+	// 				}
+	// 			});
+	// 		}
+	// 	};
+
+	// 	const interval = setInterval(checkState, 500);
+
+	// 	return () => clearInterval(interval);
+	// }, []);
+
 	return (
 		<>
 			{state.playback.isActive && state.user.loggedIn && (
 				<div className={playerStyles.player}>
 					<div className='flex h-16 flex-1'>
-						<img
-							className='p-2'
-							src={state.playback.currentTrack?.album?.images[0].url}
-							alt=''
-						/>
-						<div className='flex flex-col justify-center'>
-							<div className='text-sm font-bold'>
-								{state.playback.currentTrack.name}
+						{state.playback.currentTrack?.album?.images[0]?.url && (
+							<img
+								className='p-2'
+								src={state.playback.currentTrack.album.images[0].url}
+								alt=''
+							/>
+						)}
+						<div className='flex flex-col justify-center overflow-hidden'>
+							<div className={`${playerStyles.info} text-sm font-bold track`}>
+								<p className={playerStyles.scrollText}>
+									{state.playback.currentTrack?.name || 'No Track Playing'}
+								</p>
 							</div>
-							<div className='text-sm'>
-								{state.playback.currentTrack?.artists
-									?.map(item => item.name)
-									.join(',')}
+							<div className={`${playerStyles.info} text-sm`}>
+								<p className={playerStyles.scrollText}>
+									{state.playback.currentTrack?.artists
+										?.map(item => item.name)
+										.join(',') || 'Unknown Artist'}
+								</p>
 							</div>
 						</div>
 					</div>
 
 					<div className='flex flex-1 h-16 justify-center'>
 						<button
-							className='btn-spotify'
+							className='btn-playback'
 							onClick={() => {
 								playerRef.current.previousTrack().catch(error => {
 									console.error('Error playing previous track:', error);
@@ -217,20 +319,14 @@ function PlaybackControl() {
 							}}>
 							<BackwardIcon className='h-6 w-6'></BackwardIcon>
 						</button>
-						<button
-							className='btn-spotify'
-							onClick={() => {
-								playerRef.current.togglePlay().catch(error => {
-									console.error('Error toggling playback:', error);
-								});
-							}}>
+						<button className='btn-playback' onClick={handleTogglePlay}>
 							{state.playback.isPaused ? (
 								<PlayIcon className='h-12 w-12'></PlayIcon>
 							) : (
 								<PauseIcon className='h-12 w-12'></PauseIcon>
 							)}
 						</button>
-						<button className='btn-spotify' onClick={handleNextTrack}>
+						<button className='btn-playback' onClick={handleNextTrack}>
 							<ForwardIcon className='h-6 w-6'></ForwardIcon>
 						</button>
 					</div>

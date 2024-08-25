@@ -1,0 +1,36 @@
+.tabContainer {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+	background-color: #1c1e29;
+	padding: 12px 24px;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	position: relative;
+	z-index: 10; /* Ensure buttons are on top */
+	color: white; /* Ensure text is visible against a dark background */
+}
+
+.tabButton {
+	padding: 10px 24px;
+	font-size: 16px;
+	color: #ffffff;
+	background-color: #2b2f3a;
+	border: 2px solid transparent;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: color 0.3s ease, border-bottom 0.3s ease,
+		background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tabButton:hover {
+	color: #61dafb;
+	background-color: #343a46;
+	border-color: #61dafb;
+}
+
+.activeTab {
+	background-color: #61dafb;
+	color: #0a0a1a;
+	border-color: #61dafb;
+}

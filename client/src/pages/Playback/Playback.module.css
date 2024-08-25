@@ -1,0 +1,98 @@
+/* Purple-themed search button flush with search bar */
+.purpleButton {
+	background-color: #7f5bdf;
+	color: white;
+	padding: 0.5rem 1.5rem;
+	border-radius: 0 9999px 9999px 0;
+	transition: background-color 0.3s ease;
+	height: 42px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.purpleButton:hover {
+	background-color: #6b46c1;
+}
+
+/* Input field flush with search button */
+.searchInput {
+	background-color: #4a5568;
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: 9999px 0 0 9999px;
+	border: none;
+	height: 42px;
+	flex-grow: 1;
+	outline: none;
+	transition: background-color 0.3s ease;
+}
+
+.searchInput:focus {
+	background-color: #5a6a80;
+	box-shadow: 0 0 0 2px #7f5bdf;
+}
+
+/* Hover effect on album artwork */
+.albumArtContainer {
+	position: relative;
+	overflow: hidden;
+	border-radius: 0.5rem;
+	transition: transform 0.3s ease;
+}
+
+.albumArtContainer:hover {
+	transform: scale(1.05);
+}
+
+.albumArtContainer:hover .playIconOverlay {
+	opacity: 1;
+}
+
+/* Play icon overlay */
+.playIconOverlay {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 2rem;
+	color: white;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
+}
+
+.textEllipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* New CSS to account for the navbar */
+.playbackContainer {
+	margin-top: 4rem; /* Adjust based on the height of your navbar */
+	padding-bottom: 80px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+	.textMd {
+		font-size: 0.875rem;
+	}
+
+	.textSm {
+		font-size: 0.75rem;
+	}
+
+	.h16 {
+		height: 3.5rem;
+	}
+
+	.w16 {
+		width: 3.5rem;
+	}
+
+	.playbackContainer {
+		padding-bottom: 80px; /* Increase padding on mobile if the playback control is taller */
+	}
+}

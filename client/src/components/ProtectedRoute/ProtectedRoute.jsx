@@ -9,7 +9,7 @@ function ProtectedRoute({ element }) {
 		return null;
 	}
 
-	return loggedIn ? element : <Navigate to='/login'></Navigate>;
+	return loggedIn ? element : <Navigate to='/app/login'></Navigate>;
 }
 
 export default ProtectedRoute;

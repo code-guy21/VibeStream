@@ -62,7 +62,9 @@ const SceneComponent = ({
 		onSceneReady,
 	]);
 
-	return <canvas ref={reactCanvas} {...rest} />;
+	return (
+		<canvas ref={reactCanvas} {...rest} style={{ pointerEvents: 'none' }} />
+	);
 };
 
 export default SceneComponent;

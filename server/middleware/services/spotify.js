@@ -10,7 +10,7 @@ const hasSpotifyLinkedService = async (req, res, next) => {
 		!spotifyService.accessToken ||
 		!spotifyService.refreshToken
 	) {
-		return res.status(401).json({
+		return res.status(503).json({
 			message:
 				'Spotify service not linked or access and refresh tokens missing',
 		});
