@@ -11,25 +11,65 @@ const VisualizationPage = () => {
 
 	const toggleFullScreen = () => {
 		if (!document.fullscreenElement) {
-			visualizationRef.current.requestFullscreen().catch(err => {
-				console.error(
-					`Error attempting to enable full-screen mode: ${err.message}`
-				);
-			});
+			if (visualizationRef.current.requestFullscreen) {
+				visualizationRef.current.requestFullscreen();
+			} else if (visualizationRef.current.webkitRequestFullscreen) {
+				// iOS Safari
+				visualizationRef.current.webkitRequestFullscreen();
+			} else if (visualizationRef.current.mozRequestFullScreen) {
+				// Firefox
+				visualizationRef.current.mozRequestFullScreen();
+			} else if (visualizationRef.current.msRequestFullscreen) {
+				// IE/Edge
+				visualizationRef.current.msRequestFullscreen();
+			}
 		} else {
-			document.exitFullscreen();
+			if (document.exitFullscreen) {
+				document.exitFullscreen();
+			} else if (document.webkitExitFullscreen) {
+				// iOS Safari
+				document.webkitExitFullscreen();
+			} else if (document.mozCancelFullScreen) {
+				// Firefox
+				document.mozCancelFullScreen();
+			} else if (document.msExitFullscreen) {
+				// IE/Edge
+				document.msExitFullscreen();
+			}
 		}
 	};
 
 	useEffect(() => {
 		const handleFullScreenChange = () => {
-			setIsFullScreen(!!document.fullscreenElement);
+			setIsFullScreen(
+				!!(
+					document.fullscreenElement ||
+					document.webkitFullscreenElement ||
+					document.mozFullScreenElement ||
+					document.msFullscreenElement
+				)
+			);
 		};
 
 		document.addEventListener('fullscreenchange', handleFullScreenChange);
+		document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
+		document.addEventListener('mozfullscreenchange', handleFullScreenChange);
+		document.addEventListener('MSFullscreenChange', handleFullScreenChange);
 
 		return () => {
 			document.removeEventListener('fullscreenchange', handleFullScreenChange);
+			document.removeEventListener(
+				'webkitfullscreenchange',
+				handleFullScreenChange
+			);
+			document.removeEventListener(
+				'mozfullscreenchange',
+				handleFullScreenChange
+			);
+			document.removeEventListener(
+				'MSFullscreenChange',
+				handleFullScreenChange
+			);
 		};
 	}, []);
 

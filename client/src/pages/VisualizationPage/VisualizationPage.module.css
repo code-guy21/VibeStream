@@ -7,13 +7,13 @@
 	background-color: #0a0a1a;
 	padding-top: 6rem; /* Increase padding to ensure space below the navbar */
 	position: relative;
+	width: 100%;
+	overflow: hidden;
 }
 
 .visualizationContainer {
 	width: 100%;
-	height: calc(
-		100vh - 160px
-	); /* Adjust height to account for navbar, switcher, and player */
+	height: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -40,8 +40,13 @@
 }
 
 .fullScreen {
-	padding-top: 0;
-	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 9999;
+	background-color: #000;
 }
 
 .fullScreen .visualizationContainer {
