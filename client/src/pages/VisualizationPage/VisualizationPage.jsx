@@ -7,8 +7,24 @@ import styles from './VisualizationPage.module.css';
 
 const VisualizationPage = () => {
 	const [currentVisualization, setVisualization] = useState('crystal');
+	const [isIOSFullScreen, setIsIOSFullScreen] = useState(false);
 	const visualizationRef = useRef(null);
 	const fullScreenHandle = useFullScreenHandle();
+
+	const isIOS =
+		/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+	const toggleFullScreen = () => {
+		if (isIOS) {
+			setIsIOSFullScreen(!isIOSFullScreen);
+		} else {
+			if (fullScreenHandle.active) {
+				fullScreenHandle.exit();
+			} else {
+				fullScreenHandle.enter();
+			}
+		}
+	};
 
 	useEffect(() => {
 		const handleOrientationChange = () => {
@@ -28,15 +44,15 @@ const VisualizationPage = () => {
 		<FullScreen handle={fullScreenHandle}>
 			<div
 				className={`${styles.visualizationPage} ${
-					fullScreenHandle.active ? styles.fullScreen : ''
+					fullScreenHandle.active || isIOSFullScreen ? styles.fullScreen : ''
 				}`}
 				ref={visualizationRef}>
-				{!fullScreenHandle.active && (
+				{!(fullScreenHandle.active || isIOSFullScreen) && (
 					<VisualizationSwitcher
 						currentVisualization={currentVisualization}
 						setVisualization={setVisualization}
-						isFullScreen={fullScreenHandle.active}
-						toggleFullScreen={fullScreenHandle.enter}
+						isFullScreen={fullScreenHandle.active || isIOSFullScreen}
+						toggleFullScreen={toggleFullScreen}
 					/>
 				)}
 				<div
@@ -46,10 +62,10 @@ const VisualizationPage = () => {
 					{currentVisualization === 'crystal' && <CrystalOrbVisualization />}
 					{currentVisualization === 'waveform' && <WaveformVisualization />}
 				</div>
-				{fullScreenHandle.active && (
+				{(fullScreenHandle.active || isIOSFullScreen) && (
 					<button
 						className={styles.exitFullScreenButton}
-						onClick={fullScreenHandle.exit}
+						onClick={toggleFullScreen}
 						aria-label='Exit full screen'>
 						Exit
 					</button>

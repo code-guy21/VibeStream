@@ -51,6 +51,7 @@
 	padding: 0;
 	overflow: hidden;
 	background-color: black; /* Ensure no white space is visible */
+	z-index: 9999;
 }
 
 .fullScreen .visualizationContainer {
@@ -119,5 +120,12 @@
 		right: 20px;
 		padding: 10px 15px;
 		font-size: 16px;
+	}
+}
+
+/* For iOS devices */
+@supports (-webkit-touch-callout: none) {
+	.fullScreen {
+		height: -webkit-fill-available;
 	}
 }
