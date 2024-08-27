@@ -53,6 +53,7 @@
 	height: 100vh;
 }
 
+/* Ensure the fullscreen button is always visible */
 .fullScreenButton {
 	position: absolute;
 	top: 20px; /* Changed from bottom to top */

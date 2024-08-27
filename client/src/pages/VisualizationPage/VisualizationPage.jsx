@@ -16,12 +16,9 @@ const VisualizationPage = () => {
 			} else if (visualizationRef.current.webkitRequestFullscreen) {
 				// iOS Safari
 				visualizationRef.current.webkitRequestFullscreen();
-			} else if (visualizationRef.current.mozRequestFullScreen) {
-				// Firefox
-				visualizationRef.current.mozRequestFullScreen();
-			} else if (visualizationRef.current.msRequestFullscreen) {
-				// IE/Edge
-				visualizationRef.current.msRequestFullscreen();
+			} else {
+				// Fallback for browsers that don't support fullscreen API
+				setIsFullScreen(true);
 			}
 		} else {
 			if (document.exitFullscreen) {
@@ -29,12 +26,9 @@ const VisualizationPage = () => {
 			} else if (document.webkitExitFullscreen) {
 				// iOS Safari
 				document.webkitExitFullscreen();
-			} else if (document.mozCancelFullScreen) {
-				// Firefox
-				document.mozCancelFullScreen();
-			} else if (document.msExitFullscreen) {
-				// IE/Edge
-				document.msExitFullscreen();
+			} else {
+				// Fallback for browsers that don't support fullscreen API
+				setIsFullScreen(false);
 			}
 		}
 	};
