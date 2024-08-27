@@ -5,6 +5,7 @@ import { register } from '../../api/user';
 import { ToastContainer, toast } from 'react-toastify';
 import logo from '../../assets/images/vibestream-logo.svg';
 import { Link } from 'react-router-dom';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import styles from './RegisterPage.module.css';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -17,7 +18,10 @@ function RegisterPage() {
 		password: '',
 		username: '',
 		displayName: '',
+		confirmPassword: '',
 	});
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 	useEffect(() => {
 		if (!state.loading && state.loggedIn) {
@@ -27,6 +31,11 @@ function RegisterPage() {
 
 	async function submitHandler(e) {
 		e.preventDefault();
+
+		if (form.password !== form.confirmPassword) {
+			toast.error("Passwords don't match");
+			return;
+		}
 
 		try {
 			let res = await register(form);
@@ -50,6 +59,14 @@ function RegisterPage() {
 			...form,
 			[e.target.name]: e.target.value,
 		});
+	}
+
+	function togglePasswordVisibility(field) {
+		if (field === 'password') {
+			setShowPassword(!showPassword);
+		} else if (field === 'confirmPassword') {
+			setShowConfirmPassword(!showConfirmPassword);
+		}
 	}
 
 	if (state.loading || state.loggedIn) {
@@ -99,16 +116,55 @@ function RegisterPage() {
 								className='block text-sm font-medium text-gray-300'>
 								Password
 							</label>
-							<div className='mt-2'>
+							<div className='mt-2 relative'>
 								<input
 									onChange={onChangeHandler}
 									id='password'
 									name='password'
-									type='password'
-									autoComplete='current-password'
+									type={showPassword ? 'text' : 'password'}
+									autoComplete='new-password'
 									required
-									className={`${styles.inputField}`}
+									className={`${styles.inputField} pr-10`}
 								/>
+								<button
+									type='button'
+									onClick={() => togglePasswordVisibility('password')}
+									className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
+									{showPassword ? (
+										<EyeSlashIcon className='h-5 w-5 text-gray-400' />
+									) : (
+										<EyeIcon className='h-5 w-5 text-gray-400' />
+									)}
+								</button>
+							</div>
+						</div>
+
+						<div>
+							<label
+								htmlFor='confirmPassword'
+								className='block text-sm font-medium text-gray-300'>
+								Confirm Password
+							</label>
+							<div className='mt-2 relative'>
+								<input
+									onChange={onChangeHandler}
+									id='confirmPassword'
+									name='confirmPassword'
+									type={showConfirmPassword ? 'text' : 'password'}
+									autoComplete='new-password'
+									required
+									className={`${styles.inputField} pr-10`}
+								/>
+								<button
+									type='button'
+									onClick={() => togglePasswordVisibility('confirmPassword')}
+									className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
+									{showConfirmPassword ? (
+										<EyeSlashIcon className='h-5 w-5 text-gray-400' />
+									) : (
+										<EyeIcon className='h-5 w-5 text-gray-400' />
+									)}
+								</button>
 							</div>
 						</div>
 
@@ -143,7 +199,7 @@ function RegisterPage() {
 									id='displayName'
 									name='displayName'
 									type='text'
-									autoComplete='Display Name'
+									autoComplete='name'
 									required
 									className={`${styles.inputField}`}
 								/>

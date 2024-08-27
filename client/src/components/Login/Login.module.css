@@ -36,6 +36,7 @@
 	font-size: 0.875rem; /* Small text size */
 	line-height: 1.25rem;
 	transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+	padding-right: 2.5rem; /* Make room for the eye icon */
 }
 
 /* Maintain background color when input loses focus */
