@@ -8,22 +8,14 @@ function LandingPage() {
 		<div className={styles.landingPage}>
 			<header className={styles.header}>
 				<img src={logo} alt='VibeStream Logo' className={styles.logo} />
-				<nav aria-label='Main Navigation'>
-					<Link to='/app/login' className={styles.navLink}>
-						Login
-					</Link>
-					<Link to='/app/register' className={styles.navLink}>
-						Sign Up
-					</Link>
-				</nav>
 			</header>
 
 			<main>
 				<section className={styles.hero}>
 					<h1>Welcome to VibeStream</h1>
 					<p>Discover, visualize, and share your music like never before.</p>
-					<Link to='/app/register' className={styles.ctaButton}>
-						Get Started
+					<Link to='/app' className={styles.ctaButton}>
+						Launch App
 					</Link>
 				</section>
 
@@ -66,8 +58,8 @@ function LandingPage() {
 
 				<section className={styles.cta}>
 					<h2>Ready to elevate your music experience?</h2>
-					<Link to='/app/register' className={styles.ctaButton}>
-						Join VibeStream Today
+					<Link to='/app' className={styles.ctaButton}>
+						Launch VibeStream
 					</Link>
 				</section>
 			</main>
