@@ -6,6 +6,7 @@
 	height: 100vh;
 	background-color: #0a0a1a;
 	padding-top: 6rem; /* Increase padding to ensure space below the navbar */
+	position: relative;
 }
 
 .visualizationContainer {
@@ -18,6 +19,7 @@
 	align-items: center;
 	position: relative;
 	padding: 0; /* Remove padding to maximize space for visualizations */
+	transition: all 0.3s ease;
 }
 
 .visualizationWrapper {
@@ -35,4 +37,40 @@
 	.visualizationContainer {
 		height: calc(100vh - 180px); /* Adjust height for mobile */
 	}
+}
+
+.fullScreen {
+	padding-top: 0;
+	height: 100vh;
+}
+
+.fullScreen .visualizationContainer {
+	height: 100vh;
+}
+
+.fullScreenButton {
+	position: absolute;
+	top: 20px; /* Changed from bottom to top */
+	right: 20px;
+	padding: 10px 20px;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	z-index: 10000; /* Ensure it's above other elements */
+}
+
+.fullScreenButton:hover {
+	background-color: rgba(0, 0, 0, 0.7);
+}
+
+.fullScreenButtonFullScreen {
+	background-color: transparent;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.fullScreenButtonFullScreen:hover {
+	background-color: rgba(255, 255, 255, 0.2);
 }
