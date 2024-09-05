@@ -63,11 +63,6 @@ function Login() {
 			<div
 				className={`flex min-h-screen flex-col justify-center items-center ${styles.pageBackground}`}>
 				<div className='sm:mx-auto sm:w-full sm:max-w-sm text-center'>
-					<img
-						className='mx-auto h-16 w-auto mb-8'
-						src={logo}
-						alt='VibeStream Logo'
-					/>
 					<h2
 						className={`${styles.heading} text-3xl font-bold text-white mb-6`}>
 						Sign in to your account

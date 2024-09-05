@@ -77,20 +77,16 @@ function RegisterPage() {
 		<>
 			<div
 				className={`flex min-h-screen flex-col justify-center items-center ${styles.pageBackground}`}>
-				<div className='sm:mx-auto sm:w-full sm:max-w-md text-center'>
-					<img
-						className='mx-auto h-16 w-auto mb-8'
-						src={logo}
-						alt='VibeStream Logo'
-					/>
+				<div className='sm:mx-auto sm:w-full sm:max-w-sm text-center'>
 					<h2
 						className={`${styles.heading} text-3xl font-bold text-white mb-6`}>
 						Sign up for an account
 					</h2>
 				</div>
 
-				<div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
+				<div className='mt-8 sm:mx-auto sm:w-full sm:max-w-sm'>
 					<form className='space-y-6' onSubmit={submitHandler}>
+						{/* Email Input */}
 						<div>
 							<label
 								htmlFor='email'
@@ -110,6 +106,47 @@ function RegisterPage() {
 							</div>
 						</div>
 
+						{/* Username Input */}
+						<div>
+							<label
+								htmlFor='username'
+								className='block text-sm font-medium text-gray-300'>
+								Username
+							</label>
+							<div className='mt-2'>
+								<input
+									onChange={onChangeHandler}
+									id='username'
+									name='username'
+									type='text'
+									autoComplete='username'
+									required
+									className={`${styles.inputField}`}
+								/>
+							</div>
+						</div>
+
+						{/* Display Name Input */}
+						<div>
+							<label
+								htmlFor='displayName'
+								className='block text-sm font-medium text-gray-300'>
+								Display Name
+							</label>
+							<div className='mt-2'>
+								<input
+									onChange={onChangeHandler}
+									id='displayName'
+									name='displayName'
+									type='text'
+									autoComplete='name'
+									required
+									className={`${styles.inputField}`}
+								/>
+							</div>
+						</div>
+
+						{/* Password Input */}
 						<div>
 							<label
 								htmlFor='password'
@@ -139,6 +176,7 @@ function RegisterPage() {
 							</div>
 						</div>
 
+						{/* Confirm Password Input */}
 						<div>
 							<label
 								htmlFor='confirmPassword'
@@ -168,44 +206,7 @@ function RegisterPage() {
 							</div>
 						</div>
 
-						<div>
-							<label
-								htmlFor='username'
-								className='block text-sm font-medium text-gray-300'>
-								Username
-							</label>
-							<div className='mt-2'>
-								<input
-									onChange={onChangeHandler}
-									id='username'
-									name='username'
-									type='text'
-									autoComplete='username'
-									required
-									className={`${styles.inputField}`}
-								/>
-							</div>
-						</div>
-
-						<div>
-							<label
-								htmlFor='displayName'
-								className='block text-sm font-medium text-gray-300'>
-								Display Name
-							</label>
-							<div className='mt-2'>
-								<input
-									onChange={onChangeHandler}
-									id='displayName'
-									name='displayName'
-									type='text'
-									autoComplete='name'
-									required
-									className={`${styles.inputField}`}
-								/>
-							</div>
-						</div>
-
+						{/* Sign-Up Button */}
 						<div>
 							<button type='submit' className={styles.signUpButton}>
 								Sign Up
@@ -222,6 +223,7 @@ function RegisterPage() {
 						</Link>
 					</p>
 				</div>
+
 				<ToastContainer />
 			</div>
 		</>
