@@ -1,9 +1,36 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/images/vibestream-logo.svg';
 import styles from './LandingPage.module.css';
 
 function LandingPage() {
+	const featuresRef = useRef(null);
+	const aboutRef = useRef(null);
+	const ctaRef = useRef(null);
+
+	useEffect(() => {
+		const observer = new IntersectionObserver(
+			entries => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add(styles.visible);
+					}
+				});
+			},
+			{ threshold: 0.1 }
+		);
+
+		if (featuresRef.current) observer.observe(featuresRef.current);
+		if (aboutRef.current) observer.observe(aboutRef.current);
+		if (ctaRef.current) observer.observe(ctaRef.current);
+
+		return () => {
+			if (featuresRef.current) observer.unobserve(featuresRef.current);
+			if (aboutRef.current) observer.unobserve(aboutRef.current);
+			if (ctaRef.current) observer.unobserve(ctaRef.current);
+		};
+	}, []);
+
 	return (
 		<div className={styles.landingPage}>
 			<header className={styles.header}>
@@ -19,7 +46,7 @@ function LandingPage() {
 					</Link>
 				</section>
 
-				<section className={styles.features}>
+				<section className={styles.features} ref={featuresRef}>
 					<h2>Key Features</h2>
 					<div className={styles.featureGrid}>
 						{[
@@ -42,7 +69,7 @@ function LandingPage() {
 					</div>
 				</section>
 
-				<section className={styles.about}>
+				<section className={styles.about} ref={aboutRef}>
 					<h2>About VibeStream</h2>
 					<p>
 						VibeStream is a music visualization platform that transforms your
@@ -56,7 +83,7 @@ function LandingPage() {
 					</p>
 				</section>
 
-				<section className={styles.cta}>
+				<section className={styles.cta} ref={ctaRef}>
 					<h2>Ready to elevate your music experience?</h2>
 					<Link to='/app' className={styles.ctaButton}>
 						Launch VibeStream
@@ -66,6 +93,14 @@ function LandingPage() {
 
 			<footer className={styles.footer}>
 				<p>&copy; 2024 VibeStream. All rights reserved.</p>
+				<nav>
+					<a href='#' className={styles.footerLink}>
+						Privacy Policy
+					</a>
+					<a href='#' className={styles.footerLink}>
+						Terms of Service
+					</a>
+				</nav>
 			</footer>
 		</div>
 	);

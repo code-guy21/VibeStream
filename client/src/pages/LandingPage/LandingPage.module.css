@@ -21,19 +21,6 @@
 	height: 40px;
 }
 
-.navLink {
-	color: #ffffff;
-	text-decoration: none;
-	margin-left: 1rem;
-	padding: 0.5rem 1rem;
-	border-radius: 4px;
-	transition: background-color 0.3s ease;
-}
-
-.navLink:hover {
-	background-color: rgba(255, 255, 255, 0.1);
-}
-
 /* Hero Section */
 .hero {
 	text-align: center;
@@ -42,6 +29,16 @@
 		url('../../assets/images/fallback-image.jpg');
 	background-size: cover;
 	background-position: center;
+	animation: backgroundShift 10s infinite alternate;
+}
+
+@keyframes backgroundShift {
+	0% {
+		background-position: 0% 50%;
+	}
+	100% {
+		background-position: 100% 50%;
+	}
 }
 
 .hero h1 {
@@ -57,15 +54,16 @@
 .ctaButton {
 	display: inline-block;
 	padding: 0.75rem 1.5rem;
-	background-color: #6c5ce7;
+	background: linear-gradient(45deg, #6c5ce7, #00b894);
 	color: #ffffff;
 	text-decoration: none;
 	border-radius: 4px;
-	transition: background-color 0.3s ease;
+	transition: background 0.3s ease, transform 0.3s ease;
 }
 
 .ctaButton:hover {
-	background-color: #5541d8;
+	background: linear-gradient(45deg, #5541d8, #00a87a);
+	transform: scale(1.05);
 }
 
 /* Features Section */
@@ -73,6 +71,16 @@
 .about,
 .cta {
 	padding: 4rem 2rem;
+	opacity: 0;
+	transform: translateY(30px);
+	transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.features.visible,
+.about.visible,
+.cta.visible {
+	opacity: 1;
+	transform: translateY(0);
 }
 
 .features h2,
@@ -93,6 +101,12 @@
 	padding: 1.5rem;
 	border-radius: 8px;
 	text-align: center;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featureItem:hover {
+	transform: scale(1.05);
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .featureItem h3 {
@@ -126,9 +140,11 @@
 	color: #ffffff;
 	text-decoration: none;
 	margin-left: 1rem;
+	transition: color 0.3s ease;
 }
 
 .footerLink:hover {
+	color: #00b894;
 	text-decoration: underline;
 }
 
