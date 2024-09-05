@@ -14,8 +14,8 @@ const UserHomePage = () => {
 			</div>
 
 			{/* Main Content */}
-			<div className='relative z-10 backdrop-blur-md bg-white bg-opacity-10 border border-white border-opacity-20 p-10 rounded-xl shadow-2xl max-w-lg mx-auto'>
-				<h1 className='text-5xl font-extrabold text-white text-center mb-6'>
+			<div className='relative z-10 backdrop-blur-md bg-white bg-opacity-10 border border-white border-opacity-20 p-8 sm:p-10 rounded-xl shadow-2xl max-w-lg mx-auto'>
+				<h1 className='text-3xl sm:text-5xl font-extrabold text-white text-center mb-4 sm:mb-6'>
 					Welcome Back, {user.user.username}!
 				</h1>
 			</div>
