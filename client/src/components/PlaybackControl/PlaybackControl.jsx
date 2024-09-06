@@ -281,59 +281,77 @@ function PlaybackControl() {
 	// 	return () => clearInterval(interval);
 	// }, []);
 
+	const trackNameRef = useRef(null);
+	const artistNameRef = useRef(null);
+
+	useEffect(() => {
+		const setScrollWidth = element => {
+			if (element && element.scrollWidth > element.clientWidth) {
+				const scrollDistance = element.scrollWidth - element.clientWidth;
+				element.style.setProperty('--scroll-width', `-${scrollDistance}px`);
+			}
+		};
+
+		setScrollWidth(trackNameRef.current);
+		setScrollWidth(artistNameRef.current);
+	}, [state.playback.currentTrack]);
+
 	return (
 		<>
 			{state.playback.isActive && state.user.loggedIn && (
-				<div className={playerStyles.player}>
-					<div className='flex h-16 flex-1'>
+				<div className={`${playerStyles.player} flex items-center px-2 py-1`}>
+					<div className='flex items-center w-1/3 min-w-0'>
 						{state.playback.currentTrack?.album?.images[0]?.url && (
 							<img
-								className='p-2'
+								className='h-12 w-12 object-cover flex-shrink-0 mr-2'
 								src={state.playback.currentTrack.album.images[0].url}
 								alt=''
 							/>
 						)}
-						<div className='flex flex-col justify-center overflow-hidden'>
-							<div className={`${playerStyles.info} text-sm font-bold track`}>
-								<p className={playerStyles.scrollText}>
+						<div className='flex flex-col justify-center overflow-hidden min-w-0'>
+							<div
+								className={`${playerStyles.scrollContainer} text-sm font-bold`}>
+								<div ref={trackNameRef} className={playerStyles.scrollText}>
 									{state.playback.currentTrack?.name || 'No Track Playing'}
-								</p>
+								</div>
 							</div>
-							<div className={`${playerStyles.info} text-sm`}>
-								<p className={playerStyles.scrollText}>
+							<div className={`${playerStyles.scrollContainer} text-xs`}>
+								<div ref={artistNameRef} className={playerStyles.scrollText}>
 									{state.playback.currentTrack?.artists
 										?.map(item => item.name)
-										.join(',') || 'Unknown Artist'}
-								</p>
+										.join(', ') || 'Unknown Artist'}
+								</div>
 							</div>
 						</div>
 					</div>
 
-					<div className='flex flex-1 h-16 justify-center'>
+					<div className='flex justify-center items-center w-1/3'>
 						<button
-							className='btn-playback'
+							className='btn-playback p-1'
 							onClick={() => {
 								playerRef.current.previousTrack().catch(error => {
 									console.error('Error playing previous track:', error);
 								});
 							}}>
-							<BackwardIcon className='h-6 w-6'></BackwardIcon>
+							<BackwardIcon className='h-5 w-5'></BackwardIcon>
 						</button>
-						<button className='btn-playback' onClick={handleTogglePlay}>
+						<button
+							className='btn-playback p-1 mx-2'
+							onClick={handleTogglePlay}>
 							{state.playback.isPaused ? (
-								<PlayIcon className='h-12 w-12'></PlayIcon>
+								<PlayIcon className='h-8 w-8'></PlayIcon>
 							) : (
-								<PauseIcon className='h-12 w-12'></PauseIcon>
+								<PauseIcon className='h-8 w-8'></PauseIcon>
 							)}
 						</button>
-						<button className='btn-playback' onClick={handleNextTrack}>
-							<ForwardIcon className='h-6 w-6'></ForwardIcon>
+						<button className='btn-playback p-1' onClick={handleNextTrack}>
+							<ForwardIcon className='h-5 w-5'></ForwardIcon>
 						</button>
 					</div>
 
-					<div className='flex flex-1 h-16 justify-center items-center gap-x-6'>
-						<HandThumbUpIcon className='h-6 w-6'></HandThumbUpIcon>
-						<HandThumbDownIcon className='h-6 w-6'></HandThumbDownIcon>
+					<div className='flex justify-center items-center w-1/3 space-x-2'>
+						<HandThumbUpIcon className='h-5 w-5'></HandThumbUpIcon>
+						<HandThumbDownIcon className='h-5 w-5'></HandThumbDownIcon>
 					</div>
 				</div>
 			)}

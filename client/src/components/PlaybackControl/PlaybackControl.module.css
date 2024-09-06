@@ -3,8 +3,9 @@
 	position: fixed;
 	bottom: 0;
 	width: 100%;
-	background-color: #000000e6;
+	background-color: #1a1a1a;
 	color: white;
+	min-height: 5rem;
 	z-index: 1000; /* Ensure it's above other content */
 	padding: 10px; /* Add some padding to give it some space */
 }
@@ -33,5 +34,42 @@
 	}
 	100% {
 		transform: translateX(-100%);
+	}
+}
+
+.btn-playback {
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+}
+
+.btn-playback:hover {
+	color: #1db954;
+}
+
+.scrollContainer {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.scrollText {
+	display: inline-block;
+	transition: transform 0.3s ease-out;
+}
+
+.scrollContainer:hover .scrollText {
+	animation: scrollLeftAndBack 8s ease-in-out; /* Increased from 5s to 8s */
+}
+
+@keyframes scrollLeftAndBack {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	50% {
+		transform: translateX(var(--scroll-width, -100%));
 	}
 }

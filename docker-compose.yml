@@ -1,0 +1,29 @@
+version: '3'
+services:
+  server:
+    build: .
+    ports:
+      - '3001:3001'
+    depends_on:
+      - mongodb
+    environment:
+      NODE_ENV: production
+    env_file:
+      - ./.env # Load environment variables from .env
+    networks:
+      - vibestream-network
+
+  mongodb:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - vibestream-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  vibestream-network:

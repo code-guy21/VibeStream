@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import logo from '../../assets/images/vibestream-logo.svg';
 import { Link } from 'react-router-dom';
 import styles from './Login.module.css';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 function Login() {
 	const state = useSelector(state => state.user);
@@ -16,6 +17,7 @@ function Login() {
 		email: '',
 		password: '',
 	});
+	const [showPassword, setShowPassword] = useState(false);
 
 	useEffect(() => {
 		if (!state.loading && state.loggedIn) {
@@ -34,7 +36,7 @@ function Login() {
 				toast.error(data.message);
 			} else {
 				dispatch(loginUser(data));
-				navigate('/');
+				navigate('/app');
 			}
 		} catch (error) {
 			console.log(error);
@@ -48,6 +50,10 @@ function Login() {
 		});
 	}
 
+	function togglePasswordVisibility() {
+		setShowPassword(!showPassword);
+	}
+
 	if (state.loading || state.loggedIn) {
 		return null;
 	}
@@ -57,11 +63,6 @@ function Login() {
 			<div
 				className={`flex min-h-screen flex-col justify-center items-center ${styles.pageBackground}`}>
 				<div className='sm:mx-auto sm:w-full sm:max-w-sm text-center'>
-					<img
-						className='mx-auto h-16 w-auto mb-8'
-						src={logo}
-						alt='VibeStream Logo'
-					/>
 					<h2
 						className={`${styles.heading} text-3xl font-bold text-white mb-6`}>
 						Sign in to your account
@@ -104,16 +105,26 @@ function Login() {
 									Password
 								</label>
 							</div>
-							<div className='mt-2'>
+							<div className='mt-2 relative'>
 								<input
 									onChange={onChangeHandler}
 									id='password'
 									name='password'
-									type='password'
+									type={showPassword ? 'text' : 'password'}
 									autoComplete='current-password'
 									required
-									className={`${styles.inputField}`}
+									className={`${styles.inputField} pr-10`}
 								/>
+								<button
+									type='button'
+									onClick={togglePasswordVisibility}
+									className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
+									{showPassword ? (
+										<EyeSlashIcon className='h-5 w-5 text-gray-400' />
+									) : (
+										<EyeIcon className='h-5 w-5 text-gray-400' />
+									)}
+								</button>
 							</div>
 						</div>
 
