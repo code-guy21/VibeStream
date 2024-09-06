@@ -36,7 +36,7 @@ function Login() {
 				toast.error(data.message);
 			} else {
 				dispatch(loginUser(data));
-				navigate('/');
+				navigate('/app');
 			}
 		} catch (error) {
 			console.log(error);
