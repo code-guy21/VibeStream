@@ -1,6 +1,6 @@
 # image
 
-FROM node:18-alpine
+FROM node:18.16-alpine
 
 # working directory 
 
