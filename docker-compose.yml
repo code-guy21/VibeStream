@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # React App
   client:
@@ -39,7 +37,7 @@ services:
       - REACT_APP_CLIENT_URL=${REACT_APP_CLIENT_URL}
       - SPOTIFY_BASE_URL=${SPOTIFY_BASE_URL}
     depends_on:
-      - mongo
+      - client
     networks:
       - vibestream-net
     healthcheck:
