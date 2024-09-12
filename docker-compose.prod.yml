@@ -36,21 +36,6 @@ services:
       timeout: 10s
       retries: 3
 
-  mongo:
-    image: mongo:latest
-    volumes:
-      - mongo-db-data:/data/db
-    networks:
-      - vibestream-net
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    expose:
-      - '27017'
-
-volumes:
-  mongo-db-data:
-
 networks:
   vibestream-net:
     driver: bridge
