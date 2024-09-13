@@ -36,8 +36,6 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - REACT_APP_CLIENT_URL=${REACT_APP_CLIENT_URL}
       - SPOTIFY_BASE_URL=${SPOTIFY_BASE_URL}
-    depends_on:
-      - client
     networks:
       - vibestream-net
     healthcheck:
