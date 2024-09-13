@@ -13,11 +13,15 @@ RUN npm install
 
 # copy rest
 
+# Update browserslist
+RUN npx update-browserslist-db@latest
+
+# Increase Node.js memory limit
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 COPY . .
 
 # build react app
-# Increase Node.js memory limit and build the React app
-ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN npm run build
 
 # serve with Nginx
