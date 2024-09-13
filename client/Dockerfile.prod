@@ -16,7 +16,8 @@ RUN npm install
 COPY . .
 
 # build react app
-
+# Increase Node.js memory limit and build the React app
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN npm run build
 
 # serve with Nginx
