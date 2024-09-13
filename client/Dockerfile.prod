@@ -12,14 +12,13 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 # copy rest
+COPY . .
 
 # Update browserslist
 RUN npx update-browserslist-db@latest
 
 # Increase Node.js memory limit
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-
-COPY . .
 
 # build react app
 RUN npm run build
