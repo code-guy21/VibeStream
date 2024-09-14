@@ -3,12 +3,10 @@ services:
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     ports:
       - '80:80'
       - '443:443'
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - server
     networks:
@@ -18,7 +16,7 @@ services:
   server:
     build:
       context: ./server
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     ports:
       - '3001'
     environment:

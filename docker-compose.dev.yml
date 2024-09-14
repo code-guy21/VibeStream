@@ -7,7 +7,7 @@ services:
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - '3000:3000'
     volumes:
@@ -22,7 +22,7 @@ services:
   server:
     build:
       context: ./server
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - '3001:3001'
     volumes:

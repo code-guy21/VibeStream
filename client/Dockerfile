@@ -1,25 +1,20 @@
-# image
+# serve with Nginx
 
-FROM node:18.16-alpine
+FROM nginx:alpine
 
-# working directory 
+# Copy the pre-built React app from the local machine to the Nginx web root
 
-WORKDIR /app
+COPY ./build /usr/share/nginx/html
 
-# copy package.json and install dependencies
+# Copy custom NGINX configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY package.json package-lock.json ./
+# expose port 80 for HTTP
 
-RUN npm install
+EXPOSE 80
 
-# copy rest
+# run Nginx to server React app
 
-COPY . .
+USER nginx
 
-# export port
-
-EXPOSE 3000
-
-# run command
-
-CMD ["npm", "start"]
+CMD ["nginx", "-g", "daemon off;"]

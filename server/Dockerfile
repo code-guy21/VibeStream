@@ -1,25 +1,28 @@
-# runtime
+#image
 
 FROM node:18.16-alpine
 
-# set working directory
+# working directory
 
 WORKDIR /app
 
-# copy package.json file and install dependencies
+# copy package.json and install dependencies
 
 COPY package.json package-lock.json ./
-
-RUN npm install
+RUN npm install --production
 
 # copy rest
 
 COPY . .
 
-# expose port
+# set enviroment to production
+
+ENV NODE_ENV=production
+
+# expose port 3001
 
 EXPOSE 3001
 
-# start server
+# run server in production mode
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
