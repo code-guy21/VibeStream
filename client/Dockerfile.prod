@@ -1,35 +1,10 @@
-#image
-
-FROM node:18.16-alpine AS builder
-
-# working directory
-
-WORKDIR /app
-
-# copy package.json and install dependencies
-
-COPY package.json package-lock.json ./
-RUN npm install
-
-# copy rest
-COPY . .
-
-# Update browserslist
-RUN npx update-browserslist-db@latest
-
-# Increase Node.js memory limit
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-
-# build react app
-RUN npm run build
-
 # serve with Nginx
 
 FROM nginx:alpine
 
-# copy production build output from builder stage
+# Copy the pre-built React app from the local machine to the Nginx web root
 
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY ./build /usr/share/nginx/html
 
 # expose port 80 for HTTP
 
