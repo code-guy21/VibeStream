@@ -37,8 +37,8 @@ const userSlice = createSlice({
 	extraReducers: builder => {
 		builder.addCase(fetchAuthStatus.fulfilled, (state, action) => {
 			state.loading = false;
-			state.loggedIn = action.payload.loggedIn;
-			state.user = action.payload.user;
+			state.loggedIn = action.payload?.loggedIn || false;
+			state.user = action.payload?.user || null;
 		});
 	},
 });

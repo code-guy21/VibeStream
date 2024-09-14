@@ -5,7 +5,7 @@
 	"main": "app.js",
 	"scripts": {
 		"start": "node app.js",
-		"dev": "nodemon server",
+		"dev": "nodemon app.js",
 		"test": "jest --verbose",
 		"test:auth": "NODE_ENV=test jest ./tests/integration/auth --verbose",
 		"test:models": "jest ./tests/models --verbose",

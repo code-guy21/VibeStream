@@ -73,6 +73,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Initialize API routes
+
+app.get('/health', (req, res) => {
+	res.status(200).json({ status: 'OK' });
+});
+
 app.use(routes);
 
 // Database connection and server startup

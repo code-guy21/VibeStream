@@ -1,0 +1,55 @@
+# Docker version
+
+version: '3.8'
+
+services:
+  # React app
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - vibestream-net
+
+  # Express server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    env_file:
+      - ./server/.env
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/vibestreamDB
+    depends_on:
+      - mongo
+    networks:
+      - vibestream-net
+
+  # MongoDB
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27018:27017'
+    volumes:
+      - mongo-db-data:/data/db
+    networks:
+      - vibestream-net
+
+volumes:
+  mongo-db-data:
+
+networks:
+  vibestream-net:
+    driver: bridge

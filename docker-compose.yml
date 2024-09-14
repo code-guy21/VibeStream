@@ -1,29 +1,47 @@
-version: '3'
 services:
-  server:
-    build: .
+  # React App
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
     ports:
-      - '3001:3001'
+      - '80:80'
+      - '443:443'
     depends_on:
-      - mongodb
-    environment:
-      NODE_ENV: production
-    env_file:
-      - ./.env # Load environment variables from .env
+      - server
     networks:
-      - vibestream-network
+      - vibestream-net
 
-  mongodb:
-    image: mongo
+  # Express Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
     ports:
-      - '27017:27017'
-    volumes:
-      - mongodb_data:/data/db
+      - '3001'
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_CALLBACK_URL=${SPOTIFY_CALLBACK_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_CALLBACK=${SENDGRID_CALLBACK}
+      - CLIENT_URL=${CLIENT_URL}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - REACT_APP_CLIENT_URL=${REACT_APP_CLIENT_URL}
+      - SPOTIFY_BASE_URL=${SPOTIFY_BASE_URL}
     networks:
-      - vibestream-network
-
-volumes:
-  mongodb_data:
+      - vibestream-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
-  vibestream-network:
+  vibestream-net:
+    driver: bridge
