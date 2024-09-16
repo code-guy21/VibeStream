@@ -22,6 +22,7 @@
 	},
 	"homepage": "https://github.com/code-guy21/VibeStream#readme",
 	"dependencies": {
+		"aws-sdk": "^2.1691.0",
 		"axios": "^1.6.8",
 		"bad-words": "^3.0.4",
 		"bcrypt": "^5.1.1",

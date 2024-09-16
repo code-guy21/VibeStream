@@ -1,20 +1,29 @@
-# serve with Nginx
+# build stage
+FROM node:14-alpine AS build
 
-FROM nginx:alpine
+WORKDIR /usr/src/app
 
-# Copy the pre-built React app from the local machine to the Nginx web root
+COPY package*.json ./
 
-COPY ./build /usr/share/nginx/html
+RUN npm install
 
-# Copy custom NGINX configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY . .
 
-# expose port 80 for HTTP
+RUN npm run build
+
+# production stage
+FROM nginx:stable-alpine
+
+# Install envsubst for environment variable substitution
+RUN apk add --no-cache gettext
+
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
+
+# Copy the template Nginx configuration
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 
-# run Nginx to server React app
+# Replace environment variables and start Nginx
 
-USER nginx
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "-c", "envsubst '${SERVER_NAME} ${BACKEND_HOST} ${BACKEND_PORT}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

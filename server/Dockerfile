@@ -1,28 +1,27 @@
 #image
 
-FROM node:18.16-alpine
+FROM node:14-alpine
 
 # working directory
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# copy package.json and install dependencies
+# copy package.json and package-lock.json
 
-COPY package.json package-lock.json ./
-RUN npm install --production
+COPY package*.json ./
 
-# copy rest
+# install server dependencies
+
+RUN npm install
+
+# copy rest of server code
 
 COPY . .
 
-# set enviroment to production
-
-ENV NODE_ENV=production
-
-# expose port 3001
+# expose port
 
 EXPOSE 3001
 
-# run server in production mode
+# start server
 
 CMD ["npm", "start"]

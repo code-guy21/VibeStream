@@ -1,0 +1,54 @@
+{
+	"AWSEBDockerrunVersion": 2,
+	"containerDefinitions": [
+		{
+			"name": "vibestream-client",
+			"image": "docker.io/alexissj94/vibestream-client:latest",
+			"essential": true,
+			"memory": 256,
+			"portMappings": [
+				{
+					"hostPort": 80,
+					"containerPort": 80
+				}
+			],
+			"links": ["vibestream-server"],
+			"environment": [
+				{
+					"name": "SERVER_NAME",
+					"value": "_"
+				},
+				{
+					"name": "BACKEND_HOST",
+					"value": "vibestream-server"
+				},
+				{
+					"name": "BACKEND_PORT",
+					"value": "3001"
+				}
+			]
+		},
+		{
+			"name": "vibestream-server",
+			"image": "docker.io/alexissj94/vibestream-server:latest",
+			"essential": true,
+			"memory": 256,
+			"portMappings": [
+				{
+					"hostPort": 3001,
+					"containerPort": 3001
+				}
+			],
+			"environment": [
+				{
+					"name": "NODE_ENV",
+					"value": "production"
+				},
+				{
+					"name": "PORT",
+					"value": "3001"
+				}
+			]
+		}
+	]
+}
